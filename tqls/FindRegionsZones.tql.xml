@@ -1,0 +1,17 @@
+<Query>
+  <Find format="Version,Known">
+    <Region>
+      <RegionID ne="" />
+    </Region>
+  </Find>
+  <Find format="Version,Known">
+    <Zone>
+      <ZoneID ne="" />
+    </Zone>
+  </Find>
+  <Find format="Version,Known">
+    <ZoneInfo>
+      <ID ne="" />
+    </ZoneInfo>
+  </Find>
+</Query>

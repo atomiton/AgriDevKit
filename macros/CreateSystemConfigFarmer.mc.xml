@@ -1,0 +1,35 @@
+<Macro Name="CreateSystemConfigFarmer">
+	<Argument>
+		<CLOUD_URL />
+		<ZONE_URL />
+	</Argument>
+	<Result>
+		<Log Message="Saving System Config Info..." />
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Create>
+						<SystemConfig>
+							<Key>CLD_SYNC_TIME_FARMER</Key>
+							<Value>3sec</Value>
+						</SystemConfig>
+					</Create> 
+
+					<Create>
+						<SystemConfig>
+							<Key>CLD_URL</Key>
+							<Value>[:$Macro.Argument.CLOUD_URL:]</Value>
+						</SystemConfig>
+					</Create>
+					
+					<Create>
+						<SystemConfig>
+							<Key>ZONE_URL</Key>
+							<Value>[:$Macro.Argument.ZONE_URL:]</Value>
+						</SystemConfig>
+					</Create>
+				</Query>
+			</QueryString>
+		</executeQuery>
+	</Result>
+</Macro>

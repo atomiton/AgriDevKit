@@ -1,0 +1,14 @@
+<Query>
+  <deleteAll>
+    <LoraHttpHandler>
+      <ID ne="" />
+    </LoraHttpHandler>
+  </deleteAll>
+  <Create>
+    <LoraHttpHandler>
+      <startSensorsSubscription>
+        start
+      </startSensorsSubscription>
+    </LoraHttpHandler>
+  </Create>
+</Query>

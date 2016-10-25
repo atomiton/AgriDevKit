@@ -1,0 +1,70 @@
+<Macro Name="PurgeSensorHistory">
+	<Argument/>
+	<Result>
+		<Log message=".........................PurgeSensorHistory....................." />
+		<DeleteScheduleJob>
+			<JobName>PurgeSensorHistory</JobName>
+		</DeleteScheduleJob>
+		<ScheduleJob>
+			<Name>PurgeSensorHistory</Name>
+			<!-- <ScheduleInterval>[00/1hour:00/1minute:00/1second]/1day</ScheduleInterval>
+			<ScheduleInterval>[00.00.00sec..00.00.00sec/1day]</ScheduleInterval> -->
+			<ScheduleInterval>[00.00min../1day]</ScheduleInterval>
+			<ActionCode>
+				<executeQuery>
+					<QueryString>
+						<Query>
+							<Find>
+								<SystemConfig>
+									<Key eq="TIME_INV_SENSOR_HIS" />
+								</SystemConfig>
+							</Find>
+						</Query>
+					</QueryString>
+				</executeQuery>
+				<SetLocalData Key="TIME_INV_SENSOR_HIS" Value="[:$Response.Message.Value.Find.Result.SystemConfig.Value:]"/>
+				<JavaScript>
+					var days = parseInt("[:$LocalData.TIME_INV_SENSOR_HIS:]");
+
+					function formattedDate(dateIn) {
+						<!-- sffLog.info("Parsing data: " + dateIn); -->
+						var date = parseInt(dateIn);
+						var dLocal = new Date(date);
+						var dateUTC = date + dLocal.getTimezoneOffset()*60000;
+						var d = new Date(dateUTC);
+						dformat = [d.getFullYear().toString().substr(0,4),
+							(d.getMonth()+1).padLeft(),
+							d.getDate().padLeft()].join('-');
+						dformat = dformat+"T";
+						dformat = dformat + [d.getHours().padLeft(),
+							d.getMinutes().padLeft(),
+							d.getSeconds().padLeft()].join(':');
+						dformat = dformat+"Z";
+							<!-- sffLog.info("dformat: " + dformat); -->
+						return dformat;
+					}
+					Number.prototype.padLeft = function(base,chr){
+						var  len = (String(base || 10).length - String(this).length)+1;
+						return len > 0? new Array(len).join(chr || '0')+this : this;
+					}
+
+					sffContext.setLocalData("CurrentTime", formattedDate(new Date().getTime()));
+					sffContext.setLocalData("ScheduleDate", formattedDate(new Date().getTime()-(86400000*days)));
+				</JavaScript>
+				<Log Message="CurrentDate in PurgeSensorHistory======== [:$LocalData.CurrentTime:]"/>
+				<Log Message="ScheduleDate in PurgeSensorHistory======== [:$LocalData.ScheduleDate:]"/>
+				<executeQuery>
+					<QueryString>
+						<Query>
+							<DeleteAll>
+								<SensorHistoryModel>
+									<RecordDate lt="[:$LocalData.ScheduleDate:]"/>
+								</SensorHistoryModel>
+							</DeleteAll>
+						</Query>
+					</QueryString>
+				</executeQuery>
+			</ActionCode>
+		</ScheduleJob>
+	</Result>
+</Macro>

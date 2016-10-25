@@ -1,0 +1,30 @@
+<Macro name="CalculateAvgValue">
+	<Argument>
+		<Number name="NewValue"/>
+		<Number name="AvgValue"/>
+		<Integer name="Count"/>
+	</Argument>
+	<Result>
+		<JavaScript>
+			var newVal = parseFloat("[:$Macro.Argument.NewValue:]");
+			var prevVal = parseFloat("[:$Macro.Argument.AvgValue:]");
+			var count = parseFloat("[:$Macro.Argument.Count:]");
+			if(count &lt;= 1){
+				prevVal = newVal;
+			}
+			else {
+				prevVal = (prevVal*(count-1)+newVal)/count;
+			}
+			sffContext.setProcessData("AvgValue",prevVal);
+			sffContext.setProcessData("Count",count+1);
+		</JavaScript>
+		<SetResponseData>
+			<Key>Message.Value.Result.AvgValue</Key>
+			<Value>[:$ProcessData.AvgValue:]</Value>
+		</SetResponseData>
+		<SetResponseData>
+			<Key>Message.Value.Result.Count</Key>
+			<Value>[:$ProcessData.Count:]</Value>
+		</SetResponseData>
+	</Result>
+</Macro>

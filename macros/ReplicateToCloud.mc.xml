@@ -1,0 +1,44 @@
+<Macro Name="ReplicateToCloud">
+	<Argument />
+	<Result>
+		<Log Message="...............ReplicateToCloud............." />
+		<DeleteScheduleJob>
+			<JobName>ReplicateToCloud</JobName>
+		</DeleteScheduleJob>
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Find>
+						<SystemConfig>
+							<Key eq="CLD_SYNC_TIME_ZONE" />
+						</SystemConfig>
+					</Find>
+				</Query>
+			</QueryString>
+		</executeQuery>
+		<SetLocalData Key="CLD_SYNC_TIME_ZONE" Value="[:$Response.Message.Value.Find.Result.SystemConfig.Value:]"/>
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Find>
+						<SystemConfig>
+							<Key eq="CLD_URL" />
+						</SystemConfig>
+					</Find>
+				</Query>
+			</QueryString>
+		</executeQuery>
+		<GetCloudURL />
+		<SetLocalData Key="CLD_URL" Value="[:$Response.Message.Value.Result.URL:]"/>
+		<ScheduleJob>
+			<Name>ReplicateToCloud</Name>
+			<ScheduleInterval>[:$LocalData.CLD_SYNC_TIME_ZONE:]</ScheduleInterval>
+			<ActionCode>
+				<!-- <DelResponseData key="Message.Value.Find" /> -->
+				<SyncAction>
+					<CLD_URL>[:$LocalData.CLD_URL:]</CLD_URL>
+				</SyncAction>
+			</ActionCode>
+		</ScheduleJob>
+	</Result>
+</Macro>

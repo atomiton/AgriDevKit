@@ -1,0 +1,54 @@
+<Macro Name="updateFarmerModel">
+	<Argument>
+		<String name="GPSID"/>
+		<Number name="Velocity"/>
+		<Number name="Head"/>
+		<String name="ZoneName"/>
+		<Double name="Lat" />
+		<Double name="Lon" />
+	</Argument>
+	<Result>
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Log message="Updating Farmer ZONE value Manually" />
+					<Log message="GPSID : [:$Macro.Argument.GPSID:]"/>
+					<Log message="Velocity :[:$Macro.Argument.Velocity:]"/>
+					<Log message="Head : [:$Macro.Argument.Head:]"/>
+					<Log message="Zone name: [:$Macro.Argument.ZoneName:]"/>
+					<Find format="current,version">
+						<FarmerModel>
+							<GPSID eq ="[:$Macro.Argument.GPSID:]"/>
+						</FarmerModel>
+					</Find>
+					<SetResponseData>
+						<key>Message.Value.Find.Result.FarmerModel.CurrentZone.Value</key>
+						<value>[:$Macro.Argument.ZoneName:]</value>
+					</SetResponseData>
+					
+					<SetResponseData>
+						<key>Message.Value.Find.Result.FarmerModel.Speed.Value</key>
+						<value>[:$Macro.Argument.Velocity:]</value>
+					</SetResponseData>
+					
+					<SetResponseData>
+						<key>Message.Value.Find.Result.FarmerModel.Direction.Value</key>
+						<value>[:$Macro.Argument.Head:]</value>
+					</SetResponseData>
+					<SetResponseData>
+						<key>Message.Value.Find.Result.FarmerModel.latitude.Value</key>
+						<value>[:$Macro.Argument.Lat:]</value>
+					</SetResponseData>
+					<SetResponseData>
+						<key>Message.Value.Find.Result.FarmerModel.longitude.Value</key>
+						<value>[:$Macro.Argument.Lon:]</value>
+					</SetResponseData>
+					<Update>
+						<from>Result</from>
+						<Include>$Response.Message.Value.Find</Include>
+					</Update>
+				</Query>
+			</QueryString>
+		</executeQuery>
+	</Result>
+</Macro>

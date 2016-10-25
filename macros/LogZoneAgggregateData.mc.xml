@@ -1,0 +1,69 @@
+<Macro name="LogZoneAggregateData">
+	<Argument />
+	<Result>
+		<JavaScript>
+			function formattedDate(dateIn) {
+				<!-- sffLog.info("Parsing data: " + dateIn); -->
+				var date = parseInt(dateIn);
+				var dLocal = new Date(date);
+				var dateUTC = date + dLocal.getTimezoneOffset()*60000;
+				var d = new Date(dateUTC);
+				dformat = [d.getFullYear().toString().substr(0,4),
+					(d.getMonth()+1).padLeft(),
+					d.getDate().padLeft()].join('-');
+				dformat = dformat+"T";
+				dformat = dformat + [d.getHours().padLeft(),
+					d.getMinutes().padLeft(),
+					d.getSeconds().padLeft()].join(':');
+				dformat = dformat+"Z";
+					<!-- sffLog.info("dformat: " + dformat); -->
+				return dformat;
+			}
+			Number.prototype.padLeft = function(base,chr){
+				var  len = (String(base || 10).length - String(this).length)+1;
+				return len > 0? new Array(len).join(chr || '0')+this : this;
+			}
+
+			sffContext.setLocalData("CurrentTime", formattedDate(new Date().getTime()));
+		</JavaScript> 
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Find format="current,version">
+						<ZoneAggregate>
+							<ID ne=""/>
+						</ZoneAggregate>
+					</Find>
+				</Query>
+			</QueryString>
+		</executeQuery>
+		<For each="zones" in="Find.Result.ZoneAggregate" using="$ProcessData" >
+			<executeQuery>
+				<QueryString>
+					<Query>
+						<Create>
+							<ZoneAggHistoryModel>
+								<ZoneName>[:$ProcessData.zones.ZoneName.Value:]</ZoneName>
+								<PesticideInfo>
+									<AreaSprayed>[:$ProcessData.zones.AreaSprayed.Value:]</AreaSprayed>
+									<AreaSprayedCummulative>[:$ProcessData.zones.AreaSprayedCummulative.Value:]</AreaSprayedCummulative>
+									<QuantitySprayed>[:$ProcessData.zones.QuantitySprayed.Value:]</QuantitySprayed>
+									<QuantitySprayedCummulative>[:$ProcessData.zones.QuantitySprayedCummulative.Value:]</QuantitySprayedCummulative>
+									<OptimumValue>[:$ProcessData.zones.OptimumValue.Value:]</OptimumValue>
+								</PesticideInfo>
+								<Fertilizer>
+									<AreaSprayed>[:$ProcessData.zones.AreaSprayed.Value:]</AreaSprayed>
+									<AreaSprayedCummulative>[:$ProcessData.zones.AreaSprayedCummulative.Value:]</AreaSprayedCummulative>
+									<QuantitySprayed>[:$ProcessData.zones.QuantitySprayed.Value:]</QuantitySprayed>
+									<QuantitySprayedCummulative>[:$ProcessData.zones.QuantitySprayedCummulative.Value:]</QuantitySprayedCummulative>
+									<OptimumValue>[:$ProcessData.zones.OptimumValue.Value:]</OptimumValue>
+								</Fertilizer>
+								<RecordDate>[:$LocalData.CurrentTime:]</RecordDate>
+							</ZoneAggHistoryModel>
+						</Create>
+					</Query>
+				</QueryString>
+			</executeQuery>
+		</For>
+	</Result>
+</Macro>

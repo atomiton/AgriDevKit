@@ -1,0 +1,33 @@
+<DeleteAll>
+  <PerifHandler>
+    <ID ne="" />
+  </PerifHandler>
+</DeleteAll>
+<Create>
+  <PerifHandler>
+    <peripheral>
+      serial
+    </peripheral>
+    <interfacePort>
+      /dev/ttyUSB0
+    </interfacePort>
+    <interface>
+      serial
+    </interface>
+    <uniqueId>
+      76522
+    </uniqueId>
+    <baudrate>
+      115200
+    </baudrate>
+    <format>
+      ascii
+    </format>
+    <operation>
+      receive
+    </operation>
+    <payload>
+      $Null()
+    </payload>
+  </PerifHandler>
+</Create>

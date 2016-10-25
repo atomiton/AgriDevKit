@@ -1,0 +1,28 @@
+<Macro name="UpdateZoneConfig">
+	<Argument>
+		<String name="ZoneName" />
+		<Double name="ULLat" />
+		<Double name="ULLon" />
+		<Double name="LRLat" />
+		<Double name="LRLon" />
+	</Argument>
+	<Result>
+		<executeQuery>
+			<QueryString>
+				<Find format="current,version">
+					<Zone>
+						<Name eq="[:$Macro.Argument.ZoneName:]" />
+					</Zone>
+				</Find>
+				<SetResponseData key="Message.Value.Find.Result.Zone.Area.UpperLeft.latitude.Value" value="[:$Macro.Argument.ULLat:]"/>
+				<SetResponseData key="Message.Value.Find.Result.Zone.Area.UpperLeft.longitude.Value" value="[:$Macro.Argument.ULLon:]"/>
+				<SetResponseData key="Message.Value.Find.Result.Zone.Area.LowerRight.latitude.Value" value="[:$Macro.Argument.LRLat:]"/>
+				<SetResponseData key="Message.Value.Find.Result.Zone.Area.LowerRight.longitude.Value" value="[:$Macro.Argument.LRLon:]"/>
+				<Update>
+					<from>Result</from>
+					<Include>$Response.Message.Value.Find</Include>
+				</Update>
+			</QueryString>
+		</executeQuery>
+	</Result>
+</Macro>

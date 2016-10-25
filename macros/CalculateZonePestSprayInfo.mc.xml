@@ -1,0 +1,61 @@
+<Macro name="CalculateZonePestSprayInfo">
+	<Argument>
+		<FarmerID />
+		<OldZone />
+		<Integer name="TimeStamp" />
+	</Argument>
+	<Result>
+		<Log message="Staring CalculateZonePestSprayInfo Farmer: [:$Macro.Argument.FarmerID:]" />
+		<Log message="Staring CalculateZonePestSprayInfo Farmer: [:$Macro.Argument.OldZone:]" />
+		<Log message="Staring CalculateZonePestSprayInfo Farmer: [:$Macro.Argument.TimeStamp:]" />
+		
+		<executeQuery>
+			<QueryString>
+				<Find format="current,version">
+					<FarmerModel>
+						<ID eq="[:$Macro.Argument.FarmerID:]" />
+					</FarmerModel>
+				</Find>
+				<JavaScript>
+					sffContext.setProcessData("oldTime","[:$Response.Message.Value.Find.Result.FarmerModel.LastZoneChangeTS.Value:]");
+				</JavaScript>
+				<SetResponseData key="Message.Value.FarmerModel.LastZoneChangeTS.Value" value="[:$Macro.Argument.TimeStamp:]" />
+				<Update>
+					<from>Result</from>
+					<Include>$Response.Message.Value.Find</Include>
+				</Update>
+				
+				<Find>
+					<PesticideActuatorModel>
+						<PestActID eq="[:$Response.Message.Value.Find.Result.FarmerModel.PestActID.Value:]" />
+					</PesticideActuatorModel>
+				</Find>
+			</QueryString>
+		</executeQuery>
+		<Log message="Flow rate==========[:$Response.Message.Value.Find.Result.PesticideActuatorModel.FlowRate:]"/>
+		<JavaScript>
+			var oldTime = parseFloat("[:$ProcessData.oldTime:]");
+			var newTime = parseFloat("[:$Macro.Argument.TimeStamp:]");
+			var totalTimeInZone = newTime - oldTime;
+			var flowRate = parseFloat("[:$Response.Message.Value.Find.Result.PesticideActuatorModel.FlowRate:]");
+			sffLog.info("oldTime Pest:========== " + oldTime);
+			sffLog.info("newTime Pest:========== " + newTime);
+			sffLog.info("totalTimeInZone Pest:========= " + totalTimeInZone);
+			sffLog.info("totalTimeInZone Pest:======= " + (totalTimeInZone/1000));
+			var qtySprayed = (totalTimeInZone/1000)*flowRate;
+			sffLog.info("Qty Sprayed Pest:========= " + qtySprayed);
+			sffContext.setLocalData("Qty",qtySprayed);
+		</JavaScript>
+		<Log message="Old zone name===============[:$Macro.Argument.OldZone:]"/>
+		<executeQueryOnZone>
+			<QueryString>
+				<Query>
+					<UpdateZonePestQuantity>
+						<ZoneName>[:$Macro.Argument.OldZone:]</ZoneName>
+						<Qty>[:$LocalData.Qty:]</Qty>
+					</UpdateZonePestQuantity>
+				</Query>
+			</QueryString>
+		</executeQueryOnZone>
+	</Result>
+</Macro>

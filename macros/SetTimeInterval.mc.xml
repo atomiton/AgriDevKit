@@ -1,0 +1,29 @@
+<Macro Name="SetTimeInterval">
+	<Argument>
+		<String name="TimeInterval"/>
+	</Argument>
+	<Result>
+		<ScheduleJob>
+			<Name>SetTimeInterval</Name>
+			<ScheduleInterval>[:$Macro.Argument.TimeInterval:]</ScheduleInterval>
+			<ActionCode>
+				<executeQuery>
+					<QueryString>
+						<Query>
+							<Find format="current,version">
+								<ZoneAggregate>
+									<ID ne=""/>
+								</ZoneAggregate>
+							</Find>
+						</Query>
+					</QueryString>
+				</executeQuery>
+				<For each="zones" in="Find.Result.ZoneAggregate" using="$ProcessData" >
+					<ResetAreaQtySprayedCummulative>
+						<ZoneName>[:$ProcessData.zones.ZoneName.Value:]</ZoneName>
+					</ResetAreaQtySprayedCummulative>
+				</For>
+			</ActionCode>
+		</ScheduleJob>
+	</Result>
+</Macro>

@@ -1,0 +1,74 @@
+<Macro name="CheckMcuStatus">
+	<Argument/>
+	<Result>
+		<DeleteScheduleJob>
+			<JobName>CheckMcuStatus</JobName>
+		</DeleteScheduleJob>
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Find>
+						<SystemConfig>
+							<Key eq="MCU_STATUS" />
+						</SystemConfig>
+					</Find>
+				</Query>
+			</QueryString>
+		</executeQuery>
+		<SetLocalData Key="MCU_STATUS" Value="[:$Response.Message.Value.Find.Result.SystemConfig.Value:]"/>
+		<JavaScript>
+			function formattedDate(dateIn) {
+				<!-- sffLog.info("Parsing data: " + dateIn); -->
+				var date = parseInt(dateIn);
+				var dLocal = new Date(date);
+				var dateUTC = date + dLocal.getTimezoneOffset()*60000;
+				var d = new Date(dateUTC);
+				dformat = [d.getFullYear().toString().substr(0,4),
+					(d.getMonth()+1).padLeft(),
+					d.getDate().padLeft()].join('-');
+				dformat = dformat+"T";
+				dformat = dformat + [d.getHours().padLeft(),
+					d.getMinutes().padLeft(),
+					d.getSeconds().padLeft()].join(':');
+				dformat = dformat+"Z";
+					<!-- sffLog.info("dformat: " + dformat); -->
+				return dformat;
+			}
+			Number.prototype.padLeft = function(base,chr){
+				var  len = (String(base || 10).length - String(this).length)+1;
+				return len > 0? new Array(len).join(chr || '0')+this : this;
+			}
+
+			sffContext.setLocalData("CurrentTime", formattedDate(new Date().getTime()));
+			sffLog.info("Current time in CheckMcuStatus========= [:$LocalData.CurrentTime:]");
+		</JavaScript> 
+		<Log Message="CurrentTime ==================[:$LocalData.CurrentTime:]"/>
+		<ScheduleJob>
+			<Name>CheckMcuStatus</Name>
+			<ScheduleInterval>[:$LocalData.MCU_STATUS:]</ScheduleInterval>
+			<ActionCode>
+				<executeQuery>
+					<QueryString>
+						<Query>
+							<Find format="current,version">
+								<MCUModel>
+									<NextUpdate lt="[:$LocalData.CurrentTime:]"/>
+								</MCUModel>
+							</Find>
+							<if condition="/[:$Response.Message.Value.Find/count(Result):] ne 0">
+								<SetResponseData>
+									<Key>Message.Value.Find.Result.MCUModel.Status.Value</Key>
+									<Value>Inactive</Value>
+								</SetResponseData>
+								<Update>
+									<from>Result</from>
+									<Include>$Response.Message.Value.Find</Include>
+								</Update>
+							</if>
+						</Query>
+					</QueryString>
+				</executeQuery>
+			</ActionCode>
+		</ScheduleJob>
+	</Result>
+</Macro>

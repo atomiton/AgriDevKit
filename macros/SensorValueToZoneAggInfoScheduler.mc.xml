@@ -1,0 +1,29 @@
+<Macro Name="SensorValueToZoneAggInfoScheduler">
+	<Argument />
+	<Result>
+		<Log Message="...............SensorValueToZoneAggInfo............." />
+		<DeleteScheduleJob>
+			<JobName>SensorValueToZoneAggInfoJob</JobName>
+		</DeleteScheduleJob>
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Find>
+						<SystemConfig>
+							<Key eq="GW_AVG_CALC_TIME" />
+						</SystemConfig>
+					</Find>
+				</Query>
+			</QueryString>
+		</executeQuery>
+		<SetLocalData Key="GW_AVG_CALC_TIME" Value="[:$Response.Message.Value.Find.Result.SystemConfig.Value:]"/>
+		<Log message="TEST1:: [:$Response.Message.Value:]" />
+		<ScheduleJob>
+			<Name>SensorValueToZoneAggInfoJob</Name>
+			<ScheduleInterval>[:$LocalData.GW_AVG_CALC_TIME:]</ScheduleInterval>
+			<ActionCode>
+				<SensorValueToZoneAggInfo />
+			</ActionCode>
+		</ScheduleJob>
+	</Result>
+</Macro>

@@ -1,0 +1,60 @@
+<Macro Name="UpdateRegionInfo">
+	<Argument>
+		<String name="Name"/>
+		<Double name="ULlatitude"/>
+		<Double name="ULlongitude"/>
+		<Double name="LRlongitude"/>
+		<Double name="LRlongitude"/>
+		<String name="Manager"/>
+		<String name="Owner"/>
+		<String name="Description"/>
+	</Argument>
+	<Result>
+		<!-- <Log Message="Updating region Info..." /> -->
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Find format="current, version">
+						<Region>
+							<Name eq="[:$Macro.Argument.Name:]" />
+						</Region>
+					</Find>
+					
+					<SetResponseData>
+						<key>Message.Value.Find.Result.Region.Area.UpperLeft.latitude.Value</key>
+						<value>[:$Macro.Argument.ULlatitude:]</value>
+					</SetResponseData>
+					
+					<SetResponseData>
+						<key>Message.Value.Find.Result.Region.Area.UpperLeft.longitude.Value</key>
+						<value>[:$Macro.Argument.ULlongitude:]</value>
+					</SetResponseData>
+					
+					<SetResponseData>
+						<key>Message.Value.Find.Result.Region.Area.LowerRight.latitude.Value</key>
+						<value>[:$Macro.Argument.ULlatitude:]</value>
+					</SetResponseData>
+					
+					<SetResponseData>
+						<key>Message.Value.Find.Result.Region.Manager.Name.Value</key>
+						<value>[:$Macro.Argument.Manager:]</value>
+					</SetResponseData>
+					
+					<SetResponseData>
+						<key>Message.Value.Find.Result.Region.Owner.Name.Value</key>
+						<value>[:$Macro.Argument.Owner:]</value>
+					</SetResponseData>
+					
+					<SetResponseData>
+						<key>Message.Value.Find.Result.Region.Description.Value</key>
+						<value>[:$Macro.Argument.Description:]</value>
+					</SetResponseData>
+					<Update>
+						<from>Result</from>
+						<Include>$Response.Message.Value.Find</Include>
+					</Update>
+				</Query>
+			</QueryString>
+		</executeQuery>
+	</Result>
+</Macro>

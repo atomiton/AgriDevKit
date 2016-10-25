@@ -1,0 +1,51 @@
+<Macro Name="SyncPolygon">
+	<Argument>
+		<InputMessage/>
+	</Argument>
+	<Result>
+		<NewLocalData>
+	       <TempData><Include>$Macro.Argument.InputMessage</Include></TempData>
+	    </NewLocalData>
+		<Log message="In PolygonAction: [:$LocalData.TempData:]" />
+		<For each="grids" from="$LocalData.TempData" in="Find.Result.Polygon">
+        	<!-- <Log message="Grids: [:$LocalData.grids:]"/> -->
+        	<Log message="Polygon name::::::::: [:$LocalData.grids.ZoneName:]"/>
+        	<executeQuery>
+			    <QueryString>
+					<Query>
+						<Find format="version">
+							<Polygon>
+								<ZoneName eq="[:$LocalData.grids.ZoneName:]" />
+								<Order eq="[:$LocalData.grids.Order:]" />
+							</Polygon>
+						</Find>
+						
+						<if condition="/[:$Response.Message.Value.Find/count(Result):] eq 0">
+							<then>
+								<Create>
+									<Polygon>
+										<ZoneName>[:$LocalData.grids.ZoneName:]</ZoneName>
+										<Order>[:$LocalData.grids.Order:]</Order>
+										<GeoArea>
+											<latitude>[:$LocalData.grids.GeoArea.latitude:]</latitude>
+											<longitude>[:$LocalData.grids.GeoArea.longitude:]</longitude>
+										</GeoArea>
+										
+									</Polygon>
+								</Create>
+							</then>
+							<else>
+								<SetResponseData Key="Message.Value.Find.Result.Polygon.GeoArea.latitude.Value" Value="[:$LocalData.grids.GeoArea.latitude:]" />
+								<SetResponseData Key="Message.Value.Find.Result.Polygon.GeoArea.longitude.Value" Value="[:$LocalData.grids.GeoArea.longitude:]" />
+								<Update>
+									<from>Result</from>
+									<Include>$Response.Message.Value.Find</Include>
+								</Update>
+							</else>
+						</if>
+				    </Query>
+			    </QueryString>
+			</executeQuery>
+        </For>
+	</Result>
+</Macro>

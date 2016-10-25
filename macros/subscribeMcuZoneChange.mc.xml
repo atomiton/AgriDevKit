@@ -1,0 +1,81 @@
+<Macro name="subscribeMcuZoneChange">
+	<Argument />
+		
+	<Result>
+		<Log message="Subscribe to Sensor Updates" />
+		<SubscribeToTQL TopicName="TQL.Update.gateway.agriculture.MCUModel.ZoneName.*" TopicId="[:RuntimeParams.TopicFacetIDName:]McuModel">
+			<ActionName>
+				<Log message="Known==========: [:$Request.Message.Value.Publish.Known:]" />
+				<Log message="$SID==========: [:$Request.Message.Value.Publish.$sid:]" />
+				<executeQuery>
+					<QueryString>
+						<Query>
+							<find format="version">
+								<MCUModel>
+									<ID eq="[:$Request.Message.Value.Publish.$sid:]"/>
+								</MCUModel>
+							</find>
+						</Query>	
+					</QueryString>
+				</executeQuery>
+				
+				<!-- <Log message="Known: [:$Request.Message.Value.Publish.Known:]" />
+				<Log message="Value: [:$Response.Message.Value.Find.Result.MCUModel.ZoneName.Value:]" />
+				<if condition="/[:$Response.Message.Value.Find/count(Result):] eq 0" >
+					<then>
+						<updateMCUModel>
+							<ZoneName>[:$Request.Message.Value.Publish.Known:]</ZoneName>
+							<ID>[:$Request.Message.Value.Publish.$sid:]</ID>
+						</updateMCUModel>
+					</then>
+					<else> -->
+						<JavaScript>
+							var known = "[:$Request.Message.Value.Publish.Known:]";
+							var value = "[:$Response.Message.Value.Find.Result.MCUModel.ZoneName.Value:]";
+							var sid = "[:$Request.Message.Value.Publish.$sid:]";
+							
+							sffLog.info("Known Publish: " + known);
+							sffLog.info("Value Publish: " + value);
+							var setContextData = ListMap.static.newInstance();   
+							
+							sffLog.info("Condition1: " + known.indexOf("$Request.Message.Value.Publish.Known"));
+							sffLog.info("Condition2: " + known != value);
+							
+							if(known.indexOf("$Request.Message.Value.Publish.Known") == -1 &amp;&amp; known != value){
+								
+								var rc = setContextData.instanceAdd("updateMCUModel");
+								rc.put("ZoneName", known);
+								rc.put("ID", sid);
+								sffLog.info(setContextData);
+								
+							} else {
+								sffLog.info("NOT UPDATED");
+							}
+							setContextData;
+						</JavaScript>
+						<!-- <if condition="/'[:$Request.Message.Value.Publish.Known:]' ne /'[:$Response.Message.Value.Result.ZoneName:]'">
+							<then>
+								<if condition="/'[:$Request.Message.Value.Publish.Known:]' ne /'[:$Response.Message.Value.Find.Result.MCUModel.ZoneName.Value:]'">
+									<then>
+										<updateMCUModel>
+											<ZoneName>[:$Request.Message.Value.Publish.Known:]</ZoneName>
+											<ID>[:$Request.Message.Value.Publish.$sid:]</ID>
+										</updateMCUModel>
+									</then>
+									<else>
+										<updateMCUModel>
+											<ZoneName></ZoneName>
+											<ID>[:$Request.Message.Value.Publish.$sid:]</ID>
+										</updateMCUModel>
+									</else>
+								</if>
+							</then>
+						</if> -->
+						
+					<!-- </else>
+				</if> -->
+				
+			</ActionName>
+		</SubscribeToTQL>
+	</Result>
+</Macro>

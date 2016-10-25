@@ -1,0 +1,17 @@
+<Macro name="SubscribeToSensorOnCreate">
+	<Argument />
+		
+	<Result>
+		<Log message="Subscribe to Sensor on Create" />
+		<SubscribeToTQL TopicName="TQL.Create.gateway.agriculture.SensorModel.SensorValue.*" TopicId="[:RuntimeParams.TopicFacetIDName:]SensorModelCreate">
+			<ActionName>
+				<Log message="Known==========: [:$Request.Message.Value.Publish.Value:]" />
+				<Log message="$SID==========: [:$Request.Message.Value.Publish.$sid:]" />
+				<createSensorModelHistory>
+					<SensorID>[:$Request.Message.Value.Publish.$sid:]</SensorID>
+					<SensorValue>[:$Request.Message.Value.Publish.Value:]</SensorValue>
+				</createSensorModelHistory>
+			</ActionName>
+		</SubscribeToTQL>
+	</Result>
+</Macro>

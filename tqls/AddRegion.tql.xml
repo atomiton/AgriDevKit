@@ -1,0 +1,26 @@
+<AddRegion>
+  <Name>
+    Test-Region
+  </Name>
+  <Description>
+    Sample-Test-Region
+  </Description>
+  <UpperLeftLat>
+    5
+  </UpperLeftLat>
+  <UpperLeftLon>
+    5
+  </UpperLeftLon>
+  <LowerRightLat>
+    10
+  </LowerRightLat>
+  <LowerRightLon>
+    10
+  </LowerRightLon>
+  <ManagerName>
+    Manager
+  </ManagerName>
+  <OwnerName>
+    Owner
+  </OwnerName>
+</AddRegion>

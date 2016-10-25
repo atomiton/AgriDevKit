@@ -1,0 +1,68 @@
+<Macro name="ResetCloud">
+	<Argument/>
+	<Result>
+		<executeQuery>
+			<QueryString>
+
+				<deleteAll>
+					<ZoneAggregateInfo>
+						<ID ne=""/>
+					</ZoneAggregateInfo>
+				</deleteAll>
+
+				<deleteAll>
+					<ZoneAggregate>
+						<ID ne=""/>
+					</ZoneAggregate>
+				</deleteAll>
+
+				<deleteAll>
+					<ZoneAggHistoryModel>
+						<ID ne=""/>
+					</ZoneAggHistoryModel>
+				</deleteAll>
+
+				<deleteAll>
+					<ZoneAggInfoHistoryModel>
+						<ID ne=""/>
+					</ZoneAggInfoHistoryModel>
+				</deleteAll>
+				
+			</QueryString>
+		</executeQuery>
+		
+		
+		<Log message="**************** Initializing subscriptions ********************" />
+		
+		<SubscribeToSensorForRegionAggInfo/>
+		
+		<DeleteScheduleJob>
+			<JobName>CheckMcuStatus</JobName>
+		</DeleteScheduleJob>
+		<DeleteScheduleJob>
+			<JobName>ZoneAggInfoHistory</JobName>
+		</DeleteScheduleJob>
+		<DeleteScheduleJob>
+			<JobName>ZoneAggHistory</JobName>
+		</DeleteScheduleJob>
+		<DeleteScheduleJob>
+			<JobName>SetTimeInterval</JobName>
+		</DeleteScheduleJob>
+		<DeleteScheduleJob>
+			<JobName>SetTimeIntervalForZoneAgg</JobName>
+		</DeleteScheduleJob>
+		<DeleteScheduleJob>
+			<JobName>SetTimeIntervalForZoneAggInfo</JobName>
+		</DeleteScheduleJob>
+		
+		<!--<SetTimeIntervalForZoneAgg/>
+		<SetTimeIntervalForZoneAggInfo/> 
+		<ZoneAggInfoHistory />
+		<ZoneAggHistory />-->
+		
+		<!-- <PushToIntegra /> -->
+		
+		<Log message="**************** Loading Master data ************************" />
+		
+	</Result>
+</Macro>

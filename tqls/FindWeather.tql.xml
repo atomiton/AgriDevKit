@@ -1,0 +1,7 @@
+<Query >
+  <Find format="version,known" only="WeatherStationModel:UserName,WeatherStationModel:EnvData,WeatherStationModel:StationId">
+    <WeatherStationModel>
+      <EnvId ne=""/>
+    </WeatherStationModel>
+  </Find>
+</Query>

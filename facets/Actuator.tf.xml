@@ -1,0 +1,50 @@
+<ThingFacet name="Actuator">
+	<Double Name="Speed" KnownBy="StartSubscriptionAction"/>
+	<Double Name="FlowRate" KnownBy="StartSubscriptionAction"/>
+	<String Name="DevicePort" />
+    <Number Name="Frequency" />
+    <String Name="Operation" />
+	<String Name="Command"/>
+	<String Name="StartSubscription"  KnownBy="StartSubscriptionAction" />
+
+ <AA>[:#o#Output.Argument:]</AA>
+    <Action name="StartSubscriptionAction">
+        <Workflow Limit="1" Live="1" Timeout="-1">
+            <Task name="Main">
+                <Event name="Argument" as="ActionArgument" />
+				<!-- <Invoke name="InvokeZbee" waitFor="Argument"  
+					post="xbee://[%:Event.Argument.Command.Value:%]" DevicePort="[%:Event.Argument.DevicePort.Value:%]"
+                    Frequency="[%:Event.Argument.Frequency.Value:%]" Operation="[%:Event.Argument.Operation.Value:%]" 
+                    Command="[%:Event.Argument.Command.Value:%]" >
+                    <Message>
+                        <Value>
+                            <DevicePort>[%:Event.Argument.DevicePort.Value:%]</DevicePort>
+                            <Frequency>[%:Event.Argument.Frequency.Value:%]</Frequency> 
+                            <Operation>[%:Event.Argument.Operation.Value:%]</Operation> 
+                            <Command>[%:Event.Argument.Command.Value:%]</Command>
+                        </Value>
+                    </Message>
+                </Invoke> -->
+				<Invoke name="FetchZoneModel"  waitFor="Argument">
+                    <FacetScript>
+                       <Log message="Do Nothing" />
+                    </FacetScript>
+                </Invoke>
+				<Log message="DevicePort: [%:Event.Argument.DevicePort.Value:%]" />
+				<Log message="Frequency: [%:Event.Argument.Frequency.Value:%]" />
+				<Log message="Operation: [%:Event.Argument.Operation.Value:%]" />
+				<Log message="Command: [%:Event.Argument.Command.Value:%]" />
+				
+				<Log message="*********************** Updated Motor flow speed ***********************" />
+                <Output name="Result" as="ActionResult">
+                    <Value>
+                       <StartSubscription>[%:Event.Argument.StartSubscription.Value:%]
+						</StartSubscription>
+						<Speed>[%:Event.Argument.Speed.Value:%]</Speed> 
+						<FlowRate>[%:Event.Argument.FlowRate.Value:%]</FlowRate>
+                    </Value>
+                </Output>
+            </Task>
+        </Workflow>
+    </Action>
+</ThingFacet>

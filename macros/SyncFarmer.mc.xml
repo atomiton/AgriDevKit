@@ -1,0 +1,63 @@
+<Macro Name="SyncFarmer">
+	<Argument>
+		<InputMessage/>
+	</Argument>
+	<Result>
+		<NewLocalData>
+	       <TempData><Include>$Macro.Argument.InputMessage</Include></TempData>
+	    </NewLocalData>
+		<Log message="In SyncFarmer: [:$LocalData.TempData:]" />
+		<For each="farmer" from="$LocalData.TempData" in="Find.Result.FarmerModel">
+        	<!-- <Log message="farmer: [:$LocalData.farmer:]"/> -->
+        	<Log message="FarmerModel name::::::::: [:$LocalData.farmer.Name:]"/>
+        	<executeQuery>
+			    <QueryString>
+					<Query>
+						<Find format="version">
+							<FarmerModel>
+								<Name eq="[:$LocalData.farmer.Name:]" />
+							</FarmerModel>
+						</Find>
+						
+						<if condition="/[:$Response.Message.Value.Find/count(Result):] eq 0">
+							<then>
+								<Create>
+									<FarmerModel>
+										<GPSID>[:$LocalData.farmer.GPSID:]</GPSID>
+										<ActID>[:$LocalData.farmer.ActID:]</ActID>
+										<Name>[:$LocalData.farmer.Name:]</Name>
+										<PestActID>[:$LocalData.farmer.PestActID:]</PestActID>
+										<Info>[:$LocalData.farmer.Info:]</Info>
+										<CurrentZone>[:$LocalData.farmer.CurrentZone:]</CurrentZone>
+										<Speed>[:$LocalData.farmer.Speed:]</Speed>
+										<Direction>[:$LocalData.farmer.Direction:]</Direction>
+										<LastZoneChangeTS>[:$LocalData.farmer.LastZoneChangeTS:]</LastZoneChangeTS>
+										<latitude>[:$LocalData.farmer.latitude:]</latitude>
+										<longitude>[:$LocalData.farmer.longitude:]</longitude>
+									</FarmerModel>
+								</Create>
+							</then>
+							<else>
+								<SetResponseData Key="Message.Value.Find.Result.FarmerModel.GPSID.Value" Value="[:$LocalData.farmer.GPSID:]" />
+								<SetResponseData Key="Message.Value.Find.Result.FarmerModel.ActID.Value" Value="[:$LocalData.farmer.ActID:]" />
+								<SetResponseData Key="Message.Value.Find.Result.FarmerModel.PestActID.Value" Value="[:$LocalData.farmer.PestActID:]" />
+								<SetResponseData Key="Message.Value.Find.Result.FarmerModel.Info.Value" Value="[:$LocalData.farmer.Info:]" />
+								<SetResponseData Key="Message.Value.Find.Result.FarmerModel.CurrentZone.Value" Value="[:$LocalData.farmer.CurrentZone:]" />
+								<SetResponseData Key="Message.Value.Find.Result.FarmerModel.Speed.Value" Value="[:$LocalData.farmer.Speed:]" />
+								<SetResponseData Key="Message.Value.Find.Result.FarmerModel.Direction.Value" Value="[:$LocalData.farmer.Direction:]" />
+								<SetResponseData Key="Message.Value.Find.Result.FarmerModel.LastZoneChangeTS.Value" Value="[:$LocalData.farmer.LastZoneChangeTS:]" />
+								<SetResponseData Key="Message.Value.Find.Result.FarmerModel.latitude.Value" Value="[:$LocalData.farmer.latitude:]" />
+								<SetResponseData Key="Message.Value.Find.Result.FarmerModel.longitude.Value" Value="[:$LocalData.farmer.longitude:]" />
+								
+								<Update>
+									<from>Result</from>
+									<Include>$Response.Message.Value.Find</Include>
+								</Update>
+							</else>
+						</if>
+				    </Query>
+			    </QueryString>
+			</executeQuery>
+        </For>
+	</Result>
+</Macro>

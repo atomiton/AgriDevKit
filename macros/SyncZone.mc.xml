@@ -1,0 +1,54 @@
+<Macro Name="SyncZone">
+	<Argument>
+		<InputMessage/>
+	</Argument>
+	<Result>
+		<NewLocalData>
+	       <TempData><Include>$Macro.Argument.InputMessage</Include></TempData>
+	    </NewLocalData>
+		<Log message="In ZoneAction: [:$LocalData.TempData:]" />
+		<For each="grids" from="$LocalData.TempData" in="Find.Result.Zone">
+        	<!-- <Log message="Grids: [:$LocalData.grids:]"/> -->
+        	<Log message="Zone name::::::::: [:$LocalData.grids.Name:]"/>
+        	<executeQuery>
+			    <QueryString>
+					<Query>
+						<Find format="version">
+							<Zone>
+								<Name eq="[:$LocalData.grids.Name:]" />
+							</Zone>
+						</Find>
+						
+						<if condition="/[:$Response.Message.Value.Find/count(Result):] eq 0">
+							<then>
+								<Create>
+									<Zone>
+										<Name>[:$LocalData.grids.Name:]</Name>
+										<RegionID>[:$LocalData.grids.RegionID:]</RegionID>
+										<Height>[:$LocalData.grids.Height:]</Height>
+										<Width>[:$LocalData.grids.Width:]</Width>
+										<Size>[:$LocalData.grids.Size:]</Size>
+										<CropID>[:$LocalData.grids.CropID:]</CropID>
+										<Label>[:$LocalData.grids.Label:]</Label>
+									</Zone>
+								</Create>
+							</then>
+							<else>
+								<SetResponseData Key="Message.Value.Find.Result.Zone.RegionID.Value" Value="[:$LocalData.grids.RegionID:]" />
+								<SetResponseData Key="Message.Value.Find.Result.Zone.CropID.Value" Value="[:$LocalData.grids.CropID:]" />
+								<SetResponseData Key="Message.Value.Find.Result.Zone.Height.Value" Value="[:$LocalData.grids.Height:]" />
+								<SetResponseData Key="Message.Value.Find.Result.Zone.Width.Value" Value="[:$LocalData.grids.Width:]" />
+								<SetResponseData Key="Message.Value.Find.Result.Zone.Size.Value" Value="[:$LocalData.grids.Size:]" />
+								<SetResponseData Key="Message.Value.Find.Result.Zone.Label.Value" Value="[:$LocalData.grids.Label:]" />
+								<Update>
+									<from>Result</from>
+									<Include>$Response.Message.Value.Find</Include>
+								</Update>
+							</else>
+						</if>
+				    </Query>
+			    </QueryString>
+			</executeQuery>
+        </For>
+	</Result>
+</Macro>

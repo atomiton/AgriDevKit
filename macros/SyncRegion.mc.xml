@@ -1,0 +1,100 @@
+<Macro Name="SyncRegion">
+	<Argument>
+		<InputMessage/>
+	</Argument>
+	<Result>
+		<NewLocalData>
+	       <TempData><Include>$Macro.Argument.InputMessage</Include></TempData>
+	    </NewLocalData>
+		<Log message="In RegionAction: [:$LocalData.TempData:]" />
+		<For each="grids" from="$LocalData.TempData" in="Find.Result.Region">
+        	<!-- <Log message="Grids: [:$LocalData.grids:]"/> -->
+        	<Log message="Region name::::::::: [:$LocalData.grids.Name:]"/>
+        	<executeQuery>
+			    <QueryString>
+					<Query>
+						<Find format="version">
+							<Region>
+								<Name eq="[:$LocalData.grids.Name:]" />
+							</Region>
+						</Find>
+						
+						<if condition="/[:$Response.Message.Value.Find/count(Result):] eq 0">
+							<then>
+								<Create>
+									 <Region>
+										<Area>
+											<LowerRight>
+												<latitude>[:$LocalData.grids.Area.LowerRight.latitude:]</latitude>
+												<longitude>[:$LocalData.grids.Area.LowerRight.longitude:]</longitude>
+											</LowerRight>
+											<UpperLeft>
+												<longitude>[:$LocalData.grids.Area.UpperLeft.longitude:]</longitude>
+												<latitude>[:$LocalData.grids.Area.UpperLeft.latitude:]</latitude>
+											</UpperLeft>
+										</Area>
+										<RegionEnvData>
+											<wind_angle>[:$LocalData.grids.RegionEnvData.wind_angle:]</wind_angle>
+											<Pressure>[:$LocalData.grids.RegionEnvData.Pressure:]</Pressure>
+											<wind_speed>[:$LocalData.grids.RegionEnvData.wind_speed:]</wind_speed>
+											<sealevel_pressure>[:$LocalData.grids.RegionEnvData.sealevel_pressure:]</sealevel_pressure>
+											<uv>[:$LocalData.grids.RegionEnvData.uv:]</uv>
+											<Humidity>[:$LocalData.grids.RegionEnvData.Humidity:]</Humidity>
+											<local_time>[:$LocalData.grids.RegionEnvData.local_time:]</local_time>
+											<Light>[:$LocalData.grids.RegionEnvData.Light:]</Light>
+											<rainfall>[:$LocalData.grids.RegionEnvData.rainfall:]</rainfall>
+											<Temperature>[:$LocalData.grids.RegionEnvData.Temperature:]</Temperature>
+											<wind_direction>[:$LocalData.grids.RegionEnvData.wind_direction:]</wind_direction>
+										</RegionEnvData>
+										<Manager>
+											<Name>[:$LocalData.grids.Manager.Name:]</Name>
+										</Manager>
+										<MidPoint>
+											<latitude>[:$LocalData.grids.MidPoint.latitude:]</latitude>
+											<longitude>[:$LocalData.grids.MidPoint.longitude:]</longitude>
+										</MidPoint>
+										<Owner>
+											<Name>[:$LocalData.grids.Owner.Name:]</Name>
+										</Owner>
+										<Description>[:$LocalData.grids.Description:]</Description>
+										<Name>[:$LocalData.grids.Name:]</Name>
+									</Region>
+								</Create>
+							</then>
+							<else>
+								<SetResponseData Key="Message.Value.Find.Result.Region.Area.LowerRight.latitude.Value" Value="[:$LocalData.grids.Area.LowerRight.latitude:]" />
+								<SetResponseData Key="Message.Value.Find.Result.Region.Area.LowerRight.longitude.Value" Value="[:$LocalData.grids.Area.LowerRight.longitude:]" />
+								<SetResponseData Key="Message.Value.Find.Result.Region.Area.UpperLeft.longitude.Value" Value="[:$LocalData.grids.Area.UpperLeft.longitude:]" />
+								<SetResponseData Key="Message.Value.Find.Result.Region.Area.UpperLeft.latitude.Value" Value="[:$LocalData.grids.Area.UpperLeft.latitude:]" />
+								<SetResponseData Key="Message.Value.Find.Result.Region.RegionEnvData.wind_angle.Value" Value="[:$LocalData.grids.RegionEnvData.wind_angle:]" />
+								<SetResponseData Key="Message.Value.Find.Result.Region.RegionEnvData.Pressure.Value" Value="[:$LocalData.grids.RegionEnvData.Pressure:]" />
+								<SetResponseData Key="Message.Value.Find.Result.Region.RegionEnvData.wind_speed.Value" Value="[:$LocalData.grids.RegionEnvData.wind_speed:]" />
+								<SetResponseData Key="Message.Value.Find.Result.Region.RegionEnvData.sealevel_pressure.Value" Value="[:$LocalData.grids.RegionEnvData.sealevel_pressure:]" />
+								<SetResponseData Key="Message.Value.Find.Result.Region.RegionEnvData.uv.Value" Value="[:$LocalData.grids.RegionEnvData.uv:]" />
+								<SetResponseData Key="Message.Value.Find.Result.Region.RegionEnvData.Humidity.Value" Value="[:$LocalData.grids.RegionEnvData.Humidity:]" />
+								<SetResponseData Key="Message.Value.Find.Result.Region.RegionEnvData.local_time.Value" Value="[:$LocalData.grids.RegionEnvData.local_time:]" />
+								<SetResponseData Key="Message.Value.Find.Result.Region.RegionEnvData.Light.Value" Value="[:$LocalData.grids.RegionEnvData.Light:]" />
+								<SetResponseData Key="Message.Value.Find.Result.Region.RegionEnvData.rainfall.Value" Value="[:$LocalData.grids.RegionEnvData.rainfall:]" />
+								<SetResponseData Key="Message.Value.Find.Result.Region.RegionEnvData.Temperature.Value" Value="[:$LocalData.grids.RegionEnvData.Temperature:]" />
+								<SetResponseData Key="Message.Value.Find.Result.Region.RegionEnvData.wind_direction.Value" Value="[:$LocalData.grids.RegionEnvData.wind_direction:]" />
+								<SetResponseData Key="Message.Value.Find.Result.Region.Manager.Name.Value" Value="[:$LocalData.grids.Manager.Name:]" />
+								<SetResponseData Key="Message.Value.Find.Result.Region.MidPoint.latitude.Value" Value="[:$LocalData.grids.MidPoint.latitude:]" />
+								<SetResponseData Key="Message.Value.Find.Result.Region.MidPoint.longitude.Value" Value="[:$LocalData.grids.MidPoint.longitude:]" />
+								<SetResponseData Key="Message.Value.Find.Result.Region.Owner.Name.Value" Value="[:$LocalData.grids.Owner.Name:]" />
+								<SetResponseData Key="Message.Value.Find.Result.Region.Description.Value" Value="[:$LocalData.grids.Description:]" />
+								<SetResponseData Key="Message.Value.Find.Result.Region.Name.Value" Value="[:$LocalData.grids.Name:]" />
+								<Update>
+									<from>Result</from>
+									<Include>$Response.Message.Value.Find</Include>
+								</Update>
+							</else>
+						</if>
+				    </Query>
+			    </QueryString>
+			</executeQuery>
+			<CalculateRegionBounds>
+				<RegionID>[:$LocalData.grids.Name:]</RegionID>
+			</CalculateRegionBounds>
+        </For>
+	</Result>
+</Macro>

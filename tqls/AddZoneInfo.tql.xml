@@ -1,0 +1,32 @@
+<Query>
+  <Create>
+    <ZoneInfo>
+      <ZoneName>
+        Zone-1
+      </ZoneName>
+      <AirTemperature>0</AirTemperature>
+      <AirHumidity>0</AirHumidity>
+      <Count>1</Count>
+    </ZoneInfo>
+  </Create>
+  <Create>
+    <ZoneInfo>
+      <ZoneName>
+        Zone-2
+      </ZoneName>
+      <AirTemperature>0</AirTemperature>
+      <AirHumidity>0</AirHumidity>
+      <Count>1</Count>
+    </ZoneInfo>
+  </Create>
+  <Create>
+    <ZoneInfo>
+      <ZoneName>
+        Zone-3
+      </ZoneName>
+      <AirTemperature>0</AirTemperature>
+      <AirHumidity>0</AirHumidity>
+      <Count>1</Count>
+    </ZoneInfo>
+  </Create>
+</Query>

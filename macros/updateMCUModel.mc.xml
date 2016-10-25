@@ -1,0 +1,28 @@
+<Macro Name="updateMCUModel">
+	<Argument>
+		<String name="ZoneName"/>
+		<String name="ID"/>
+	</Argument>
+	<Result>
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<!-- <Log message="Updating MCU ZONE value Manually" /> -->
+					<Find format="version">
+						<MCUModel>
+							<ID eq ="[:$Macro.Argument.ID:]"/>
+						</MCUModel>
+					</Find>
+					<SetResponseData>
+						<key>Message.Value.Find.Result.MCUModel.ZoneName.Value</key>
+						<value>[:$Macro.Argument.ZoneName:]</value>
+					</SetResponseData>
+					<Update>
+						<from>Result</from>
+						<Include>$Response.Message.Value.Find</Include>
+					</Update>
+				</Query>
+			</QueryString>
+		</executeQuery>
+	</Result>
+</Macro>

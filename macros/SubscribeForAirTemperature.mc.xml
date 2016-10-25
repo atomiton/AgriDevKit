@@ -1,0 +1,116 @@
+<Macro name="SubscribeForAirTemperature">
+	<Argument />
+		
+	<Result>
+		<Log message="Subscribe to Sensor For Temperature" />
+		<SubscribeToTQL TopicName="TQL.Update.gateway.agriculture.ZoneAggregateInfo.CurrentValue.*" TopicId="[:RuntimeParams.TopicFacetIDName:]ZoneInfoAirTemperature">
+			<ActionName>
+				<Log message="AirTemperature Known==========: [:$Request.Message.Value.Publish.Value:]" />
+				<Log message="AirTemperature $SID==========: [:$Request.Message.Value.Publish.$sid:]" />
+				<executeQuery>
+					<QueryString>
+						<Query>
+							<Find format="version, current">
+								<ZoneAggregateInfo>
+									<ID eq='[:$Request.Message.Value.Publish.$sid:]'/>
+								</ZoneAggregateInfo>
+							</Find>
+						</Query>
+					</QueryString>
+				</executeQuery>
+				<SetLocalData key="ZoneName" value="[:$Response.Message.Value.Find.Result.ZoneAggregateInfo.ZoneName.Value:]" />
+
+				<Log message="	===============[:$Response.Message.Value.Find.Result.ZoneAggregateInfo.SensorName.Value:]"/>
+				<if condition="/'[:$Response.Message.Value.Find.Result.ZoneAggregateInfo.SensorName.Value:]' eq 'AirTemperature'">
+					<then>
+						<executeQuery>
+							<QueryString>
+								<Query>
+									<Find format="version, current">
+										<ZoneAggregateInfo>
+											<ZoneName eq="[:$LocalData.ZoneName:]"/>
+											<SensorName eq="AirHumidity" />
+										</ZoneAggregateInfo>
+									</Find>
+								</Query>
+							</QueryString>
+						</executeQuery>
+						<executeQuery>
+							<QueryString>
+								<Query>
+									<Find format="version, current">
+										<ReqiredQuantityModel>
+											<Name eq="RequiredQtyCalculator"/>
+										</ReqiredQuantityModel>
+									</Find>
+									<Log message="Found vlaue: [:$Response.Message.Value.Find.Result.ReqiredQuantityModel:]" />
+									<SetResponseData key="Message.Value.Find.Result.ReqiredQuantityModel.ZoneName.Value" value="[:$Response.Message.Value.Find.Result.ZoneAggregateInfo.ZoneName.Value:]" />
+									<SetResponseData key="Message.Value.Find.Result.ReqiredQuantityModel.CurrentTemp.Value" value="[:$Request.Message.Value.Publish.Value:]" />
+									<SetResponseData key="Message.Value.Find.Result.ReqiredQuantityModel.CurrentHumidity.Value" value="[:$Response.Message.Value.Find.Result.ZoneAggregateInfo.CurrentValue.Value:]" />
+									<Update>
+										<from>Result</from>
+										<Include>$Response.Message.Value.Find</Include>
+									</Update>
+								</Query>
+							</QueryString>
+						</executeQuery>
+						<SetProcessData key="isDone" value="true" />
+					</then>
+					<else>
+						<SetProcessData key="isDone" value="false" />
+					</else>
+				</if>
+					<if condition="/'[:$ProcessData.isDone:]' eq 'false'">
+						<then>
+						<executeQuery>
+							<QueryString>
+								<Query>
+									<Find format="version, current">
+										<ZoneAggregateInfo>
+											<ID eq='[:$Request.Message.Value.Publish.$sid:]'/>
+										</ZoneAggregateInfo>
+									</Find>
+								</Query>
+							</QueryString>
+						</executeQuery>
+						<if condition="/'[:$Response.Message.Value.Find.Result.ZoneAggregateInfo.SensorName.Value:]' eq 'AirHumidity'">
+							<then>
+								<executeQuery>
+									<QueryString>
+										<Query>
+											<Find format="version, current">
+												<ZoneAggregateInfo>
+													<ZoneName eq="[:$LocalData.ZoneName:]"/>
+													<SensorName eq="AirTemperature" />
+												</ZoneAggregateInfo>
+											</Find>
+										</Query>
+									</QueryString>
+								</executeQuery>
+								<executeQuery>
+									<QueryString>
+										<Query>
+											<Find format="version, current">
+												<ReqiredQuantityModel>
+													<Name eq="RequiredQtyCalculator"/>
+												</ReqiredQuantityModel>
+											</Find>
+											<Log message="Found vlaue: [:$Response.Message.Value.Find.Result.ReqiredQuantityModel:]" />
+											<SetResponseData key="Message.Value.Find.Result.ReqiredQuantityModel.ZoneName" value="[:$Response.Message.Value.Find.Result.ZoneAggregateInfo.ZoneName.Value:]" />
+											<SetResponseData key="Message.Value.Find.Result.ReqiredQuantityModel.CurrentHumidity" value="[:$Request.Message.Value.Publish.Value:]" />
+											<SetResponseData key="Message.Value.Find.Result.ReqiredQuantityModel.CurrentTemp" value="[:$Response.Message.Value.Find.Result.ZoneAggregateInfo.CurrentValue.Value:]" />
+											<Update>
+												<from>Result</from>
+												<Include>$Response.Message.Value.Find</Include>
+											</Update>
+										</Query>
+									</QueryString>
+								</executeQuery>
+							</then>
+						</if>
+					</then>
+				</if>
+			</ActionName>
+		</SubscribeToTQL>
+	</Result>
+</Macro>

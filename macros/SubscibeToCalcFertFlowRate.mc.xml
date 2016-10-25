@@ -1,0 +1,18 @@
+<Macro name="SubscibeToCalcFertFlowRate">
+	<Argument />
+		
+	<Result>
+		<Log message="Registering for Farmer Zone changes" />
+		<SubscribeToTQL TopicName="TQL.Update.gateway.agriculture.FarmerModel.CurrentZone.*" TopicId="[:RuntimeParams.TopicFacetIDName:]SetFlowRate">
+			<ActionName>
+				<Log message="Farmer moved to different Zone" />
+				<Log message="Known==========: [:$Request.Message.Value.Publish.Value:]" />				
+				<Log message="$SID==========: [:$Request.Message.Value.Publish.$sid:]" />
+				<CalculateFertFlowRate>
+					<FarmerID>[:$Request.Message.Value.Publish.$sid:]</FarmerID>
+					<ZoneName>[:$Request.Message.Value.Publish.Value:]</ZoneName>
+				</CalculateFertFlowRate>
+			</ActionName>
+		</SubscribeToTQL>
+	</Result>
+</Macro>

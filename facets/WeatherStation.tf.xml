@@ -1,0 +1,102 @@
+<ThingFacet Name="WeatherStationFacet">
+			<EnvInfo Name="EnvData" KnownBy="EnvInfoAction" />
+			<String Name="UserName" />
+			<String Name="Password" />
+			<String Name="StationId" />
+			<Action Name="EnvInfoAction" Documentation="Os kit Facet">
+				<Workflow Limit="1" Live="1" Timeout="0">
+					<Task Name="GetEnvInfo" While="true">
+						<Event Name="Argument" As="ActionArgument" />
+
+						<Invoke Name="GetChallenge" WaitFor="Argument"
+							Documentation="Get the challenge Hex text"
+							Get="http://api.osanywhereweather.com/4/account/challenge/[%:Event.Argument.UserName.Value:%]?_=">
+						</Invoke>
+
+						<!-- =========================================================================================================================================== -->
+						<StartOsUnix>java -classpath ./syslib/IntelCrypto IntelWeather [%:Event.Argument.UserName.Value:%]
+							[%:Event.Argument.Password.Value:%]
+							[%:Invoke.GetChallenge.Message.Value.challenge:%] </StartOsUnix>
+						<Invoke Name="ExecuteJava" waitFor="Argument" execute="[:StartOsUnix:]">
+						</Invoke>
+						<Log
+							Message="Output value from Execute Java is ====[%:Invoke.ExecuteJava:%]" />
+
+						<!-- =========================================================================================================================================== -->
+						<Invoke Name="GetAuthorization" waitFor="Argument"
+							post="http://api.osanywhereweather.com/4/account/authorization/[%:Event.Argument.UserName.Value:%]">
+							<Headers>
+								<Referer>http://www.osanywhereweather.com/</Referer>
+								<User-Agent>osanywhereweather v1.5.0</User-Agent>
+							</Headers>
+							<Message>
+								<value>"[%:Invoke.ExecuteJava.Message/normalize-space(Value):%]"
+								</value>
+							</Message>
+						</Invoke>
+						<Log
+							Message="Output value from Get Authorization is ====[%:Invoke.GetAuthorization:%]" />
+
+
+						<!-- =========================================================================================================================================== -->
+						<Invoke Name="ReadValues" WaitFor="Argument" Documentation="Invoke HTTP GET"
+							Get="http://api.osanywhereweather.com/4/weather/live/[%:Event.Argument.StationId.Value:%]">
+							<Headers>
+								<Authorization>"OSA [%:Invoke.GetAuthorization.Message.Value.skey:%]"</Authorization>
+							</Headers>
+						</Invoke>
+						<Log
+							Message="Output value from openweathermap url invoke ====[%:Invoke.ReadValues:%]" />
+						<Invoke Name="HandleResponse">
+							<FacetScript>
+
+								<If Condition="/'[%:Invoke.ReadValues.Status:%]' eq '200'">
+									<Then>
+										<Log Message="Response Status is 200" />
+										<SetContextData Key="Temperature"
+											Value="[%:Invoke.ReadValues.Message.Value.Live.temperature:%]" />
+										<SetContextData Key="Humidity"
+											Value="[%:Invoke.ReadValues.Message.Value.Live.humidity:%]" />
+										<SetContextData Key="Pressure"
+											Value="[%:Invoke.ReadValues.Message.Value.Live.pressure:%]" />
+										<SetContextData Key="Time"
+											Value="[%:Invoke.ReadValues.Message.Value.Live.local_time:%]" />
+										<SetContextData Key="wind_speed"
+											Value="[%:Invoke.ReadValues.Message.Value.Live.wind_speed:%]" />
+										<SetContextData Key="rainfall"
+											Value="[%:Invoke.ReadValues.Message.Value.Live.rainfall:%]" />
+										<SetContextData Key="wind_direction"
+											Value="[%:Invoke.ReadValues.Message.Value.Live.wind_direction:%]" />
+										<SetContextData Key="uv"
+											Value="[%:Invoke.ReadValues.Message.Value.Live.uv:%]" />
+										<SetContextData Key="wind_angle"
+											Value="[%:Invoke.ReadValues.Message.Value.Live.wind_angle:%]" />
+										<SetContextData Key="sealevel_pressure"
+											Value="[%:Invoke.ReadValues.Message.Value.Live.sealevel_pressure:%]" />							
+									</Then>
+									<Else>
+										<Log Message="Non-200 Response Status. Failed Getting data" />
+									</Else>
+								</If>
+							</FacetScript>
+						</Invoke>
+						<Output Name="Result" As="ActionResult">
+							<Value>
+								<EnvData>
+									<Temperature>[:$ContextData.Temperature:]</Temperature>
+									<Humidity>[:$ContextData.Humidity:]</Humidity>
+									<Pressure>[:$ContextData.Pressure:]</Pressure>
+									<local_time>[:$ContextData.Time:]</local_time>
+									<wind_speed>[:$ContextData.wind_speed:]</wind_speed>
+									<rainfall>[:$ContextData.rainfall:]</rainfall>
+									<wind_direction>[:$ContextData.wind_direction:]</wind_direction>
+									<uv>[:$ContextData.uv:]</uv>
+									<wind_angle>[:$ContextData.wind_angle:]</wind_angle>
+									<sealevel_pressure>[:$ContextData.sealevel_pressure:]</sealevel_pressure>
+								</EnvData>
+							</Value>
+						</Output>
+					</Task>
+				</Workflow>
+			</Action>
+		</ThingFacet>

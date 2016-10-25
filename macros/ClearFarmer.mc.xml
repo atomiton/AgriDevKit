@@ -1,0 +1,28 @@
+<Macro name="ClearFarmer">
+	<Argument />
+	<Result>
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<DeleteAll>
+						<FertilizerActuatorModel>
+							<ActID ne="" />
+						</FertilizerActuatorModel>
+					</DeleteAll>
+					
+					<DeleteAll>
+						<PesticideActuatorModel>
+							<PestActID ne="" />
+						</PesticideActuatorModel>
+					</DeleteAll>
+					
+					<DeleteAll>
+						<FarmerModel>
+							<ID ne=""/>
+						</FarmerModel>
+					</DeleteAll>
+				</Query>
+			</QueryString>
+		</executeQuery>
+	</Result>
+</Macro>

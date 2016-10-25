@@ -1,0 +1,40 @@
+<Macro Name="SetSystemConfigSensorHis">
+	<Argument>
+		<Integer Name="TimeInterval"/>
+	</Argument>
+	<Result>
+		<Log message="...............SetSystemConfigSensorHis  [:$Macro.Argument.TimeInterval:].............." />
+		<JavaScript>
+			var timeInterval = parseInt("[:$Macro.Argument.TimeInterval:]");
+			
+			if(timeInterval &gt; 0 &amp;&amp; timeInterval &lt; 31){
+				sffContext.setProcessData("TimeInterval", timeInterval);
+			}
+			else{
+				sffContext.setProcessData("TimeInterval", 0);
+				sffLog.info("Please enter a valid Integer between 1 to 31");
+			}
+		</JavaScript>
+		<if condition="/[:$ProcessData.TimeInterval:] gt 0">
+			<then>
+				<executeQuery>
+					<QueryString>
+						<Query>
+							<DeleteAll>
+							    <SystemConfig>
+							        <Key eq="TIME_INV_SENSOR_HIS"/>
+							    </SystemConfig>
+							</DeleteAll>
+							<Create>
+								<SystemConfig>
+									<Key>TIME_INV_SENSOR_HIS</Key>
+									<Value>[:$ProcessData.TimeInterval:]</Value>
+								</SystemConfig>
+							</Create>
+						</Query>
+					</QueryString>
+				</executeQuery>
+		    </then>
+     	</if>
+	</Result>
+</Macro>

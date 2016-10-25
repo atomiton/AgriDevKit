@@ -1,0 +1,130 @@
+<Macro Name="CalculatePolygonArea">
+	<Argument>
+		<String name="ZoneName"/>
+	</Argument>
+	<Result>
+		<executeQuery>
+	      	<QueryString>
+		        <Query>
+		          	<Find format="version, current" orderBy="Polygon.Order asc">
+		            	<Polygon>
+		              		<ZoneName eq="[:$Macro.Argument.ZoneName:]"/>
+		            	</Polygon>
+		          	</Find>
+		         </Query>
+	      	</QueryString>
+	    </executeQuery>
+	    <Log Message="Zone Lat=======[:$Response.Message.Value.Find.Result.Polygon.GeoArea.latitude.Value:]"/>
+		<JavaScript>
+			var ResultSet = sffContext.getResponse().Message.Value;
+			function Coordinate(lat, lon) {
+				this.lat = lat;
+				this.lon = lon;
+			} 
+
+			function polygonArea(arrLat, arrLon, numPoints) { 
+				area = 0;        
+				j = numPoints-1; 
+
+				for (i=0; i &lt; numPoints; i++){ 
+					area = area +  (arrLat[j]+arrLat[i]) * (arrLon[j]-arrLon[i]); 
+				      j = i;  
+				    }
+				   sffLog.info("Area ============= "+ area/2);
+				return area/2;
+			}
+
+			var ZoneName = "[:$Macro.Argument.ZoneName:]";
+			var count = parseInt("[:$Response.Message.Value.Find/count(Result):]");
+			sffLog.info("ZoneName ============= "+ ZoneName);
+			sffLog.info("Number of points ============= "+ count);
+			var i= 0;
+			var points = [[],[],[],[],[],[]];
+			var arrLat = [];
+			var arrLon = [];
+
+			for each(var result in ResultSet.Find) {
+				if(typeof(result) == 'object') {
+					var geoPointLat = result.Polygon.GeoArea.latitude.Value;
+					var geoPointLon = result.Polygon.GeoArea.longitude.Value;
+					<!-- sffLog.info("geoPointLat ============= "+ geoPointLat);
+					sffLog.info("geoPointLon ============= "+ geoPointLon); -->
+					arrLat[i] = geoPointLat;
+					arrLon[i] = geoPointLon;
+					points[i][i] = new Coordinate(geoPointLat, geoPointLon);
+					<!-- sffLog.info("point lat ============= "+ points[i][i].lat);
+					sffLog.info("point lon ============= "+ points[i][i].lon);  -->
+					i++;
+				
+				}
+				
+			}
+			sffLog.info("arrLat ============= "+ arrLat);
+			sffLog.info("arrLon ============= "+ arrLon);
+			var areaOfPolygon = polygonArea(arrLat, arrLon, count);
+			areaOfPolygon = Math.abs(areaOfPolygon*10000000000);
+			var setContextData = ListMap.static.newInstance();   
+			var rc = setContextData.instanceAdd("UpdateZoneHeightWidthSize");
+			rc.put("Height", 5);
+			rc.put("Width", 6);
+			rc.put("Area", areaOfPolygon);
+			rc.put("ZoneName", ZoneName);
+			sffLog.info(setContextData);
+			setContextData; 
+
+			<!-- sffLog.info("Points of polygon========"+points[0][0].lat +","+ points[0][0].lon +","+ points[1][1].lat +","+ points[1][1].lon+","+ points[2][2].lat +","+ points[2][2].lon+","+ points[3][3].lat +","+ points[3][3].lon+","+ points[4][4].lat +","+ points[4][4].lon); -->
+
+			
+
+			<!--function deg2rad(deg) {
+				return deg * (Math.PI/180);
+			}
+			function convertToRadians(input) {
+				return input * Math.PI / 180;
+			}
+			function convertToDeg(input) {
+				return input * 180 / Math.PI;
+			}
+			function toBrng(input) {
+				input = convertToDeg(input);
+				return (input + 360) % 360;
+			}
+
+			function getDistance(lat1, lon1, lat2, lon2) {
+				// uses "Equirectangular approximation" formula
+				// at http://www.movable-type.co.uk/scripts/latlong.html
+			
+				var R = 6371;
+				var phi1 = deg2rad(lat1);
+				var phi2 = deg2rad(lat2);
+				var lambda1 = deg2rad(lon1);
+				var lambda2 = deg2rad(lon2);
+			
+				var x = (lambda2 - lambda1) * Math.cos((phi1 + phi2)/2.0);
+				var y = phi2 - phi1;
+				var distKm = Math.sqrt(x*x + y*y) * R;
+			
+				//return distKm / 1.60934; // in miles
+				return distKm;
+			}
+
+			heightOfRect = getDistance(points[0][0].lat, points[0][0].lon, points[1][0].lat, points[1][0].lon);
+
+			widthOfRect = getDistance(points[0][0].lat, points[0][0].lon, points[0][1].lat, points[0][1].lon);
+
+			heightOfRectInMeter = heightOfRect*1000;
+			widthOfRectInMeter = widthOfRect*1000;
+
+			areaOfRectInKm = heightOfRect * widthOfRect;
+			areaOfRectInMeter = heightOfRectInMeter * widthOfRectInMeter;
+
+			sffLog.info("RectPoints for height========"+points[0][0].lat +","+ points[0][0].lon +","+ points[1][0].lat +","+ points[1][0].lon);
+			sffLog.info("RectPoints for width========"+points[0][0].lat +","+ points[0][0].lon +","+ points[0][1].lat +","+ points[0][1].lon);
+			sffLog.info("heightOfRect in Meter========"+heightOfRectInMeter);
+			sffLog.info("widthOfRectIn Meter========"+widthOfRectInMeter);
+			sffLog.info("areaOfRectInMeter========"+areaOfRectInMeter);
+-->
+			
+		</JavaScript>
+	</Result>
+</Macro>

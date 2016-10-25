@@ -1,0 +1,7 @@
+<Def name="SprayInfo">
+	<Number name="AreaSprayed" />
+	<Number name="AreaSprayedCummulative" />
+	<Number name="QuantitySprayed" />
+	<Number name="QuantitySprayedCummulative" />
+	<Number name="OptimumValue" />
+</Def>

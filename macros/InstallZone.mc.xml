@@ -1,0 +1,234 @@
+<Macro name="InstallZone">
+	<Argument>
+		<CLOUD_URL />
+	</Argument>
+	<Result>
+		<Log message="***************** Clearing old data **************************" />
+		<executeQuery>
+			<QueryString>
+				
+				<deleteAll>
+					<Region>
+						<RegionID ne=""/>
+					</Region>
+				</deleteAll>
+
+				<deleteAll>
+					<Zone>
+						<ZoneID ne=""/>
+					</Zone>
+				</deleteAll>
+
+				<deleteAll>
+					<Grid>
+						<GridID ne=""/>
+					</Grid>
+				</deleteAll>
+
+				<deleteAll>
+					<MCUModel>
+						<ID ne=""/>
+					</MCUModel>
+				</deleteAll>
+
+				<deleteAll>
+					<SensorModel>
+						<ID ne=""/>
+					</SensorModel>
+				</deleteAll>
+
+				<deleteAll>
+					<ZoneInfo>
+						<ID ne=""/>
+					</ZoneInfo>
+				</deleteAll>
+
+
+				<deleteAll>
+					<ZoneAggregateInfo>
+						<ID ne=""/>
+					</ZoneAggregateInfo>
+				</deleteAll>
+
+				<deleteAll>
+					<ZoneAggregate>
+						<ID ne=""/>
+					</ZoneAggregate>
+				</deleteAll>
+
+				<deleteAll>
+					<ZoneAggHistoryModel>
+						<ID ne=""/>
+					</ZoneAggHistoryModel>
+				</deleteAll>
+
+				<deleteAll>
+					<ZoneAggInfoHistoryModel>
+						<ID ne=""/>
+					</ZoneAggInfoHistoryModel>
+				</deleteAll>
+				
+				<deleteAll>
+					<CropModel>
+						<ID ne=""/>
+					</CropModel>
+				</deleteAll>
+				
+				<deleteAll>
+					<CropStagesModel>
+						<ID ne=""/>
+					</CropStagesModel>
+				</deleteAll>
+				
+				<deleteAll>
+					<EquipmentModel>
+						<ID ne=""/>
+					</EquipmentModel>
+				</deleteAll>
+				
+				<deleteAll>
+					<ReqiredQuantityModel>
+						<ID ne="" />
+					</ReqiredQuantityModel>
+				</deleteAll>
+
+				<deleteAll>
+					<HttpHandler>
+						<name ne="" />
+					</HttpHandler>
+				</deleteAll>
+
+				<deleteAll>
+					<PerifHandler>
+						<ID ne="" />
+					</PerifHandler>
+				</deleteAll>
+				
+				<deleteAll>
+					<Polygon>
+					  	<ID ne="" />
+					</Polygon>
+				</deleteAll>
+
+				<deleteAll>
+					<SystemConfig>
+						<ID ne="" />
+					</SystemConfig>
+				</deleteAll>
+				
+				<deleteAll>
+					<FieldAggInfo>
+						<ID ne="" />
+					</FieldAggInfo>
+				</deleteAll>
+				
+				<deleteAll>
+					<LoraMcuMapping>
+						<ID ne="" />
+					</LoraMcuMapping>
+				</deleteAll>
+
+			</QueryString>
+		</executeQuery>
+		
+		<Log message="**************** Loading Master data ************************" />
+		<Log message="**************** Loading Master data from: [:RuntimeParams.SpacesLocation:] ************************" />
+		<LoadSensorDataType />
+		
+		
+		<Log message="**************** Initializing subscriptions ********************" />
+		
+		<subscribeMcuGridChange />
+		<!-- <subscribeMcuZoneChange /> -->
+		<SubscribeToSensor />
+		<!-- <SubscribeToSensorOnCreate /> -->
+		<SubscribeToSensorForZoneAggInfo />
+		
+		<SubscribeForAirTemperature/>
+		<SubscribeUpdatePolygon/>
+		
+		<!-- <PushToIntegra /> -->
+		
+		<LoadSensorDataType />
+		
+		<executeQuery>
+			<QueryString>
+				<Create>
+					<ReqiredQuantityModel>
+						<Name>RequiredQtyCalculator</Name>
+						<ZoneName>1</ZoneName>
+						<CurrentTemp>0</CurrentTemp>
+						<CurrentHumidity>0</CurrentHumidity>
+					</ReqiredQuantityModel>
+				</Create>
+			</QueryString>
+		</executeQuery>
+		
+		<CreateSystemConfigZone>
+			<CLOUD_URL>[:$Macro.Argument.CLOUD_URL:]</CLOUD_URL>
+		</CreateSystemConfigZone>
+		
+		<LoadFromCSV>
+			<destModelName>Zone</destModelName>
+			<LocationName>[:RuntimeParams.SpacesLocation:]</LocationName>
+		</LoadFromCSV>
+
+		<LoadFromCSV>
+			<destModelName>Polygon</destModelName>
+			<LocationName>[:RuntimeParams.SpacesLocation:]</LocationName>
+		</LoadFromCSV>
+		
+		<LoadFromCSV>
+			<destModelName>MCUModel</destModelName>
+			<LocationName>[:RuntimeParams.SpacesLocation:]</LocationName>
+		</LoadFromCSV>
+		<LoadFromCSV>
+			<destModelName>Region</destModelName>
+			<LocationName>[:RuntimeParams.SpacesLocation:]</LocationName>
+		</LoadFromCSV>
+		
+		<LoadFromCSV>
+			<destModelName>CropModel</destModelName>
+			<LocationName>[:RuntimeParams.SpacesLocation:]</LocationName>
+		</LoadFromCSV>
+		
+		<LoadFromCSV>
+			<destModelName>CropStagesModel</destModelName>
+			<LocationName>[:RuntimeParams.SpacesLocation:]</LocationName>
+		</LoadFromCSV>
+		
+		<LoadFromCSV>
+			<destModelName>EquipmentModel</destModelName>
+			<LocationName>[:RuntimeParams.SpacesLocation:]</LocationName>
+		</LoadFromCSV>
+		
+		<!-- <LoadFromCSV>
+			<destModelName>LoraMcuMapping</destModelName>
+			<LocationName>[:RuntimeParams.SpacesLocation:]</LocationName>
+		</LoadFromCSV> -->
+		
+		<CalculatePolygonAreaAll/>
+		
+		<DeleteScheduleJob>
+			<JobName>CheckMcuStatus</JobName>
+		</DeleteScheduleJob>
+		<DeleteScheduleJob>
+			<JobName>ZoneAggInfoHistory</JobName>
+		</DeleteScheduleJob>
+		<DeleteScheduleJob>
+			<JobName>ZoneAggHistory</JobName>
+		</DeleteScheduleJob>
+		<DeleteScheduleJob>
+			<JobName>SetTimeInterval</JobName>
+		</DeleteScheduleJob>
+		<DeleteScheduleJob>
+			<JobName>SetTimeIntervalForZoneAgg</JobName>
+		</DeleteScheduleJob>
+		<DeleteScheduleJob>
+			<JobName>SetTimeIntervalForZoneAggInfo</JobName>
+		</DeleteScheduleJob>
+		<CheckMcuStatus />
+		<PurgeSensorHistory/>
+		<SensorValueToZoneAggInfoScheduler />
+	</Result>
+</Macro>

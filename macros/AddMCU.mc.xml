@@ -1,0 +1,44 @@
+<Macro Name="AddMCU">
+	<Argument>
+		<String name="Name"/>
+		<Double name="Latitude"/>
+		<Double name="Longitude"/>
+		<Boolean name="HasMetadata"/>
+		<String name="Label"/>
+	</Argument>
+	<Result>
+		<Log Message="Saving MCU Info...[:$Macro.Argument:]" />
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Find format="current, version">
+						<MCUModel>
+							<Name>[:$Macro.Argument.Name:]</Name>
+						</MCUModel>
+					</Find>
+					<if condition="/[:$Response.Message.Value.Find/count(Result):] eq 0">
+						<then>
+							<Create>
+								<MCUModel>
+									<Name>[:$Macro.Argument.Name:]</Name>
+									<GatewayID></GatewayID>
+									<ZoneName></ZoneName>
+									<GridName></GridName>
+									<Location>
+										<latitude>[:$Macro.Argument.Latitude:]</latitude>
+										<longitude>[:$Macro.Argument.Longitude:]</longitude>
+									</Location>
+									<Status></Status>
+									<LastUpdated></LastUpdated>
+									<NextUpdate></NextUpdate>
+									<HasMetadata>[:$Macro.Argument.HasMetadata:]</HasMetadata>
+									<Label>[:$Macro.Argument.Label:]</Label>
+								</MCUModel>
+							</Create>
+						</then>
+					</if>
+				</Query>
+			</QueryString>
+		</executeQuery>
+	</Result>
+</Macro>

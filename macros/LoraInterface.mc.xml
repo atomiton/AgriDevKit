@@ -1,0 +1,11 @@
+<Macro name="LoraInterface">
+	<Argument>
+		<Data />
+	</Argument>
+	<Result>
+		<Log message="Calling LORA interface with: [:$Macro.Argument.Data:]" />
+		 <LoraMessageInterceptor>
+			<Message><include>$Macro.Argument.Data</include></Message>
+		</LoraMessageInterceptor> 
+	</Result>
+</Macro>

@@ -1,0 +1,39 @@
+<Macro Name="executeRemoteQuery">
+  <Argument>
+    <RemoteTQLEndPoint></RemoteTQLEndPoint>
+    <QueryString>
+      <Query/>
+    </QueryString>
+  </Argument>
+  <Result>
+      <DoRequest target="[:RuntimeParams.WdlFacetIDName:]">
+        <Process>
+          <Message>
+            <Value>
+              <Workflow name="ExecuteRemoteQuery">
+              <Return name="PostDataOutput" value="postTQLQuery.TQLResponse"/>
+                <Task name="postTQLQuery">
+                  <Invoke name="postTQL" post="[:$Macro.Argument.RemoteTQLEndPoint:]" AutoCloseTimeout="PT15S">
+                    <Message type="xml">
+                      <Value>
+                        [:$Macro.Argument.QueryString:]
+                      </Value>
+                    </Message>
+                  </Invoke>
+<!--                   <Log Message="[:Invoke.postTQL:]"/> -->
+                  <Output name="TQLResponse">
+                    <Value>
+                        [:Invoke.postTQL:]
+                    </Value>
+                  </Output>
+                </Task>
+              </Workflow>
+            </Value>
+          </Message>
+        </Process>
+      </DoRequest>
+	  <DoResponse/>
+		
+      <!-- <Log Message="ExecuteRemoteQuery Response message : [:$Response.Message.Value.PostDataOutput:]"/> -->
+  </Result>
+</Macro>

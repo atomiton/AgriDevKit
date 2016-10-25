@@ -1,0 +1,64 @@
+<ThingFacet Name="HttpHandlerFacet">
+    <String name="startSensorsSubscription" KnownBy="SubscribeMCU" update="auto"/>
+	<String name="MCUName"/>
+    <Action name="SubscribeMCU">
+        <Workflow Limit="1" Live="1" Timeout="-1">
+            <Task name="Main">
+                <Event name="Argument" as="ActionArgument" />
+                <Invoke name="ReadValue" waitFor="Argument">
+					<JavaScript>
+						<!-- <resp>
+							<Message>
+								<Value>
+									?^G#394778863#node_01#231#STR:AGR:=#PAR:224#LW:10#SOIL:92#TCB:19#HUMB:46#PA:105#^@
+								</Value>
+							</Message>
+						</resp> -->
+						function getRandomInt(min, max) {
+							return Math.random() * (max - min) + min;
+						}
+						<!--var res='&lt;Message&gt;&lt;Value&gt;?^G#394778863#node_01#231#STR:AGR:=#PAR:' + getRandomInt(1,100) + '#LW:' + getRandomInt(1,100) + '#SOIL:' + getRandomInt(1,100) + '#TCB:' + getRandomInt(1,100) + '#HUMB:' + getRandomInt(1,100) + '#PA:' + getRandomInt(1,100) + '#^@&lt;/Value&gt;&lt;/Message&gt;';-->
+						<!-- sffLog.info("value is  [%:Event.Argument.MCUName.Value:%]");
+						var dc = getRandomInt(1,4); -->
+						var d = new Date();
+						var res='';
+						var min = d.getMinutes();
+						sffLog.info("Min:" + min%5); 
+						if (min%5 &lt; 5) {
+							sffLog.info("low value");
+							res='&lt;Message&gt;&lt;Value&gt;?^G#[%:Event.Argument.MCUName.Value:%]#node_01#231#STR:AGR:=#PAR:' + getRandomInt(1,100) + '#LW:' + getRandomInt(1,100) + '#SOIL:' + getRandomInt(1,100) + '#TCB:' + getRandomInt(18,24) + '#HUMB:' + getRandomInt(20,88) + '#PA:' + getRandomInt(1,100) + '#^@&lt;/Value&gt;&lt;/Message&gt;';;
+						} else {
+							sffLog.info("high value");
+						}
+						
+					<!-- 	if(dc == 2) {
+							sffLog.info("High temp high humidity!! ");
+							res='&lt;Message&gt;&lt;Value&gt;?^G#[%:Event.Argument.MCUName.Value:%]#node_01#231#STR:AGR:=#PAR:' + getRandomInt(1,100) + '#LW:' + getRandomInt(1,100) + '#SOIL:' + getRandomInt(1,100) + '#TCB:' + getRandomInt(18,24) + '#HUMB:' + getRandomInt(20,88) + '#PA:' + getRandomInt(1,100) + '#^@&lt;/Value&gt;&lt;/Message&gt;';
+						} else {
+							res='&lt;Message&gt;&lt;Value&gt;?^G#[%:Event.Argument.MCUName.Value:%]#node_01#231#STR:AGR:=#PAR:' + getRandomInt(1,100) + '#LW:' + getRandomInt(1,100) + '#SOIL:' + getRandomInt(1,100) + '#TCB:' + getRandomInt(28,38) + '#HUMB:' + getRandomInt(91,100) + '#PA:' + getRandomInt(1,100) + '#^@&lt;/Value&gt;&lt;/Message&gt;';
+						} -->
+						res;
+					</JavaScript>
+				</Invoke>
+                
+				<Invoke name="readData">
+					<FacetScript>
+                        <MessageInterceptor>
+                            <Message>[%:Invoke.ReadValue.Message.Value:%]</Message>
+                        </MessageInterceptor>
+					</FacetScript>
+				</Invoke>
+				
+				<Invoke name="delay" delay="PT5S" />
+				
+                <Output name="Result" as="ActionResult">
+                    <Value>
+                        <startSensorsSubscription>
+							[%:Event.Argument.startSubscription.Value:%]
+                        </startSensorsSubscription>
+                    </Value>
+                </Output>
+            </Task>
+        </Workflow>
+    </Action>
+</ThingFacet>

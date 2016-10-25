@@ -1,0 +1,8 @@
+<ScheduleWeatherStation>
+  <RegionName>
+    Region-T1
+  </RegionName>
+  <ScheduleInterval>
+    10min
+  </ScheduleInterval>
+</ScheduleWeatherStation>

@@ -1,0 +1,34 @@
+<Macro Name="DeleteAndUpdatePolygonByOrder">
+  <Argument>
+   
+    <String name="ZoneName" />
+	<Number name="Order"/>
+  
+  </Argument>
+  <Result>
+    <Log Message="***************DeleteAndUpdatePolygonByOrder**********************"/>
+    
+    <executeQuery>
+		<QueryString>
+			<Query>
+			
+			<DeleteAll>
+				<Polygon>
+					<ZoneName eq="[:$Macro.Argument.ZoneName:]"/>
+					<Order eq="[:$Macro.Argument.Order:]"/>
+				</Polygon>
+			</DeleteAll>
+	
+			</Query>
+		</QueryString>
+    </executeQuery>
+	
+	
+	<UpdatePolygonByOrder>
+	<Order>[:$Macro.Argument.Order:]</Order>
+	<ZoneName>[:$Macro.Argument.ZoneName:]</ZoneName>
+	</UpdatePolygonByOrder>
+	 
+		 
+  </Result>
+</Macro>

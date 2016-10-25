@@ -1,0 +1,81 @@
+<DeleteAll>
+  <HttpHandler>
+    <name ne="" />
+  </HttpHandler>
+</DeleteAll>
+<Create>
+  <HttpHandler>
+    <name>
+      test
+    </name>
+    <protocol>
+      http
+    </protocol>
+    <startSensorsSubscription>
+      start
+    </startSensorsSubscription>
+    <OptPlantEnvID>
+      123
+    </OptPlantEnvID>
+    <MCUName>
+      123456784
+    </MCUName>
+  </HttpHandler>
+</Create>
+<Create>
+  <HttpHandler>
+    <name>
+      test
+    </name>
+    <protocol>
+      http
+    </protocol>
+    <startSensorsSubscription>
+      start
+    </startSensorsSubscription>
+    <OptPlantEnvID>
+      123
+    </OptPlantEnvID>
+    <MCUName>
+      123456786
+    </MCUName>
+  </HttpHandler>
+</Create>
+<Create>
+  <HttpHandler>
+    <name>
+      test
+    </name>
+    <protocol>
+      http
+    </protocol>
+    <startSensorsSubscription>
+      start
+    </startSensorsSubscription>
+    <OptPlantEnvID>
+      123
+    </OptPlantEnvID>
+    <MCUName>
+      123456787
+    </MCUName>
+  </HttpHandler>
+</Create>
+<Create>
+  <HttpHandler>
+    <name>
+      test
+    </name>
+    <protocol>
+      http
+    </protocol>
+    <startSensorsSubscription>
+      start
+    </startSensorsSubscription>
+    <OptPlantEnvID>
+      123
+    </OptPlantEnvID>
+    <MCUName>
+      403474645
+    </MCUName>
+  </HttpHandler>
+</Create>

@@ -1,0 +1,38 @@
+<Macro Name="UpdateMCU">
+	<Argument>
+		<String name="Name"/>
+		<Double name="Latitude"/>
+		<Double name="Longitude"/>
+		<String name="Label"/>
+	</Argument>
+	<Result>
+		<!-- <Log Message="Updating MCU Info..." /> -->
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Find format="current, version">
+						<MCUModel>
+							<Name eq="[:$Macro.Argument.Name:]" />
+						</MCUModel>
+					</Find>
+					<SetResponseData>
+						<key>Message.Value.Find.Result.MCUModel.Location.latitude.Value</key>
+						<value>[:$Macro.Argument.Latitude:]</value>
+					</SetResponseData>
+					<SetResponseData>
+						<key>Message.Value.Find.Result.MCUModel.Location.longitude.Value</key>
+						<value>[:$Macro.Argument.Longitude:]</value>
+					</SetResponseData>
+					<SetResponseData>
+						<key>Message.Value.Find.Result.MCUModel.Label.Value</key>
+						<value>[:$Macro.Argument.Label:]</value>
+					</SetResponseData>
+					<Update>
+						<from>Result</from>
+						<Include>$Response.Message.Value.Find</Include>
+					</Update>
+				</Query>
+			</QueryString>
+		</executeQuery>
+	</Result>
+</Macro>

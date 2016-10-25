@@ -1,0 +1,22 @@
+<Macro Name="GetFarmerGPSID">
+	<Argument>
+		<String name="FarmerName"/>
+	</Argument>
+	<!-- <Log Message="**************starting Find MCUZone************"/> -->
+	<Result>
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<find>
+						<FarmerModel>
+							<Name eq="[:$Macro.Argument.FarmerName:]"/>
+						</FarmerModel>
+					</find>
+				</Query>		
+			</QueryString>
+		</executeQuery>
+		<SetResponseData key="Message.Value.GPSID" value="[:$Response.Message.Value.Find.Result.FarmerModel.GPSID:]" />
+		<DelResponseData key="Message.Value.Find" />
+	</Result>
+</Macro>
+

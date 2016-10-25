@@ -1,0 +1,77 @@
+<Macro Name="AddRegion">
+	<Argument>
+		<String name="Name" />
+		<String name="Description" />
+		<Double name="UpperLeftLat" />
+		<Double name="UpperLeftLon" />
+		<Double name="LowerRightLat" />
+		<Double name="LowerRightLon" />
+		<String name="ManagerName" />
+		<String name="OwnerName" />
+	</Argument>
+	<Result>
+		<Log Message="Saving Region Info..." />
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Find format="current, version">
+						<Region>
+							<Name>[:$Macro.Argument.Name:]</Name>
+						</Region>
+					</Find>
+					<if condition="/[:$Response.Message.Value.Find/count(Result):] eq 0">
+						<then>
+							<Create>
+								<Region>
+									<Name>[:$Macro.Argument.Name:]</Name>
+									<Description>[:$Macro.Argument.Description:]</Description>
+									<Area>
+										<UpperLeft>
+											<latitude>[:$Macro.Argument.UpperLeftLat:]</latitude>
+											<longitude>[:$Macro.Argument.UpperLeftLon:]</longitude>
+										</UpperLeft>
+										<LowerRight>
+											<latitude>[:$Macro.Argument.LowerRightLat:]</latitude>
+											<longitude>[:$Macro.Argument.LowerRightLon:]</longitude>
+										</LowerRight>
+									</Area>
+									<Manager>
+										<Name>[:$Macro.Argument.ManagerName:]</Name>
+									</Manager>
+									<Owner>
+										<Name>[:$Macro.Argument.OwnerName:]</Name>
+									</Owner>
+									<MidPoint>
+										<latitude>0</latitude>
+										<longitude>0</longitude>
+									</MidPoint>
+									<RegionEnvData>
+										<Temperature>$Null()</Temperature>
+										<Humidity>$Null()</Humidity>
+										<Light>$Null()</Light>
+										<Pressure>$Null()</Pressure>
+										<wind_speed>$Null()</wind_speed>
+										<rainfall>$Null()</rainfall>
+										<wind_direction>$Null()</wind_direction>
+										<uv>$Null()</uv>
+										<wind_angle>$Null()</wind_angle>
+										<sealevel_pressure>$Null()</sealevel_pressure>
+										<local_time>$Null()</local_time>
+									</RegionEnvData>
+								</Region>
+							</Create>
+							<SetResponseData key="Message.Value.Response.Status" Value="Success" />
+							<SetResponseData key="Message.Value.Response.StatusMessage" Value="Region Added SuccessFully!" />
+						</then>
+						<else>
+							<SetResponseData key="Message.Value.Response.Status" Value="Failure" />
+							<SetResponseData key="Message.Value.Response.StatusMessage" Value="Region Already Exists!" />
+						</else>
+					</if>
+					<DelResponseData key="Message.Value.Find" />
+					<DelResponseData key="Message.Value.Create" />
+				</Query>
+			</QueryString>
+		</executeQuery>
+	</Result>
+</Macro>

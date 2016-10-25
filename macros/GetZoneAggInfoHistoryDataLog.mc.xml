@@ -1,0 +1,46 @@
+<Macro name="GetZoneAggInfoHistoryDataLog">
+	<Argument>
+		<String name="ZoneName"/>
+	</Argument>
+	<Result>
+		<Log Message="*********** Start GetZoneAggInfoHistoryDataLog*************"/>
+	 
+				<executeQuery>
+					<QueryString>
+						<Query>
+							<Find format="current,version">
+								<ZoneAggInfoHistoryModel>
+									<ZoneName eq ="[:$Macro.Argument.ZoneName:]"/>
+								</ZoneAggInfoHistoryModel>
+							</Find>
+							
+							
+					
+				<If condition="/[:$Response.Message.Value.Find/count(Result):] eq 0">
+				<then>
+				<SetResponseData key="Message.Value.Result" value="[:$Response.Message.Value.Find/count(Result):]" />
+				</then>
+				<else>
+				<For each="ZoneAggHistory" in="Find.Result.ZoneAggInfoHistoryModel" using="$ProcessData" >
+				
+					<GetZoneAbstractHistoryInfo>
+					<SensorName>[:$ProcessData.ZoneAggHistory.SensorName.Value:]</SensorName>
+					<ID>[:$ProcessData.ZoneAggHistory.ID:]</ID>
+					</GetZoneAbstractHistoryInfo>
+				
+				<!-- <SetResponseData key="Message.Value.SensorName" value="[:$ProcessData.ZoneAgg.SensorName.Value:]" />
+			
+				<SetResponseData key="Message.Value.ID" value="[:$ProcessData.ZoneAgg.ID:]" /> -->
+				
+				</For>
+				</else>
+				</If>
+				 <DelResponseData key="Message.Value.Find" />
+						</Query>
+					</QueryString>
+					
+				</executeQuery>
+				
+				
+	</Result>
+</Macro>

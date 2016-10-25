@@ -1,0 +1,32 @@
+<Macro name="DeleteMCU">
+	<Argument>
+		<String name="MCUName" />
+		<Boolean name="HasMetadata" />
+	</Argument>
+	<Result>
+		<executeQuery>
+			<QueryString>
+				<DeleteAll>
+					<LoraMcuMapping>
+						<MCUName>[:$Macro.Argument.MCUName:]</MCUName>
+					</LoraMcuMapping>
+				</DeleteAll>
+				<DeleteAll>
+					<SensorModel>
+						<MCUName>[:$Macro.Argument.MCUName:]</MCUName>
+					</SensorModel>
+				</DeleteAll>
+				<DeleteAll>
+					<SensorHistoryModel>
+						<MCUName>[:$Macro.Argument.MCUName:]</MCUName>
+					</SensorHistoryModel>
+				</DeleteAll>
+				<DeleteAll>
+					<MCUModel>
+						<Name>[:$Macro.Argument.MCUName:]</Name>
+					</MCUModel>
+				</DeleteAll>
+			</QueryString>
+		</executeQuery>
+	</Result>
+</Macro>

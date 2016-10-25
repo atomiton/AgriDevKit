@@ -1,0 +1,29 @@
+<AddLoraMCU>
+  <MCUName>
+    00:80:00:00:00:00:ae:b0
+  </MCUName>
+  <Latitude>
+    34.56327438354492
+  </Latitude>
+  <Longitude>
+    -111.84819793701172
+  </Longitude>
+  <Sensors>
+    <Sensor>
+      <SensorID>
+        1
+      </SensorID>
+      <SensorType>
+        SOIL
+      </SensorType>
+    </Sensor>
+    <Sensor>
+      <SensorID>
+        2
+      </SensorID>
+      <SensorType>
+        PA
+      </SensorType>
+    </Sensor>
+  </Sensors>
+</AddLoraMCU>

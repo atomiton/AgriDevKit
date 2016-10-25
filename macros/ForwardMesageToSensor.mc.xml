@@ -1,0 +1,18 @@
+<Macro name="ForwardMesageToSensor">
+	<Argument>
+		<SensorID />
+		<MessageData />
+	</Argument>
+	<Result>
+		<DoResponse target="test" disable="CMD_SERVER">
+			<Process>
+				<Now>[:[:@Request:]$Now(%d):]</Now>
+				<Message type="text">
+					<Value>
+						<Include>SetMagneticSensorOccupiedMessage</Include>
+					</Value>
+				</Message>
+			</Process>
+		</DoResponse>
+	</Result>
+</Macro>

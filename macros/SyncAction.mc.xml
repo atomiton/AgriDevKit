@@ -1,0 +1,80 @@
+<Macro name="SyncAction">
+	<Argument>
+		<String name="CLD_URL" />
+	</Argument>
+	<Result>
+		<Log message="Job called for: ReplicateToCloud [:$Macro.Argument.CLD_URL:]" />
+		<executeQuery>
+		    <QueryString>
+				<Query>
+					<Find>
+						<Zone>
+							<ZoneID ne="" />
+						</Zone>
+					</Find>
+			   </Query>
+		    </QueryString>
+		</executeQuery>
+		<SetProcessData key="DataVal" value="[:$Response.Message.Value:]" />
+		
+		<!-- <Log message="Result=========[:$Response.Message.Value.Find.Result:]"/> -->
+		<executeRemoteQuery>
+			<RemoteTQLEndPoint>[:$Macro.Argument.CLD_URL:]</RemoteTQLEndPoint>
+			    <QueryString>
+					<Query>
+						<SyncZone>
+							<InputMessage>[:$Response.Message.Value:]</InputMessage>
+						</SyncZone>
+					</Query>
+		    </QueryString>
+		</executeRemoteQuery>
+		
+		<executeQuery>
+		    <QueryString>
+				<Query>
+					<Find>
+						<Polygon>
+							<ID ne="" />
+						</Polygon>
+					</Find>
+			   </Query>
+		    </QueryString>
+		</executeQuery>
+		<SetProcessData key="DataVal" value="[:$Response.Message.Value:]" />
+		
+		<!-- <Log message="Result=========[:$Response.Message.Value.Find.Result:]"/> -->
+		<executeRemoteQuery>
+			<RemoteTQLEndPoint>[:$Macro.Argument.CLD_URL:]</RemoteTQLEndPoint>
+			    <QueryString>
+					<Query>
+						<SyncPolygon>
+							<InputMessage>[:$Response.Message.Value:]</InputMessage>
+						</SyncPolygon>
+					</Query>
+		    </QueryString>
+		</executeRemoteQuery>
+		
+		<executeQuery>
+		    <QueryString>
+				<Query>
+					<Find>
+						<Region>
+							<RegionID ne="" />
+						</Region>
+					</Find>
+			   </Query>
+		    </QueryString>
+		</executeQuery>
+		
+		<executeRemoteQuery>
+			<RemoteTQLEndPoint>[:$Macro.Argument.CLD_URL:]</RemoteTQLEndPoint>
+			    <QueryString>
+					<Query>
+						<SyncRegion>
+							<InputMessage>[:$Response.Message.Value:]</InputMessage>
+						</SyncRegion>
+					</Query>
+		    </QueryString>
+		</executeRemoteQuery>
+	</Result>
+</Macro>

@@ -1,0 +1,86 @@
+<ThingFacet Name="AccelerometerFacet">
+	<Number Name="speed"/>
+	<String Name="speedUnit" default="m/s" Documentation="m/s or km/s"/>
+	<String name="accelerometerPhidgetSensorId"/>
+	<Number name="startAccelerometerSensorSubscription" knownBy="SubscribeAccelerometer"/>
+	<AA>[:#o#Output.ActionArgument:]</AA>
+	<Action Name="SubscribeAccelerometer"
+			Documentation="Start the subscription to sensors data">
+		<Workflow Limit="1" Live="1" Timeout="-1">
+			<Task name="Main">
+				<Event name="Argument" as="ActionArgument" />
+				<Invoke name="SubscribeAC" waitFor="Argument">
+					<FacetScript>
+						<!--<Log message="Start subscription"/>-->
+						<SetLocalData Key="EmptyKey" value="" />
+                        <SubscribeToTQL
+										TopicId="AccelerometerPhidgetSensor"
+										TopicName="TQL.Update.Agriculture.SmartFarm.Agriculture.SmartFarm.GPSPhidgetSensor.Payload.*">
+							<ActionName>
+								<SetLocalData Key="EmptyKey" value="" />
+								<!--<Log message="sid [:[:$LocalData.EmptyKey:]$Request.Message.Value.Publish.$sid:]"/>-->
+								<executeQuery>
+									<QueryString>
+										<Query>
+											<Find>
+												<GPSPhidgetSensor>
+													<SensorId>[:[:$LocalData.EmptyKey:]$Request.Message.Value.Publish.$sid:]</SensorId>
+												</GPSPhidgetSensor>
+											</Find>
+										</Query>
+									</QueryString>
+								</executeQuery>
+								<SetLocalData key="phidget">
+									<Value>
+										<Include>[:[:$LocalData.EmptyKey:]$Response.Message.Value.Find.Result.GPSPhidgetSensor:]</Include>
+									</Value>
+								</SetLocalData>
+								<!--<Log message="phidget [:[:$LocalData.EmptyKey:]$LocalData.phidget:]"/>
+								<Log message="Received message in accelerometer [:[:$LocalData.EmptyKey:]$Request.Message.Value:]"/>-->
+								<executeQuery>
+									<QueryString>
+										<Query>
+											<Find format="version">
+												<FarmerModel>
+													<accelerometerPhidgetSensorId>[:[:$LocalData.EmptyKey:]$Request.Message.Value.Publish.$sid:]</accelerometerPhidgetSensorId>
+												</FarmerModel>
+											</Find>
+											<if condition="[:$Response.Message.Value.Find/count(Result) gt 0:]">
+												<then>
+													<Update>
+														<FarmerModel>
+															<farmerModelId>[:[:$LocalData.EmptyKey:]$Response.Message.Value.Find.Result.FarmerModel.farmerModelId:]
+															</farmerModelId>
+															<speed>
+																	<version>
+																		[:[:$LocalData.EmptyKey:]$Response.Message.Value.Find.Result.FarmerModel.speed.version:]
+																	</version>
+
+																	<value>
+																		[:[:$LocalData.EmptyKey:]$LocalData.phidget.velocity:]
+																	</value>
+															</speed>
+														</FarmerModel>
+													</Update>
+												</then>
+											</if>
+										</Query>
+									</QueryString>
+								</executeQuery>
+								<!--<Log message="Speed Update response [:[:$LocalData.EmptyKey:]$Response.Message.Value.Update:]"/>-->
+								<Log message="New velocity of farmer is [:[:$LocalData.EmptyKey:]$Response.Message.Value.Update.FarmerModel.speed.Value:]"/>
+							</ActionName>
+						</SubscribeToTQL>
+                        <SetLocalData key="guard" value=""/>
+                        <!--<Log message="[:[:$LocalData.guard:]$Response.Message.Value:]"/>-->
+					</FacetScript>
+				</Invoke>
+				<Output name="Result" as="ActionResult">
+					<Value>
+						<startAccelerometerSensorSubscription>[%:Event.Argument.startAccelerometerSensorSubscription.Value:%]</startAccelerometerSensorSubscription>
+					</Value>
+				</Output>
+			</Task>
+		</Workflow>
+	</Action>
+</ThingFacet>

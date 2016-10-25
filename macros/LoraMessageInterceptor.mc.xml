@@ -1,0 +1,45 @@
+<Macro name="LoraMessageInterceptor">
+	<Argument>
+		<Message />
+	</Argument>
+	<Result>
+		<!-- <MCUManager>
+			<Name>[:$Macro.Argument.Message.AgriRequest.eui:]</Name>
+		</MCUManager> -->
+		
+		
+		<SetLocalData key="Message">
+			<Value><Include>$Macro.Argument.Message.AgriRequest</Include></Value>
+		</SetLocalData>
+		
+		
+		<Log message="Message::::::  [:$LocalData.Message:]" />
+		<For each="sensor" in="sensorValues" from="$LocalData.Message">
+			<executeQuery>
+				<QueryString>
+					<Query>
+						<Find>
+							<LoraMcuMapping>
+								<MCUName>[:$LocalData.Message.eui:]</MCUName>
+								<SensorID>[:$LocalData.sensor.Id:]</SensorID>
+							</LoraMcuMapping>
+						</Find>
+					</Query>
+				</QueryString>
+			</executeQuery>
+			<Log message="Lr: [:$Response.Message.Value.Find.Result:]" />
+			<If condition="/[:$Response.Message.Value.Find/count(Result):] ne 0">
+				<then>
+					<SetLocalData key="SensorType" value="[:$Response.Message.Value.Find.Result.LoraMcuMapping.SensorType:]" />
+					<DeviceManager>
+						<MCUName>[:$LocalData.Message.eui:]</MCUName>
+						<SensorType>[:$LocalData.SensorType:]</SensorType>
+						<SensorValue>[:$LocalData.sensor.Value:]</SensorValue>
+						<DeviceType>sensor</DeviceType>
+						<IsActive>true</IsActive>
+					</DeviceManager>
+				</then>
+			</If>
+		</For>
+	</Result>
+</Macro>

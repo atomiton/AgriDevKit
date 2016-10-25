@@ -1,0 +1,32 @@
+<Macro name="GetFieldAggregateData">
+	<Argument>
+	<String name="FieldName"/>
+	<String name="SensorName"/>
+	</Argument>
+	
+	<Result>
+		<Log Message="*********** Start GetFieldAggregateData*************"/>
+		<Log Message="FieldAgg SensorName:  [:$Macro.Argument.SensorName:]*************"/>
+		<Log Message="FieldAgg FieldName:  [:$Macro.Argument.FieldName:]*************"/>
+				
+		<!--<executeQuery>
+			<QueryString>
+				<Query>
+					<DeleteAll>
+						<FieldAggInfo>
+							<SensorName eq="[:$Macro.Argument.SensorName:]"/>
+						</FieldAggInfo>
+					</DeleteAll>
+				</Query>
+				 <DelResponseData key="Message.Value.DeleteAll" />
+				<GetRegionAbstractInfo>
+					<SensorName>[:$Macro.Argument.SensorName:]</SensorName>
+					<FieldName>[:$Macro.Argument.FieldName:]</FieldName>
+				</GetRegionAbstractInfo> 
+		
+				 <DelResponseData key="Message.Value.Find" /> 
+			</QueryString>
+		</executeQuery> -->
+			
+	</Result>
+</Macro>

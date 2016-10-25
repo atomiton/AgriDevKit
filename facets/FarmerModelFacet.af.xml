@@ -1,0 +1,25 @@
+<AppFacet name="FarmerModelFacet">
+	<Number name="riskFactor" />
+	<String name="fileName" KnownBy="riskFactorCalc" />
+	<Action name="riskFactorCalc" documentation="Data Facet calculates risk factor">
+	    <!-- 
+		<Workflow Limit="1" Live="1" Timeout="-1">
+			<Task name="Main">
+				<Event name="Argument" as="ActionArgument" />
+				<Invoke name="CSVDataLoader" waitFor="Argument">
+					<FacetScript>
+						<Log Message="Loading file..."/>
+						<LoadFromCSV fileName="[%:Event.Argument.fileName.Value:%]" 
+									 destModelName="[%:Event.Argument.destModelName.Value:%]"/>
+					</FacetScript>
+				</Invoke>
+				<Output name="ActionResult">
+					<Value>
+						<fileName>[%:Event.Argument.fileName.Value:%]</fileName>
+					</Value>
+				</Output>
+			</Task>
+		</Workflow>
+		 -->
+	</Action>
+</AppFacet>

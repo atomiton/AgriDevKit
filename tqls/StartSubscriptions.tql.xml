@@ -1,0 +1,12 @@
+<Query>
+	<subscribeMcuGridChange />
+	<SubscribeToSensor />
+	<!-- <SubscribeToSensorOnCreate /> -->
+	<SubscribeToSensorForZoneAggInfo />
+	<SubscribeForAirTemperature/>
+	<SubscribeUpdatePolygon/>
+	<PurgeSensorHistory/>
+	<SubscribeToZoneAggOnCreate/>
+	<SubscribeToZoneAggOnUpdate/>
+	<SensorValueToZoneAggInfoScheduler />
+</Query>

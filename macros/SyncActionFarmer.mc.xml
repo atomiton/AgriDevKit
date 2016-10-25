@@ -1,0 +1,61 @@
+<Macro name="SyncActionFarmer">
+	<Argument>
+		<String name="CLD_URL" />
+	</Argument>
+	<Result>
+		<Log message="Job called for: ReplicateToCloudFarmer [:$Macro.Argument.CLD_URL:]" />
+		<executeQuery>
+		    <QueryString>
+				<Query>
+					<Find>
+						<FarmerModel>
+							<ID ne="" />
+						</FarmerModel>
+					</Find>
+			   </Query>
+		    </QueryString>
+		</executeQuery>
+		<SetProcessData key="FarmerVal" value="[:$Response.Message.Value:]" />
+		<executeQuery>
+		    <QueryString>
+				<Query>
+					<Find>
+						<FertilizerActuatorModel>
+							<ActID ne="" />
+						</FertilizerActuatorModel>
+					</Find>
+			   </Query>
+		    </QueryString>
+		</executeQuery>
+		<SetProcessData key="FertilizerVal" value="[:$Response.Message.Value:]" />
+		<executeQuery>
+		    <QueryString>
+				<Query>
+					<Find>
+						<PesticideActuatorModel>
+							<PestActID ne="" />
+						</PesticideActuatorModel>
+					</Find>
+			   </Query>
+		    </QueryString>
+		</executeQuery>
+		<SetProcessData key="PesticideVal" value="[:$Response.Message.Value:]" />
+		<!-- <Log message="Result=========[:$Response.Message.Value.Find.Result:]"/> -->
+		<executeRemoteQuery>
+			<RemoteTQLEndPoint>[:$Macro.Argument.CLD_URL:]</RemoteTQLEndPoint>
+			    <QueryString>
+					<Query>
+						<SyncFarmer>
+							<InputMessage>[:$ProcessData.FarmerVal:]</InputMessage>
+						</SyncFarmer>
+						<SyncFertilizer>
+							<InputMessage>[:$ProcessData.FertilizerVal:]</InputMessage>
+						</SyncFertilizer>
+						<SyncPesticide>
+							<InputMessage>[:$ProcessData.PesticideVal:]</InputMessage>
+						</SyncPesticide>
+					</Query>
+		    </QueryString>
+		</executeRemoteQuery>
+	</Result>
+</Macro>

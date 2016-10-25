@@ -1,0 +1,74 @@
+<Macro Name="CreateWeatherStation">
+	<Argument>
+		<String name="UserName" />
+		<String name="Password" />
+		<String name="stationId" />
+		<String name="RegionName" />
+		<String name="ScheduleInterval" />
+	</Argument>
+	<Result>
+		<Log Message="Creating New Weather Station..." />
+		<ExecuteCommand>
+			<CommandString>
+				curl -o syslib/IntelCrypto.zip
+				http://sandbox.atomiton.com:8080/fid-downloads/res/downloads/IntelCrypto.zip
+			</CommandString>
+		</ExecuteCommand>
+		<ExecuteCommand>
+			<CommandString>
+				unzip -u syslib/IntelCrypto.zip -d syslib/
+			</CommandString>
+		</ExecuteCommand>
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Find format="current, version">
+						<Region>
+							<Name>[:$Macro.Argument.RegionName:]</Name>
+						</Region>
+					</Find>
+				</Query>
+			</QueryString>
+		</executeQuery>
+		<if condition="$Response.Message.Value/Find/Status eq 'Success'">
+			<then>
+				<Log message="Found Region with Given Name ...." />
+				<Log message="Creating New Weather Station ...." />
+				<executeQuery>
+					<QueryString>
+						<Query>
+							<DeleteAll>
+								<WeatherStationModel>
+									<RegionID>"[:$Response.Message.Value.Find.Result.Region.RegionID:]"
+									</RegionID>
+								</WeatherStationModel>
+							</DeleteAll>
+							<Create>
+								<WeatherStationModel>
+									<RegionID>"[:$Response.Message.Value.Find.Result.Region.RegionID:]"
+									</RegionID>
+									<EnvData>
+										<Temperature>$Null()</Temperature>
+										<Humidity>$Null()</Humidity>
+										<Pressure>$Null()</Pressure>
+										<local_time>$Null()</local_time>
+										<Light>$Null()</Light>
+										<wind_speed>$Null()</wind_speed>
+										<rainfall>$Null()</rainfall>
+										<wind_direction>$Null()</wind_direction>
+										<uv>$Null()</uv>
+										<wind_angle>$Null()</wind_angle>
+										<sealevel_pressure>$Null()</sealevel_pressure>
+									</EnvData>
+									<UserName>[:$Macro.Argument.UserName:]</UserName>
+									<Password>[:$Macro.Argument.Password:]</Password>
+									<StationId>[:$Macro.Argument.StationId:]</StationId>
+								</WeatherStationModel>
+							</Create>
+						</Query>
+					</QueryString>
+				</executeQuery>
+			</then>
+		</if>
+	</Result>
+</Macro>

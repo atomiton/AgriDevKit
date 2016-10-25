@@ -1,0 +1,51 @@
+<Macro name="GetCloudURL">
+	<Argument/>
+	<Result>
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Find>
+						<SystemConfig>
+							<Key eq="CLD_URL" />
+						</SystemConfig>
+					</Find>
+				</Query>
+			</QueryString>
+		</executeQuery>
+		<SetLocalData Key="CLD_URL" Value="[:$Response.Message.Value.Find.Result.SystemConfig.Value:]"/>
+		<executeRemoteQuery>
+			<RemoteTQLEndPoint>[:$Response.Message.Value.Find.Result.SystemConfig.Value:]/fid-TQLEngineManager?x-atomiton-studio-key=MWFlMWE3OGEtMTBiYS00ZWI3LWEzMzUtZjg3NmQ4ZjQ0NDk</RemoteTQLEndPoint>
+			    <QueryString>
+					<Query>
+							<Find as="$none:Project:$none" format="version,current">
+								<Project as="var.Project">
+									<projName eq="SmartFarm"/>
+								</Project>
+								<ProjectEndPoints >
+									<projectSysId  eq="var.Project.SysId" />
+									<endPointName eq="TQLQueryInterface" />
+								</ProjectEndPoints>
+							</Find>
+						</Query>
+		    </QueryString>
+		</executeRemoteQuery>
+		<Log message="Post Value: [:$Response.Message.Value:]" />
+		<JavaScript>
+			var uri = "[:$Response.Message.Value.PostDataOutput.Message.Value.Project.endPointURL.Value:]";
+			sffLog.info("FOUND URI: " + uri);
+			if(uri.indexOf("[") == -1) {
+				sffContext.setProcessData("Status", "Success");
+			} else {
+				sffContext.setProcessData("Status", "Failure");
+			}
+			var idx = uri.indexOf("/fid");
+			var fid = uri.substr(idx, uri.length);
+			sffLog.info("FID: " + fid);
+			sffContext.setProcessData("FID", fid);
+		</JavaScript>
+		<SetResponseData key="Message.Value.Result.URL" value="[:$LocalData.CLD_URL:][:$ProcessData.FID:]" />
+		<SetResponseData key="Message.Value.Result.ConnectionStatus" value="[:$ProcessData.Status:]" />
+		<DelResponseData key="Message.Value.Find" />
+		<DelResponseData key="Message.Value.PostDataOutput" />
+	</Result>
+</Macro>

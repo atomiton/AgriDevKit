@@ -1,0 +1,18 @@
+<Macro name="SubscibeToCalcPestFlowRate">
+	<Argument />
+		
+	<Result>
+		<Log message="Registering for Farmer Zone changes" />
+		<SubscribeToTQL TopicName="TQL.Update.gateway.agriculture.FarmerModel.CurrentZone.*" TopicId="[:RuntimeParams.TopicFacetIDName:]SetPestFlowRate">
+			<ActionName>
+				<Log message="********Farmer moved to different Zone SubscibeToCalcPestFlowRate****************" />
+				<Log message="Pest Known==========: [:$Request.Message.Value.Publish.Value:]" />				
+				<Log message="Pest $SID==========: [:$Request.Message.Value.Publish.$sid:]" />
+				<CalculatePestFlowRate>
+					<FarmerID>[:$Request.Message.Value.Publish.$sid:]</FarmerID>
+					<ZoneName>[:$Request.Message.Value.Publish.Value:]</ZoneName>
+				</CalculatePestFlowRate>
+			</ActionName>
+		</SubscribeToTQL>
+	</Result>
+</Macro>

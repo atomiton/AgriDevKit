@@ -1,0 +1,52 @@
+<Macro name="GetMCUHistoryDailyData">
+    <Argument>
+        <String name="MCUName" />
+        <String name="RecordDate" />
+    </Argument>
+    <Result>
+        <JavaScript>
+			var recordDate = "[:$Macro.Argument.RecordDate:]" ;
+			sffLog.info('recordDate: ' + recordDate);
+				
+			function call (dateString){
+
+					 var dLocal = new Date(dateString);
+					 sffLog.info("dLocal: " + dLocal);
+					 var dt1 = (dLocal.getTime() + dLocal.getTimezoneOffset()*60000);
+					 var dt = new Date(dt1);
+					 sffLog.info("dt: " + dt);
+					 var upperLim = [dt.getFullYear(),(dt.getMonth()+1),(dt.getDate())].join('-')//2016-04-07T08:37:00Z
+					 upperLim = upperLim + "T"+[dt.getHours(),dt.getMinutes(),dt.getSeconds()].join(":") + "Z";
+					 var lowerLim = [dt.getFullYear(),(dt.getMonth()+1),(dt.getDate()-1)].join('-')//2016-04-07T08:37:00Z
+					 lowerLim = lowerLim + "T"+[dt.getHours(),dt.getMinutes(),dt.getSeconds()].join(":") + "Z";
+					 sffLog.info('upperLim: ' + upperLim);
+					 sffLog.info('lowerLim: ' + lowerLim);
+					 
+					 
+					 sffContext.setProcessData("upperLim",upperLim);
+				sffContext.setProcessData("lowerLim",lowerLim);
+					 
+			}
+			
+			call(recordDate);
+		</JavaScript>
+        <executeQuery>
+            <QueryString>
+                <Query>
+                    <Find OrderBy="SensorHistoryModel.RecordDate asc">
+                        <SensorHistoryModel>
+                            <MCUName eq="[:$Macro.Argument.MCUName:]" />
+                            <RecordDate gt="[:$ProcessData.lowerLim:]" />
+                            <RecordDate lt="[:$ProcessData.upperLim:]" />
+                        </SensorHistoryModel>
+                    </Find>
+                    <If condition="/[:$Response.Message.Value.Find/count(Result):] eq 0">
+                        <then>
+                            <SetResponseData key="Message.Value.Result" value="[:$Response.Message.Value.Find/count(Result):]" />
+                        </then>
+                    </If>
+                </Query>
+            </QueryString>
+        </executeQuery>
+    </Result>
+</Macro>

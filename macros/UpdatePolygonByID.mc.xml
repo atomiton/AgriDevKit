@@ -1,0 +1,35 @@
+<Macro Name="UpdatePolygonByID">
+  <Argument>
+    
+  
+    <String name="ID" />
+	<Number name="Order"/>
+  
+  </Argument>
+  <Result>
+    <Log Message="***************UpdatePolygonByID**********************"/>
+    
+    <executeQuery>
+      <QueryString>
+        <Query>
+          <Find format="version, current">
+            <Polygon>
+              <ID eq="[:$Macro.Argument.ID:]"/>
+              
+            </Polygon>
+          </Find>
+		  
+          <SetResponseData>
+            <Key>Message.Value.Find.Result.Polygon.Order.Value</Key>
+            <Value>[:$Macro.Argument.Order:]</Value>
+          </SetResponseData>
+         
+          <Update>
+            <from>Result</from>
+            <Include>$Response.Message.Value.Find</Include>
+          </Update>
+        </Query>
+      </QueryString>
+    </executeQuery>
+  </Result>
+</Macro>

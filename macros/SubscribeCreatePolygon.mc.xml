@@ -1,0 +1,45 @@
+<Macro name="SubscribeCreatePolygon">
+	<Argument />
+		
+	<Result>
+		<Log message="Subscribe to Sensor Updates" />
+		<SubscribeToTQL TopicName="TQL.Create.gateway.agriculture.Polygon.*" TopicId="[:RuntimeParams.TopicFacetIDName:]SubscribeCreatePolygon">
+			<ActionName>
+				<Log message="Known==========: [:$Request.Message.Value.Publish.Value:]" />
+				<Log message="$SID==========: [:$Request.Message.Value.Publish.$sid:]" />
+				<executeQuery>
+					<QueryString>
+						<Query>
+							<Find>
+								<Polygon>
+									<ID eq="[:$Request.Message.Value.Publish.$sid:]" />
+								</Polygon>
+							</Find>
+						</Query>
+					</QueryString>
+				</executeQuery>
+				<SetLocalData key="ZoneName" Value="[:$Request.Message.Value.Find.Result.Polygon.ZoneName:]" />
+				<SetLocalData key="Order" Value="[:$Request.Message.Value.Find.Result.Polygon.Order:]" />
+				<executeQuery>
+					<QueryString>
+						<Query>
+							<Find>
+								<Polygon>
+									<ZoneName eq="[:$LocalData.ZoneName:]" />
+									<Order gt="[:$LocalData.Order:]" />
+								</Polygon>
+							</Find>
+						</Query>
+					</QueryString>
+				</executeQuery>
+				<If condition="[:$Response.Message.Value.Find/count(Result):] eq 0">
+					<then>
+						<CalculatePolygonArea>
+							<ZoneName>[:$Request.Message.Value.Find.Result.Polygon.ZoneName:]</ZoneName>
+						</CalculatePolygonArea>
+					</then>	
+				</If>
+			</ActionName>
+		</SubscribeToTQL>
+	</Result>
+</Macro>

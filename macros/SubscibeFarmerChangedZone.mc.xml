@@ -1,0 +1,23 @@
+<Macro name="SubscibeFarmerChangedZone">
+	<Argument />
+		
+	<Result>
+		<Log message="Registering for Farmer Zone changes" />
+		<SubscribeToTQL TopicName="TQL.Update.gateway.agriculture.FarmerModel.CurrentZone.*" TopicId="[:RuntimeParams.TopicFacetIDName:]FarmerZoneChange">
+			<ActionName>
+				<Log message="Farmer moved to different Zone" />
+				<Log message="Known==========: [:$Request.Message.Value.Publish.Value:]" />
+				<Log message="OldKnown==========: [:$Request.Message.Value.Publish.OldValue:]" />
+				<Log message="$SID==========: [:$Request.Message.Value.Publish.$sid:]" />
+				<JavaScript>
+					sffContext.setLocalData("CurrentTimestamp",(new Date()).getTime());
+				</JavaScript>
+				<CalculateZoneSprayInfo>
+					<FarmerID>[:$Request.Message.Value.Publish.$sid:]</FarmerID>
+					<OldZone>[:$Request.Message.Value.Publish.OldValue:]</OldZone>
+					<TimeStamp>[:$LocalData.CurrentTimestamp:]</TimeStamp>
+				</CalculateZoneSprayInfo>
+			</ActionName>
+		</SubscribeToTQL>
+	</Result>
+</Macro>

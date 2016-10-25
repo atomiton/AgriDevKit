@@ -1,0 +1,14 @@
+<CreateWeatherStation>
+<UserName>
+    abatra@atomiton.com
+  </UserName>
+  <Password>
+    wellcome
+  </Password>
+  <stationId>
+    0004a3689a9f
+  </stationId>
+  <RegionName>
+    Region-T1
+  </RegionName>
+</CreateWeatherStation>

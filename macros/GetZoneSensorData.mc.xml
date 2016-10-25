@@ -1,0 +1,46 @@
+<Macro name="GetZoneSensorData">
+	<Argument>
+		<String name="ZoneName"/>
+	</Argument>
+	<Result>
+		<Log Message="*********** Start GetZoneSensorData*************"/>
+	 
+				<executeQuery>
+					<QueryString>
+						<Query>
+							<Find format="current,version">
+								<ZoneAggregateInfo>
+									<ZoneName eq ="[:$Macro.Argument.ZoneName:]"/>
+								</ZoneAggregateInfo>
+							</Find>
+							
+							
+					
+				<If condition="/[:$Response.Message.Value.Find/count(Result):] eq 0">
+				<then>
+				<SetResponseData key="Message.Value.Result" value="[:$Response.Message.Value.Find/count(Result):]" />
+				</then>
+				<else>
+				<For each="AggData" in="Find.Result.ZoneAggregateInfo" using="$ProcessData" >
+				
+					<GetZoneAbstractSensorData>
+					<SensorName>[:$ProcessData.AggData.SensorName.Value:]</SensorName>
+					<ID>[:$ProcessData.AggData.ID:]</ID>
+					</GetZoneAbstractSensorData>
+				
+				<!-- <SetResponseData key="Message.Value.SensorName" value="[:$ProcessData.ZoneAgg.SensorName.Value:]" />
+			
+				<SetResponseData key="Message.Value.ID" value="[:$ProcessData.ZoneAgg.ID:]" /> -->
+				
+				</For>
+				</else>
+				</If>
+				 <DelResponseData key="Message.Value.Find" />
+						</Query>
+					</QueryString>
+					
+				</executeQuery>
+				
+				
+	</Result>
+</Macro>

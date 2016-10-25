@@ -1,0 +1,52 @@
+<Macro Name="FindObjectInGrid">
+	<Argument>
+		<String name="ZoneName"/>
+		<Double name="MCU_Lat"/>
+		<Double name="MCU_Long"/>
+	</Argument>
+	<!-- <Log Message="**************starting Find MCUGrid************"/> -->
+	<Result>
+		<DelResponseData Key="Message.Value.Result.InBoungingBox"/>
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<find>
+						<Grid>
+							<ZoneName eq="[:$Macro.Argument.ZoneName:]"/>
+						</Grid>
+					</find>
+				</Query>		
+				<For each="grids" in="Find.Result.Grid" using="$ProcessData" >
+					<!-- <Log message="UpperLeft_Lat ;;;;: [:$ProcessData.grids.Area.UpperLeft.latitude:]"/>
+					<Log message="UpperLeft_Long ;;;;;[:$ProcessData.grids.Area.UpperLeft.longitude:]"/>
+					<Log message="LowerRight_Lat ;;;;;[:$ProcessData.grids.Area.LowerRight.latitude:]"/>
+					<Log message="LowerRight_Long ;;;[:$ProcessData.grids.Area.LowerRight.longitude:]"/> -->
+				    <CheckInBoundingBox>
+				    	<ZoneID>[:$Macro.Argument.ZoneName:]</ZoneID>
+				    	<latitude>[:$Macro.Argument.MCU_Lat:]</latitude>
+				    	<longitude>[:$Macro.Argument.MCU_Long:]</longitude>
+				    	<UpperLeft>
+					    	<latitude>[:$ProcessData.grids.Area.UpperLeft.latitude:]</latitude>
+					    	<longitude>[:$ProcessData.grids.Area.UpperLeft.longitude:]</longitude>
+				    	</UpperLeft>
+				    	<LowerRight>
+					    	<latitude>[:$ProcessData.grids.Area.LowerRight.latitude:]</latitude>
+					    	<longitude>[:$ProcessData.grids.Area.LowerRight.longitude:]</longitude>
+				    	</LowerRight>
+				    </CheckInBoundingBox>
+					<!-- <Log message="Response for Grid: [:$Response.Message.Value.Result.InBoungingBox:]" /> -->
+					<if condition="/'[:$Response.Message.Value.Result.InBoungingBox:]' eq 'true'">
+						<then>
+							<Log message="Object is in Grid: [:$ProcessData.grids.Name:] of Zone [:$Macro.Argument.ZoneName:]" />
+							<SetResponseData>
+								<Key>Message.Value.Result.GridName</Key>
+								<Value>[:$ProcessData.grids.Name:]</Value>
+							</SetResponseData>
+						</then>
+					</if>
+			    </For>
+			</QueryString>
+		</executeQuery>
+	</Result>
+</Macro>
+

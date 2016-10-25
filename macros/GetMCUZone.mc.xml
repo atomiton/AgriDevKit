@@ -1,0 +1,94 @@
+<Macro Name="GetMCUZone">
+	<Argument>
+		<Double name="MCU_Lat"/>
+		<Double name="MCU_Long"/>
+	</Argument>
+	<!-- <Log Message="**************starting Find MCUZone************"/> -->
+	<Result>
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<find>
+						<Zone>
+							<ZoneID ne=""/>
+						</Zone>
+					</find>
+				</Query>		
+
+				<For each="zones" in="Find.Result.Zone" using="$ProcessData" >
+					<!-- <SetProcessData>
+							<Key>ZoneName</Key>
+							<Value>[:$ProcessData.zones.Name:]</Value>
+					</SetProcessData>
+					<SetProcessData>
+							<Key>UpperLeft_Lat</Key>
+							<Value>[:$ProcessData.zones.Area.UpperLeft.latitude:]</Value>
+					</SetProcessData>
+					<SetProcessData>
+							<Key>UpperLeft_Long</Key>
+							<Value>[:$ProcessData.zones.Area.UpperLeft.longitude:]</Value>
+					</SetProcessData>
+					<SetProcessData>
+							<Key>LowerRight_Lat</Key>
+							<Value>[:$ProcessData.zones.Area.LowerRight.latitude:]</Value>
+					</SetProcessData>
+						<SetProcessData>
+							<Key>LowerRight_Long</Key>
+							<Value>[:$ProcessData.zones.Area.LowerRight.longitude:]</Value>
+					</SetProcessData> -->
+
+					<!-- <JavaScript>
+						sffLog.info("UpperLeft_Lat : " +"[:$ProcessData.UpperLeft_Lat:]");
+						sffLog.info("UpperLeft_Long : "+"[:$ProcessData.UpperLeft_Long:]");
+
+						sffLog.info("LowerRight_Lat : " +"[:$ProcessData.LowerRight_Lat:]");
+						sffLog.info("LowerRight_Long"+"[:$ProcessData.LowerRight_Long:]");
+			   		</JavaScript> -->
+
+				    <CheckInBoundingBox>
+				    	<ZoneID>[:$ProcessData.zones.Name:]</ZoneID>
+				    	<latitude>[:$Macro.Argument.MCU_Lat:]</latitude>
+				    	<longitude>[:$Macro.Argument.MCU_Long:]</longitude>
+				    	<UpperLeft>
+					    	<latitude>[:$ProcessData.zones.Area.UpperLeft.latitude:]</latitude>
+					    	<longitude>[:$ProcessData.zones.Area.UpperLeft.longitude:]</longitude>
+				    	</UpperLeft>
+				    	<LowerRight>
+					    	<latitude>[:$ProcessData.zones.Area.LowerRight.latitude:]</latitude>
+					    	<longitude>[:$ProcessData.zones.Area.LowerRight.longitude:]</longitude>
+				    	</LowerRight>
+				    </CheckInBoundingBox>
+					<Log message="Response for Zone: [:$Response.Message.Value.Result.InBoungingBox:]" />
+					<if condition="/'[:$Response.Message.Value.Result.InBoungingBox:]' eq 'true'">
+						<then>
+							<Log message="MCU is in Zone: [:$ProcessData.zones.Name:]" />
+							<SetProcessData key="MCUZone" value="[:$ProcessData.zones.Name:]" />
+							<!-- <FindObjectInGrid>
+								<ZoneName>[:$ProcessData.ZoneName:]</ZoneName>
+								<MCU_Lat>[:$Macro.Argument.MCU_Lat:]</MCU_Lat>
+								<MCU_Long>[:$Macro.Argument.MCU_Long:]</MCU_Long>
+							</FindObjectInGrid>
+							
+							<SetResponseData>
+								<Key>Message.Value.Result.GridName</Key>
+								<Value>[:$Response.Message.Value.Result.GridName:]</Value>
+							</SetResponseData> -->
+						</then>
+					</if>
+			    </For>
+			</QueryString>
+		</executeQuery>
+		<JavaScript>
+			var mcuZone = "[:$ProcessData.MCUZone:]";
+			if(mcuZone.indexOf(":$") != -1) {
+				sffContext.setProcessData("MCUZone","UnassignedZone");
+			}
+		</JavaScript>
+		<SetResponseData>
+			<Key>Message.Value.Result.ZoneName</Key>
+			<Value>[:$ProcessData.MCUZone:]</Value>
+		</SetResponseData>
+		<Log message="GetMCUZone response: [:$Response.Message.Value.Result.ZoneName:]" />
+	</Result>
+</Macro>
+

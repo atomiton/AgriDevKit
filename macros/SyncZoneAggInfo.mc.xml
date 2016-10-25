@@ -1,0 +1,119 @@
+<Macro Name="SyncZoneAggInfo">
+	<Argument>
+		<InputMessage/>
+	</Argument>
+	<Result>
+		<NewLocalData>
+	       <TempData><Include>$Macro.Argument.InputMessage</Include></TempData>
+	    </NewLocalData>
+		<Log message="In ZoneAction: [:$LocalData.TempData:]" />
+		<For each="grids" from="$LocalData.TempData" in="Find.Result.ZoneAggregateInfo">
+        	<!-- <Log message="Grids: [:$LocalData.grids:]"/> -->
+        	<Log message="Zone name::::::::: [:$LocalData.grids.ZoneName:]"/>
+        	<executeQuery>
+			    <QueryString>
+					<Query>
+						<Find format="version">
+							<ZoneAggregateInfo>
+								<ZoneName eq="[:$LocalData.grids.ZoneName:]" />
+								<SensorName eq="[:$LocalData.grids.SensorName:]" />
+							</ZoneAggregateInfo>
+						</Find>
+						
+					
+						<if condition="/[:$Response.Message.Value.Find/count(Result):] eq 0">
+							<then>
+								<!-- <if condition="'/[:$LocalData.grids.SensorName:]' eq 'SoilMoisture'">
+									<then> -->
+										<JavaScript>
+											var value = parseFloat("[:$LocalData.grids.AvgValue:]");
+											var sensor = "[:$LocalData.grids.SensorName:]";
+											if(sensor == 'SoilMoisture') {
+												sffContext.setLocalData("NormalizedValue",value * 0.1041870117);
+											} else {
+												sffContext.setLocalData("NormalizedValue",value);
+											}
+										</JavaScript>
+										<Create>
+											<ZoneAggregateInfo>
+												<ZoneName>[:$LocalData.grids.ZoneName:]</ZoneName>
+												<SensorName>[:$LocalData.grids.SensorName:]</SensorName>
+												<CurrentValue>[:$LocalData.grids.CurrentValue:]</CurrentValue>
+												<MinValue>[:$LocalData.grids.MinValue:]</MinValue>
+												<MaxValue>[:$LocalData.grids.MaxValue:]</MaxValue>
+												<AvgValue>[:$LocalData.grids.AvgValue:]</AvgValue>
+												<NAvgValue>[:$LocalData.NormalizedValue:]</NAvgValue>
+												<Unit>[:$LocalData.grids.Unit:]</Unit>
+												<Time>[:$LocalData.grids.Time:]</Time>
+												<Count>[:$LocalData.grids.Count:]</Count>
+											</ZoneAggregateInfo>
+										</Create>
+									<!--</then>
+									<else>
+										<Create>
+											<ZoneAggregateInfo>
+												<ZoneName>[:$LocalData.grids.ZoneName:]</ZoneName>
+												<SensorName>[:$LocalData.grids.SensorName:]</SensorName>
+												<CurrentValue>[:$LocalData.grids.CurrentValue:]</CurrentValue>
+												<MinValue>[:$LocalData.grids.MinValue:]</MinValue>
+												<MaxValue>[:$LocalData.grids.MaxValue:]</MaxValue>
+												<AvgValue>[:$LocalData.grids.AvgValue:]</AvgValue>
+												<NAvgValue>[:$LocalData.grids.AvgValue:]</NAvgValue>
+												<Unit>[:$LocalData.grids.Unit:]</Unit>
+												<Time>[:$LocalData.grids.Time:]</Time>
+												<Count>[:$LocalData.grids.Count:]</Count>
+											</ZoneAggregateInfo>
+										</Create>
+									</else>
+								</if> -->
+								
+							</then>
+							<else>
+								<!-- <if condition="/'[:$LocalData.grids.SensorName:]' eq 'SoilMoisture'">
+									<then> -->
+										<JavaScript>
+											var value = parseFloat("[:$LocalData.grids.AvgValue:]");
+											var sensor = "[:$LocalData.grids.SensorName:]";
+											sffLog.info("RawValue: " + value );
+											var nval = value * 0.1041870117;
+											sffLog.info("NormalizedValue: " +  nval);
+											if(sensor == 'SoilMoisture') {
+												sffContext.setLocalData("NormalizedValue",nval);
+											} else {
+												sffContext.setLocalData("NormalizedValue",value);
+											}
+										</JavaScript>
+										<SetResponseData Key="Message.Value.Find.Result.ZoneAggregateInfo.CurrentValue.Value" Value="[:$LocalData.grids.CurrentValue:]" />
+										<SetResponseData Key="Message.Value.Find.Result.ZoneAggregateInfo.MinValue.Value" Value="[:$LocalData.grids.MinValue:]" />
+										<SetResponseData Key="Message.Value.Find.Result.ZoneAggregateInfo.MaxValue.Value" Value="[:$LocalData.grids.MaxValue:]" />
+										<SetResponseData Key="Message.Value.Find.Result.ZoneAggregateInfo.AvgValue.Value" Value="[:$LocalData.grids.AvgValue:]" />
+										<SetResponseData Key="Message.Value.Find.Result.ZoneAggregateInfo.NAvgValue.Value" Value="[:$LocalData.NormalizedValue:]" />
+										<SetResponseData Key="Message.Value.Find.Result.ZoneAggregateInfo.Unit.Value" Value="[:$LocalData.grids.Unit:]" />
+										<SetResponseData Key="Message.Value.Find.Result.ZoneAggregateInfo.Time.Value" Value="[:$LocalData.grids.Time:]" />
+										<SetResponseData Key="Message.Value.Find.Result.ZoneAggregateInfo.Count.Value" Value="[:$LocalData.grids.Count:]" />
+									<!--</then>
+									<else>
+										<SetResponseData Key="Message.Value.Find.Result.ZoneAggregateInfo.CurrentValue.Value" Value="[:$LocalData.grids.CurrentValue:]" />
+										<SetResponseData Key="Message.Value.Find.Result.ZoneAggregateInfo.MinValue.Value" Value="[:$LocalData.grids.MinValue:]" />
+										<SetResponseData Key="Message.Value.Find.Result.ZoneAggregateInfo.MaxValue.Value" Value="[:$LocalData.grids.MaxValue:]" />
+										<SetResponseData Key="Message.Value.Find.Result.ZoneAggregateInfo.AvgValue.Value" Value="[:$LocalData.grids.AvgValue:]" />
+										<SetResponseData Key="Message.Value.Find.Result.ZoneAggregateInfo.NAvgValue.Value" Value="[:$LocalData.grids.AvgValue:]" />
+										<SetResponseData Key="Message.Value.Find.Result.ZoneAggregateInfo.Unit.Value" Value="[:$LocalData.grids.Unit:]" />
+										<SetResponseData Key="Message.Value.Find.Result.ZoneAggregateInfo.Time.Value" Value="[:$LocalData.grids.Time:]" />
+										<SetResponseData Key="Message.Value.Find.Result.ZoneAggregateInfo.Count.Value" Value="[:$LocalData.grids.Count:]" />
+									</else>
+								</if>	-->
+								
+								
+								<Update>
+									<from>Result</from>
+									<Include>$Response.Message.Value.Find</Include>
+								</Update>
+							</else>
+						</if>
+				    </Query>
+			    </QueryString>
+			</executeQuery>
+        </For>
+	</Result>
+</Macro>

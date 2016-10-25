@@ -1,0 +1,81 @@
+<Macro name="GetFarmerZone">
+	<Argument>
+		
+	<Double name="FarmerLat" />
+		<Double name="FarmerLon" />
+		<String name="GPSID" />
+		<Number name="Velocity" />
+		<Number name="Head"/> 
+		<payload />
+	</Argument>
+	<Result>
+		<Log message="********** IN get farmer in zone*********** "/>
+			<Log message="farmer latitude : [:$Macro.Argument.FarmerLat:]"/>
+			<Log message="farmer longitude : [:$Macro.Argument.FarmerLon:]"/>
+			<Log message="GPSID : [:$Macro.Argument.GPSID:]"/>
+			<Log message="Velocity :[:$Macro.Argument.Velocity:]"/>
+			<Log message="Head : [:$Macro.Argument.Head:]"/>
+		
+			<GetMCUZoneForFarmer>
+				<MCU_Lat>[:$Macro.Argument.FarmerLat:]</MCU_Lat>
+				<MCU_Long>[:$Macro.Argument.FarmerLon:]</MCU_Long>
+			</GetMCUZoneForFarmer>
+		
+			<Log Message="Got response checkBoundingBox [:$Response.Message.Value.Result.ZoneName:]"/>
+			<JavaScript>
+				var zoneName = "[:$Response.Message.Value.Result.ZoneName:]";
+				if(zoneName.indexOf(":$") != -1) {
+					sffContext.setProcessData("ValidZone","false"); 
+						sffLog.info("Farmer In Zone:" + false);
+				} else {
+				sffLog.info("Farmer In Zone" + true);
+				sffContext.setProcessData("ValidZone","true"); 
+				}
+			</JavaScript>
+			<Log message="Valid Zone: [:$ProcessData.ValidZone:]" />	
+			 <if condition="/'[:$ProcessData.ValidZone:]' eq 'true'">
+				<then>
+					 <updateFarmerModel>
+						<GPSID>[:$Macro.Argument.GPSID:]</GPSID>
+						<Velocity>[:$Macro.Argument.Velocity:]</Velocity>
+						<Head>[:$Macro.Argument.Head:]</Head>
+						<ZoneName>[:$Response.Message.Value.Result.ZoneName:]</ZoneName>
+						<Lat>[:$Macro.Argument.FarmerLat:]</Lat>
+						<Lon>[:$Macro.Argument.FarmerLon:]</Lon>
+					</updateFarmerModel> 
+				</then>
+				<else>
+					<updateFarmerModel>
+						<GPSID>[:$Macro.Argument.GPSID:]</GPSID>
+						<Velocity>[:$Macro.Argument.Velocity:]</Velocity>
+						<Head>[:$Macro.Argument.Head:]</Head>
+						<ZoneName>None</ZoneName>
+						<Lat>[:$Macro.Argument.FarmerLat:]</Lat>
+						<Lon>[:$Macro.Argument.FarmerLon:]</Lon>
+					</updateFarmerModel> 
+				</else>
+			 </if> 
+			 
+			<SetResponseData>
+				<Key>Message.Value.Result.FarmerLat</Key>
+				<Value>[:$Macro.Argument.FarmerLat:]</Value>
+			</SetResponseData>
+			<SetResponseData>
+				<Key>Message.Value.Result.FarmerLon</Key>
+				<Value>[:$Macro.Argument.FarmerLon:]</Value>
+			</SetResponseData>
+			<SetResponseData>
+				<Key>Message.Value.Result.Velocity</Key>
+				<Value>[:$Macro.Argument.Velocity:]</Value>
+			</SetResponseData>
+			<SetResponseData>
+				<Key>Message.Value.Result.Head</Key>
+				<Value>[:$Macro.Argument.Head:]</Value>
+			</SetResponseData>
+			<SetResponseData>
+				<Key>Message.Value.Result.payload</Key>
+				<Value>[:$Macro.Argument.payload:]</Value>
+			</SetResponseData>
+			
+</Result>
+</Macro>

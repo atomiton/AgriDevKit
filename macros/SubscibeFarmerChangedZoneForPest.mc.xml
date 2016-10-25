@@ -1,0 +1,23 @@
+<Macro name="SubscibeFarmerChangedZoneForPest">
+	<Argument />
+		
+	<Result>
+		<Log message="Registering for Farmer Zone changes SubscibeFarmerChangedZoneForPest" />
+		<SubscribeToTQL TopicName="TQL.Update.gateway.agriculture.FarmerModel.CurrentZone.*" TopicId="[:RuntimeParams.TopicFacetIDName:]FarmerZoneChangePest">
+			<ActionName>
+				<Log message="*************Farmer moved to different Zone SubscibeFarmerChangedZoneForPest***********" />
+				<Log message="Known Pest==========: [:$Request.Message.Value.Publish.Value:]" />
+				<Log message="OldKnown Pest==========: [:$Request.Message.Value.Publish.OldValue:]" />
+				<Log message="$SID Pest==========: [:$Request.Message.Value.Publish.$sid:]" />
+				<JavaScript>
+					sffContext.setLocalData("CurrentTimestamp",(new Date()).getTime());
+				</JavaScript>
+				<CalculateZonePestSprayInfo>
+					<FarmerID>[:$Request.Message.Value.Publish.$sid:]</FarmerID>
+					<OldZone>[:$Request.Message.Value.Publish.OldValue:]</OldZone>
+					<TimeStamp>[:$LocalData.CurrentTimestamp:]</TimeStamp>
+				</CalculateZonePestSprayInfo>
+			</ActionName>
+		</SubscribeToTQL>
+	</Result>
+</Macro>

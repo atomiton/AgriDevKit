@@ -1,0 +1,114 @@
+<Macro Name="ScheduleRegionToZoneInfoUpdate">
+	<Argument>
+		<String name="RegionName" />
+		<String name="ScheduleInterval" />
+	</Argument>
+	<Result>
+		<Log message="Updating Weather Info to Zone From Region...." />
+		<Log message="Region Name is '[:$Macro.Argument.RegionName:]'...." />
+		<ScheduleJob>
+			<Name>ZoneInfoUpdate</Name>
+			<ScheduleInterval>[:$Macro.Argument.ScheduleInterval:]
+			</ScheduleInterval>
+			<ActionCode>
+				<executeQuery>
+					<QueryString>
+						<Query>
+							<Find format="current, version">
+								<Region>
+									<Name>[:$Macro.Argument.RegionName:]</Name>
+								</Region>
+							</Find>
+						</Query>
+					</QueryString>
+				</executeQuery>
+				<if condition="$Response.Message.Value/Find/Status eq 'Success'">
+					<then>
+						<Log message="Finding Region Success...." />
+						<SetContextData key="RegionID">
+							<Value>[:$Response.Message.Value.Find.Result.Region.RegionID:]
+							</Value>
+						</SetContextData>
+					</then>
+				</if>
+				<executeQuery>
+					<QueryString>
+						<Query>
+							<Find format="version,Known">
+								<WeatherStationModel>
+									<RegionID>[:$ContextData.RegionID:]</RegionID>
+								</WeatherStationModel>
+							</Find>
+						</Query>
+					</QueryString>
+				</executeQuery>
+				<if condition="$Response.Message.Value/Find/Status eq 'Success'">
+					<then>
+						<Log message="Found the weather station...." />
+						<SetContextData key="Temperature">
+							<Value>[:$Response.Message.Value.Find.Result.WeatherStationModel.EnvData.Temperature.Known:]
+							</Value>
+						</SetContextData>
+						<SetContextData key="Humidity">
+							<Value>[:$Response.Message.Value.Find.Result.WeatherStationModel.EnvData.Humidity.Known:]
+							</Value>
+						</SetContextData>
+						<SetContextData key="AirPressure">
+                            <Value>[:$Response.Message.Value.Find.Result.WeatherStationModel.EnvData.Pressure.Known:]
+                            </Value>
+                        </SetContextData>
+					</then>
+					<else>
+						<SetContextData key="Temperature">
+							<Value>-1</Value>
+						</SetContextData>
+						<SetContextData key="Humidity">
+							<Value>-1</Value>
+						</SetContextData>
+						<SetContextData key="AirPressure">
+							<Value>-1</Value>
+						</SetContextData>
+					</else>
+				</if>
+
+				<executeQuery>
+					<QueryString>
+						<Query>
+							<Find format="version,current">
+								<Region as="var.Region">
+									<Name eq="[:$Macro.Argument.RegionName:]" />
+								</Region>
+								<Zone as="var.Zone">
+									<RegionID eq="var.Region.Name" />
+								</Zone>
+								<!-- <ZoneInfo>
+									<ZoneName eq="var.Zone.Name">
+									</ZoneName>
+								</ZoneInfo> -->
+							</Find>
+							<For each="r" in="Find.Result">
+							<UpdateWeatherZoneAggInfo>
+								<ZoneName>[:$LocalData.r.Zone.Name.Value:]</ZoneName>
+								<SensorValue>[:$ContextData.Temperature:]</SensorValue>
+								<SensorType>TCB</SensorType>
+							</UpdateWeatherZoneAggInfo>
+							
+							<UpdateWeatherZoneAggInfo>
+								<ZoneName>[:$LocalData.r.Zone.Name.Value:]</ZoneName>
+								<SensorValue>[:$ContextData.Humidity:]</SensorValue>
+								<SensorType>HUMB</SensorType>
+							</UpdateWeatherZoneAggInfo>
+
+							<UpdateWeatherZoneAggInfo>
+                                <ZoneName>[:$LocalData.r.Zone.Name.Value:]</ZoneName>
+                                <SensorValue>[:$ContextData.AirPressure:]</SensorValue>
+                                <SensorType>PA</SensorType>
+                            </UpdateWeatherZoneAggInfo>
+							</For>
+						</Query>
+					</QueryString>
+				</executeQuery>
+			</ActionCode>
+		</ScheduleJob>
+	</Result>
+</Macro>

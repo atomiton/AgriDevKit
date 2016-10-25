@@ -1,0 +1,30 @@
+<Macro Name="SetDurationForTotalSprayed">
+	<Argument>
+		<String name="Duration"/>
+	</Argument>
+	<Result>
+		<Log Message="*********** Start SetDurationForTotalSprayed*************"/>
+		<JavaScript>
+			var duration = "[:$Macro.Argument.Duration:]";
+			var setContextData = ListMap.static.newInstance(); 
+			var rc = setContextData.instanceAdd("SetTimeInterval");
+			 switch(duration) {
+				case 'Day':
+					rc.put("TimeInterval", '5sec');
+					sffLog.info(setContextData);
+					setContextData;
+					break;
+				case 'Week':
+					rc.put("TimeInterval", '1min');
+					sffLog.info(setContextData);
+					setContextData;
+					break;
+				case 'Month':
+					rc.put("TimeInterval", '1hour');
+					sffLog.info(setContextData);
+					setContextData;
+					break;
+			}
+		</JavaScript>
+	</Result>
+</Macro>

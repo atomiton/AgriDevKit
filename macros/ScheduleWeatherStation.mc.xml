@@ -1,0 +1,61 @@
+<Macro Name="ScheduleWeatherStation">
+	<Argument>
+		<String name="RegionName" />
+		<String name="ScheduleInterval" />
+	</Argument>
+	<Result>
+		<ScheduleJob>
+			<Name>WeatheStationUpdate</Name>
+			<ScheduleInterval>[:$Macro.Argument.ScheduleInterval:]
+			</ScheduleInterval>
+			<ActionCode>
+				<executeQuery>
+					<QueryString>
+						<Query>
+							<Find format="current, version">
+								<Region>
+									<Name>[:$Macro.Argument.RegionName:]</Name>
+								</Region>
+							</Find>
+						</Query>
+					</QueryString>
+				</executeQuery>
+				<if condition="$Response.Message.Value/Find/Status eq 'Success'">
+					<then>
+						<Log message="Getting New Values From Weather  Station ...."/>
+						<executeQuery>
+							<QueryString>
+								<Query>
+									<Find format="version,Known">
+										<WeatherStationModel>
+											<RegionID>"[:$Response.Message.Value.Find.Result.Region.RegionID:]"</RegionID>
+										</WeatherStationModel>
+									</Find>
+									<SetResponseData>
+										<Key>
+											Message.Value.Find.Result.WeatherStationModel.EnvData.Temperature.Known
+										</Key>
+										<Value>
+											0
+										</Value>
+									</SetResponseData>
+									<Update>
+										<From>
+											Result
+										</From>
+										<Include>
+											$Response.Message.Value.Find
+										</Include>
+									</Update>
+								</Query>
+							</QueryString>
+						</executeQuery>
+					</then>
+				</if>
+				<UpdateWeatherStationToRegion>
+					<RegionName>[:$Macro.Argument.RegionName:]</RegionName>
+				</UpdateWeatherStationToRegion>
+			</ActionCode>
+		</ScheduleJob>
+	</Result>
+</Macro>

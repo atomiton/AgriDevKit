@@ -1,0 +1,40 @@
+<Macro name="FarmerLocationController">
+	<Argument />
+	<Result>
+		<Log message="Subscribe to GPSChanges" />
+		<SubscribeToTQL TopicName="TQL.Update.gateway.agriculture.GPSFacetModel.Payload.*" TopicId="[:RuntimeParams.TopicFacetIDName:]GPSFacetModel">
+			<ActionName>
+				<Log message="Known==========: [:$Request.Message.Value.Publish.Known:]" />
+				<Log message="$SID==========: [:$Request.Message.Value.Publish.$sid:]" />
+				<executeQuery>
+					<QueryString>
+						<Query>
+							<find format="version">
+								<FarmerModel>
+									<GPSID eq="[:$Request.Message.Value.Publish.$sid:]"/>
+								</FarmerModel>
+							</find>
+						</Query>	
+					</QueryString>
+				</executeQuery>
+				<if condition="/[:$Response.Message.Value.Find/count(Result):] eq 1">
+					<then>
+						<executeQuery>
+							<QueryString>
+								<Query>
+									<find format="version">
+										<GPSFacetModel>
+											<GPSID eq="[:$Request.Message.Value.Publish.$sid:]"/>
+										</GPSFacetModel>
+									</find>
+								</Query>	
+							</QueryString>
+						</executeQuery>
+						<Log message="GPSModel: [:$Response.Message.Value.Find.Result:]" />
+					</then>
+				</if>
+			
+			</ActionName>
+		</SubscribeToTQL>
+	</Result>
+</Macro>

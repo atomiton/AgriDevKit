@@ -1,0 +1,28 @@
+<Macro Name="executeQueryOnZone">
+  <Argument>
+
+    <QueryString>
+      <Query/>
+    </QueryString>
+  </Argument>
+  <Result>
+	<GetZoneURL />
+	 <executeRemoteQuery>
+    <!-- <RemoteTQLEndPoint>http://10.20.3.206:8080/fid-TQLKOL3F3RXAAAAUFADZZ5L5I7E</RemoteTQLEndPoint> -->
+    <!-- <RemoteTQLEndPoint>http://access.skillnetinc.com:4010/fid-TQLKN7V7VB3AAAMBKABAEQHZ4NN</RemoteTQLEndPoint> -->
+   <!--  <RemoteTQLEndPoint>http://access.skillnetinc.com:4010/fid-TQLKOEBFBDCAAAMBKABAF35FCRD</RemoteTQLEndPoint> -->
+    <RemoteTQLEndPoint>[:$Response.Message.Value.Result.URL:]</RemoteTQLEndPoint>
+    <QueryString>
+		<Query>
+			[:$Macro.Argument.QueryString.Query:]
+	   </Query>
+    </QueryString>
+</executeRemoteQuery>
+		<!-- <SetLocalData key="Output" value="[:$Response.Message.Value.PostDataOutput.Message.Value:]" /> -->
+		<!-- <Log message="Value: [:$LocalData.Output:]" /> -->
+		
+		<!-- <SetResponseData Key="Message.Value.Find" value="[:$Response.Message.Value.PostDataOutput.Message.Value.Find:]" />
+			
+		<DelResponseData key="Message.Value.PostDataOutput" />-->
+  </Result> 
+</Macro>

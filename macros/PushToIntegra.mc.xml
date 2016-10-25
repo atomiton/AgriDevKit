@@ -1,0 +1,232 @@
+<Macro name="PushToIntegra">
+	<Argument />
+		
+	<Result>
+		<Log message="Subscribe to Sensor Updates" />
+		<SubscribeToTQL TopicName="TQL.Create.gateway.agriculture.ZoneInfo.*" TopicId="[:RuntimeParams.TopicFacetIDName:]ZoneInfoCreate">
+			<ActionName>
+				<Log message="Known Zone Value==========: [:$Request.Message.Value.Publish.Value:]" />
+				<Log message="$SID==========: [:$Request.Message.Value.Publish.$sid:]" />
+				<executeQuery>
+					<QueryString>
+						<Find>
+							<ZoneInfo>
+								<ID eq="[:$Request.Message.Value.Publish.$sid:]" />
+							</ZoneInfo>
+						</Find>
+					</QueryString>
+				</executeQuery>
+				<SetProcessData name="zoneName" value="[:$Response.Message.Value.Find.Result.ZoneInfo.ZoneName:]" />
+				<executeQuery>
+					<QueryString>
+						<Find>
+							<Zone>
+								<Name eq="[:$Response.Message.Value.Find.Result.ZoneInfo.ZoneName:]" />
+							</Zone>
+						</Find>
+					</QueryString>
+				</executeQuery>
+				<Log message="AAAA1: [:$Response.Message.Value.Find.Result.Zone.Area.LowerRight.latitude:]" />
+				<Log message="AAAA1: [:$Response.Message.Value.Find.Result.Zone.Area.LowerRight.longitude:]" />
+				<Log message="AAAA1: [:$Response.Message.Value.Find.Result.Zone.Name:]" />
+				<JavaScript>
+						var lat = "[:$Response.Message.Value.Find.Result.Zone.Area.LowerRight.latitude:]";
+						var lon = "[:$Response.Message.Value.Find.Result.Zone.Area.LowerRight.longitude:]";
+						var zoneName = "[:$Response.Message.Value.Find.Result.Zone.Name:]";
+						
+						var data = "{\"featureType\":\"zone\",\"request\":\"InsertFeature\",\"service\":\"SOS\",";
+						data = data + "\"gps-location\":{\"longitude\":\""+ lon +"\",\"latitude\":\""+ lat +"\"},";
+						data = data + "\"feature\":\"" + zoneName + "\",\"version\":\"2.0.0\"}";
+						var endodedData = encodeURIComponent(data);
+						sffLog.info("endodedData: " + endodedData);
+						sffContext.setLocalData("endodedData","jsonData=" +endodedData + "&amp;key=dGNzLUludGVHcmEtRGlnaXRhbCBGYXJtaW5nLUt3aWskZW5zZS12MQ==");
+				</JavaScript>
+				 <DoRequest target="[:RuntimeParams.WdlFacetIDName:]">
+				  <Process>
+					<Message>
+					  <Value>
+						<Workflow name="PushNewZone">
+						  <Task name="PushNewZoneTask">
+							<Invoke name="PushNewZoneInvoke" get="http://integra.tcsmkrishi.com/KwikSense/insertFeature?[:$LocalData.endodedData:]">
+							  <Message Type="text">
+								<Value>
+									[:$LocalData.endodedData:]
+								</Value>
+							  </Message>
+							</Invoke>
+						  </Task>
+						 </Workflow>
+					  </Value>
+					</Message>
+				   </Process>
+				 </DoRequest>
+				 
+				 <executeQuery>
+					<QueryString>
+						<Find>
+							<SensorDataType>
+								<Default eq="true" />
+							</SensorDataType>
+						</Find>
+					</QueryString>
+				</executeQuery>
+				
+				<JavaScript>
+					var ResultSet = sffContext.getResponse().Message.Value;
+					var count = 0;
+					var sensors = [];
+					var propMetaData =  [];
+					for each(var result in ResultSet.Find) {
+						if(typeof(result) == 'object') {
+							sensors.push("\""+result.SensorDataType.Name+"\"");
+							propMetaData.push("{\"name\": \""+result.SensorDataType.Name+"\",\"type\": \""+result.SensorDataType.Datatype+"\", \"unit\": \""+result.SensorDataType.Unit+"\"}");
+						}
+					}
+					var properties = sensors.join(',');
+					var propAllMetaData = "\"output\":[" + propMetaData.join(',') + "]";
+					
+					//sffLog.info("SENSOR PROPERTIES: " + properties);
+					//sffLog.info("SENSOR PROPERTIES METADATA: " + propAllMetaData);
+					
+				
+					var value = "[:$Request.Message.Value.Publish.Value:]";
+					var zoneName = "[:$ProcessData.zoneName:]";
+					var sensorName = "[:$Request.Message.Value.Publish.$FName:]";
+					var sensorDataType = "[:$Response.Message.Value.Find.Result.SensorDataType.Datatype:]";
+					var sensorUnit = "[:$Response.Message.Value.Find.Result.SensorDataType.Unit:]";
+					
+					sffLog.info("ZONE FOR SENSOR: " + zoneName);
+					
+					var data = "{\"sensor\":{\"description\":\""+"Sensors for " + zoneName +"\",\"query_id\":\""+ zoneName + "Parameters\" ,\"name\":\""+ zoneName +"Parameters\"},";
+					data = data + "\"request\":\"InsertSensor\",\"service\":\"SOS\",\"property\":["+properties +"],";
+					data = data + "\"feature\":\""+ zoneName +"\",\"offering\":\"off-"+zoneName+"\"," + propAllMetaData;
+					data = data + ",\"version\":\"2.0.0\"}";
+					var endodedData = encodeURIComponent(data);
+					sffLog.info("endodedData: " + endodedData);
+					sffContext.setLocalData("endodedDataSen","jsonData=" +endodedData + "&amp;key=dGNzLUludGVHcmEtRGlnaXRhbCBGYXJtaW5nLUt3aWskZW5zZS12MQ==");
+					//sffContext.setLocalData("endodedDataSen","jsonData=" +endodedData);
+				 </JavaScript>
+				<Log message="Pushing new sensor values" />
+				<Log message="Pushed URL: http://integra.tcsmkrishi.com/KwikSense/insertSensor?[:$LocalData.endodedDataSen:]" />
+				<DoRequest target="[:RuntimeParams.WdlFacetIDName:]">
+				  <Process>
+					<Message>
+					  <Value>
+						<Workflow name="PushNewSensor">
+						  <Task name="PushNewSensorTask">
+							<Invoke name="PushNewSensorInvoke" post="http://integra.tcsmkrishi.com/KwikSense/insertSensor">
+								<Message type="application/x-www-form-urlencoded">
+									<Value>
+										[:$LocalData.endodedDataSen:]
+									</Value>
+								</Message>
+							</Invoke>
+							<Log message="Inserted Senor: [:Invoke.PushNewSensorInvoke.Message.Value:]" />
+						  </Task>
+						 </Workflow>
+					  </Value>
+					</Message>
+				   </Process>
+				 </DoRequest>
+				
+			</ActionName>
+		</SubscribeToTQL>
+		
+		<SubscribeToTQL TopicName="TQL.Update.gateway.agriculture.ZoneInfo.*" TopicId="[:RuntimeParams.TopicFacetIDName:]ZoneInfoCreate">
+			<ActionName>
+				<Log message="Value Sensor Value ==========: [:$Request.Message.Value.Publish.Value:]" />
+				<Log message="OldValue Sensor Value ==========: [:$Request.Message.Value.Publish.OldValue:]" /><Log message="Value Sensor Value ==========: [:$Request.Message.Value.Publish.Value:]" />
+				<Log message="QName Sensor Value ==========: [:$Request.Message.Value.Publish.$FName:]" />
+				<Log message="$SID==========: [:$Request.Message.Value.Publish.$sid:]" />
+						<executeQuery>
+					<QueryString>
+						<Find>
+							<ZoneInfo>
+								<ID eq="[:$Request.Message.Value.Publish.$sid:]" />
+							</ZoneInfo>
+						</Find>
+					</QueryString>
+				</executeQuery>
+				<SetProcessData name="zoneName" value="[:$Response.Message.Value.Find.Result.ZoneInfo.ZoneName:]" />
+						<executeQuery>
+							<QueryString>
+								<Find>
+									<SensorDataType>
+										<Name eq="[:$Request.Message.Value.Publish.$FName:]" />
+									</SensorDataType>
+								</Find>
+							</QueryString>
+						</executeQuery>
+						<Log message="SensorDataType VAlue for [:$Request.Message.Value.Publish.$FName:]: [:$Response.Message.Value.Find:]" />
+						<SetProcessData key="Datatype" value="[:$Response.Message.Value.Find.Result.SensorDataType.Datatype:]" />
+						<SetProcessData key="Unit" value="[:$Response.Message.Value.Find.Result.SensorDataType.Unit:]" />
+						 <JavaScript>
+							function formattedDate(dateIn) {
+								sffLog.info("Parsing data: " + dateIn);
+								var date = parseInt(dateIn);
+								var dLocal = new Date(date);
+								var dateUTC = date + dLocal.getTimezoneOffset()*60000;
+								var d = new Date(dateUTC);
+								dformat = [d.getFullYear().toString().substr(0,4),
+									(d.getMonth()+1).padLeft(),
+									d.getDate().padLeft()].join('-') +' ' +
+									[d.getHours().padLeft(),
+									d.getMinutes().padLeft(),
+									d.getSeconds().padLeft()].join(':');
+									sffLog.info("dformat: " + dformat);
+								return dformat;
+							}
+							
+							Number.prototype.padLeft = function(base,chr){
+								var  len = (String(base || 10).length - String(this).length)+1;
+								return len > 0? new Array(len).join(chr || '0')+this : this;
+							}
+							
+							var value = "[:$Request.Message.Value.Publish.Value:]";
+							var zoneName = "[:$ProcessData.zoneName:]";
+							var sensorName = "[:$Request.Message.Value.Publish.$FName:]";
+							var sensorDataType = "[:$ProcessData.Datatype:]";
+							var sensorUnit = "[:$ProcessData.Unit:]";
+							var sid ="[:$Request.Message.Value.Publish.Timestamp:]";
+							var time =formattedDate("[:$Request.Message.Value.Publish.Timestamp:]");
+							
+							sffLog.info("ZONE FOR Observation: " + zoneName);
+							
+							var data = "{\"observation\":{\"sensor\":\""+ zoneName + "Parameters"+"\",\"phenomenonTime\":\""+time+"\",";
+							data = data + "\"feature\":\""+zoneName+"\",\"output\":[{\"unit\":\""+sensorUnit+"\",\"value\":\""+value+"\",\"property\":\""+sensorName+"\",\"type\":\""+sensorDataType+"\"}]";
+							data = data + ",\"query_id\":\""+ sid + sensorName +"\",\"resultTime\":\""+time+"\",";
+							data = data + "\"geometry\":{\"type\":\"Point\",\"coordinates\":[28.683442,77.895802]}},";
+							data = data + "\"request\":\"InsertObservation\",\"service\":\"SOS\",\"offering\":\"off-"+zoneName+"\",\"version\":\"2.0.0\"}";
+							
+							var endodedData = encodeURIComponent(data);
+							sffLog.info("endodedData: " + endodedData);
+							sffContext.setLocalData("endodedDataSen","jsonData=" +endodedData + "&amp;key=dGNzLUludGVHcmEtRGlnaXRhbCBGYXJtaW5nLUt3aWskZW5zZS12MQ==");
+							//sffContext.setLocalData("endodedDataSen","jsonData=" +endodedData);
+						 </JavaScript>
+						<Log message="Pushing new sensor values" />
+						<Log message="Pushed URL: http://integra.tcsmkrishi.com/KwikSense/insertObservation?[:$LocalData.endodedDataSen:]" />
+						<DoRequest target="[:RuntimeParams.WdlFacetIDName:]">
+					  <Process>
+						<Message>
+						  <Value>
+							<Workflow name="PushNewZone">
+							  <Task name="PushNewZoneTask">
+								<Invoke name="PushNewZoneInvoke" post="http://integra.tcsmkrishi.com/KwikSense/insertObservation">
+									<Message type="application/x-www-form-urlencoded">
+										<Value>
+											[:$LocalData.endodedDataSen:]
+										</Value>
+									</Message>
+								</Invoke>
+								<Log message="Inserted Observation: [:Invoke.PushNewZoneInvoke.Message.Value:]" />
+							  </Task>
+							 </Workflow>
+						  </Value>
+						</Message>
+					   </Process>
+					 </DoRequest>
+				 
+			</ActionName>	 
+		</SubscribeToTQL>
+	</Result>
+</Macro>

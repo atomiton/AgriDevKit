@@ -1,0 +1,61 @@
+<Macro Name="RemoveStaleRegionDataCloud">
+    <Argument />
+    <Result>
+        <DeleteScheduleJob>
+            <JobName>RemoveStaleRegionDataCloud</JobName>
+        </DeleteScheduleJob>
+        <executeQuery>
+            <QueryString>
+                <Query>
+                    <Find>
+                        <SystemConfig>
+                            <Key eq="DATA_LIVE_TIME_SCHEDULER" />
+                        </SystemConfig>
+                    </Find>
+                </Query>
+            </QueryString>
+        </executeQuery>
+        <SetLocalData Key="DATA_LIVE_TIME_SCHEDULER" Value="[:$Response.Message.Value.Find.Result.SystemConfig.Value:]" />
+        <DelResponseData key="Message.Value.Find" />
+        <ScheduleJob>
+            <Name>RemoveStaleRegionDataCloud</Name>
+            <ScheduleInterval>[:$LocalData.DATA_LIVE_TIME_SCHEDULER:]</ScheduleInterval>
+            <ActionCode>
+                <executeQuery>
+                    <QueryString>
+                        <Query>
+                            <Find>
+                                <SystemConfig>
+                                    <Key eq="REGION_DATA_LIVE_TIME" />
+                                </SystemConfig>
+                            </Find>
+                        </Query>
+                    </QueryString>
+                </executeQuery>
+                <SetLocalData Key="REGION_DATA_LIVE_TIME" Value="[:$Response.Message.Value.Find.Result.SystemConfig.Value:]" />
+                <JavaScript>
+			     	var liveTime = parseInt("[:$LocalData.REGION_DATA_LIVE_TIME:]");
+			     	<!-- sffLog.info("DataLive time raw: " + "[:$LocalData.DATA_LIVE_TIME:]");
+			     	sffLog.info("DataLive time: " + liveTime); -->
+			     	var date = (new Date()).getTime()-(liveTime*60000);
+			     	var dateUTC = new Date(date);
+			     	var time = dateUTC.toISOString();
+			     	time = time.substr(0,time.length()-5) + "Z";
+			        sffLog.info("Deletion Region Time: " +time);
+			        sffContext.setLocalData("CurrentTime", time);
+			    </JavaScript>
+                <executeQuery>
+                    <QueryString>
+                        <Query>
+                            <DeleteAll>
+                                <FieldAggInfo>
+                                    <Time lt="[:$LocalData.CurrentTime:]" />
+                                </FieldAggInfo>
+                            </DeleteAll>
+                        </Query>
+                    </QueryString>
+                </executeQuery>
+            </ActionCode>
+        </ScheduleJob>
+    </Result>
+</Macro>

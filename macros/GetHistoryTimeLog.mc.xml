@@ -1,0 +1,54 @@
+<Macro name="GetHistoryTimeLog">
+	<Argument>
+	<String name="ZoneName"/>
+	</Argument>
+	<Result>
+		<Log Message="*********** Start GetHistoryTime*************"/>
+		<JavaScript>
+				function formattedDate(dateIn) {
+						<!-- sffLog.info("Parsing data: " + dateIn); -->
+						var date = parseInt(dateIn);
+						var dLocal = new Date(date);
+						var dateUTC = date + dLocal.getTimezoneOffset()*60000;
+						var d = new Date(dateUTC);
+						dformat = [d.getFullYear().toString().substr(0,4),
+							(d.getMonth()+1).padLeft(),
+							d.getDate().padLeft()].join('-');
+						dformat = dformat+"T";
+						dformat = dformat + [d.getHours().padLeft(),
+							d.getMinutes().padLeft(),
+							d.getSeconds().padLeft()].join(':');
+						dformat = dformat+"Z";
+							<!-- sffLog.info("dformat: " + dformat); -->
+						return dformat;
+					}
+					Number.prototype.padLeft = function(base,chr){
+						var  len = (String(base || 10).length - String(this).length)+1;
+						return len > 0? new Array(len).join(chr || '0')+this : this;
+					}
+
+					var currentTime = new Date().getTime();
+					var startTime = parseInt(currentTime - 900000);
+					
+					sffLog.info("current time::::::::::::::"+currentTime);
+					sffLog.info("startTime:::::::::::::::::"+startTime);
+					sffContext.setLocalData("StartTime",formattedDate(startTime));
+				</JavaScript> 
+				<executeQuery>
+					<QueryString>
+						<Query>
+							<Find format="current,version">
+								<ZoneAggInfoHistoryModel>
+									<ZoneName eq="[:$Macro.Argument.ZoneName:]"/>
+									<RecordDate gt="[:$LocalData.StartTime:]"/>
+								</ZoneAggInfoHistoryModel>
+							</Find>
+							<!-- <SetResponseData key="Message.Value.Count" value="[:$Response.Message.Value.Find/count(Result):]" />
+					<DelResponseData key="Message.Value.Find" /> -->
+						</Query>
+					</QueryString>
+					
+				</executeQuery>
+				<SetResponseData key="Message.Value" value="[:$Response.Message.Value:]" />
+	</Result>
+</Macro>

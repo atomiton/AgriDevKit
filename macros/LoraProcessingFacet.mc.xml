@@ -1,0 +1,16 @@
+<Macro name="LoraProcessingFacet">
+	<Argument />
+	<Result>
+		<NewFacetInstance fid="SmartFarmLoraInterface"  name="SmartFarmLoraInterfaceFacet" Type="SffTcpFacet">
+			<OnActivate>
+				<Log message="Activated" />
+			</OnActivate>
+			<OnOpen ModifyPipeline="HttpServerExtensionArgs">
+				<Log message="Opened" />
+			</OnOpen>
+			<OnReceive>
+				<Log message="RECEVED" />
+			</OnReceive>
+		</NewFacetInstance>
+	</Result>
+</Macro>

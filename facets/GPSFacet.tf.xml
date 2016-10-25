@@ -1,0 +1,131 @@
+<ThingFacet Name="GPSFacet">
+	<String name="Payload" knownBy="SubscribeGPS" update="auto"/>
+	<Double name="latitude" knownBy="SubscribeGPS"/>
+	<Double name="longitude" knownBy="SubscribeGPS"/>
+	<Number name="Direction" knownBy="SubscribeGPS" />
+	<Number name="Speed" knownBy="SubscribeGPS" />
+	<Boolean name="Simulated" />
+	<String name="SensorURL" />
+	<String name="SensorInterfaceIndex" />
+	<String name="SensorInterfaceType" />
+	<AA>[:#o#Output.ActionArgument:]</AA>
+	<Action Name="SubscribeGPS"
+			Documentation="Start the subscription to sensors data">
+		<Workflow Limit="1" Live="1" Timeout="-1">
+			
+			<Task name="Main">
+				<Event name="Argument" as="ActionArgument" />
+				
+				<Invoke name="ReadData" waitFor="Argument" delay="PT2S" only-if="/'[%:Event.Argument.Simulated.Value:%]' eq 'true'">
+					
+					<JavaScript>
+					function getRandomInt(min, max) {
+						   return Math.random() * (max - min) + min;
+						  }
+						var lat_arr = [34.563276,34.563251,34.563217,34.563185,34.563138,34.563089,34.563140,34.563210,34.563268,34.563303];
+						var lon_arr = [-111.848162,-111.848167,-111.848207,-111.848202,-111.848194,-111.848202,-111.848152,-111.848141,-111.848075,-111.848132];
+						var res="";
+
+						for (var i=1; i &lt; lat_arr.length ;i=((i+1)%(lat_arr.length))){
+
+							if(i!=0 &amp;&amp; "[%:Event.Argument.latitude.Value:%]" == lat_arr[i-1] &amp;&amp; "[%:Event.Argument.longitude.Value:%]" == lon_arr[i-1])
+							{
+								res = "&lt;Message&gt;&lt;Value&gt;Lon:"+lon_arr[i]+";Lat:"+lat_arr[i]+";Alt:8.3;Vel:"+ getRandomInt(2, 6) +";Head:"+ 
+								getRandomInt(3, 7) +";&lt;/Value&gt;&lt;/Message&gt;";
+								
+								break;
+								
+							}
+							if(i==0){
+								res = "&lt;Message&gt;&lt;Value&gt;Lon:"+lon_arr[0]+";Lat:"+lat_arr[0]+";Alt:8.3;Vel:"+ getRandomInt(2, 6) +";Head:"+ 
+								getRandomInt(3, 7) +";&lt;/Value&gt;&lt;/Message&gt;";
+								break;
+							}
+						}
+					
+					res;
+					
+				
+					</JavaScript>
+				</Invoke>
+				
+				
+				<Invoke name="ReadDataReal" waitFor="Argument" delay="PT2S"
+						post="[%:Event.Argument.SensorURL.Value:%]" SerialNumber="[%:Event.Argument.SensorInterfaceIndex.Value:%]"
+						DeviceType="[%:Event.Argument.SensorInterfaceType.Value:%]"   />
+				
+				<Log message="Data: [%:Invoke.ReadData.Message.Value:%]" />
+				<Log message="ID: [%:Event.Argument.GPSID:%]" />
+				<Invoke name="ParseData">
+					<JavaScript>
+		
+						 var payload = "";
+						 
+						 sffLog.info("Simulated: [%:Event.Argument.Simulated.Value:%]");
+						 
+						 if("[%:Event.Argument.Simulated.Value:%]" == 'true') {
+							payload = "[%:Invoke.ReadData.Message.Value:%]";
+						 } else {
+							payload = "[%:Invoke.ReadDataReal.Message.Value:%]";
+						 }
+						 
+						sffContext.setProcessData("payload",payload);
+						sffLog.info("Data in Invoke:" + payload);
+						var data = payload.split(';');
+						sffLog.info("Data comma saperated:" + data);
+						
+						for(i = 0; i &lt; data.length; i++) { 
+							sffLog.info("Data item:" + data[i]);			
+							var dataItem = data[i].split(":");
+
+							if(dataItem[0] == "Lon") {
+								sffContext.setProcessData("Lon",dataItem[1]);
+							} else if(dataItem[0] == "Lat") {
+								sffContext.setProcessData("Lat",dataItem[1]);
+							} else if(dataItem[0] == "Vel") {
+								sffContext.setProcessData("Vel",dataItem[1]);
+							} else if(dataItem[0] == "Head") {
+								sffContext.setProcessData("Head",dataItem[1]);
+							}
+						} 
+						
+					</JavaScript>
+				</Invoke>
+				<Log message="Lon: [:$ProcessData.Lon:]" />
+				<Log message="Lat: [:$ProcessData.Lat:]" />
+				<Log message="Vel: [:$ProcessData.Vel:]" />
+				<Log message="Head: [:$ProcessData.Head:]" />
+				 <Invoke name="SendFarmerData" >
+					<FacetScript>
+						<GetFarmerZone>
+						<payload>[%:Invoke.ReadData.Message.Value:%]</payload>
+						<FarmerLat>[:$ProcessData.Lat:]</FarmerLat>
+						<FarmerLon>[:$ProcessData.Lon:]</FarmerLon>
+						<GPSID>[%:Event.Argument.GPSID:%]</GPSID>
+						<Velocity>[:$ProcessData.Vel:]</Velocity>
+						<Head>[:$ProcessData.Head:]</Head>
+						</GetFarmerZone>
+					</FacetScript> 	
+				</Invoke>
+				<Log Message="After get farmer zone"/>
+				<Log Message="Got response get farmerzone Lat :  [:$Response.Message.Value.Result.FarmerLat:]"/>
+				<Log Message="Got response get farmerzone Lon : [:$Response.Message.Value.Result.FarmerLon:]"/>
+				<Log Message="Got response get farmerzone velolcity: [:$Response.Message.Value.Result.Velocity:]"/>
+				<Log Message="Got response get farmerzone Direction :[:$Response.Message.Value.Result.Head:]"/>
+				 
+				 
+				
+				<Output name="Result" as="ActionResult">
+					<Value>
+						<Payload>[:$Response.Message.Value.Result.payload:]</Payload>
+						 <latitude>[:$Response.Message.Value.Result.FarmerLat:]</latitude>
+						 <longitude>[:$Response.Message.Value.Result.FarmerLon:]</longitude>
+						<Direction>[:$Response.Message.Value.Result.Head:]</Direction> 
+						<Speed>[:$Response.Message.Value.Result.Velocity:]</Speed>
+					
+					</Value>
+				</Output>
+			</Task>
+		</Workflow>
+	</Action>
+</ThingFacet>

@@ -1,0 +1,26 @@
+<Macro name="SubscribeUpdatePolygon">
+	<Argument />
+	<Result>
+		<Log message="Subscribe to Polygon Updates" />
+		<SubscribeToTQL TopicName="TQL.Update.gateway.agriculture.Polygon.*" TopicId="[:RuntimeParams.TopicFacetIDName:]SubscribeUpdatePolygon">
+			<ActionName>
+				<Log message="Known poly Update==========: [:$Request.Message.Value.Publish.Value:]" />
+				<Log message="$SID poly update==========: [:$Request.Message.Value.Publish.$sid:]" />
+				<executeQuery>
+					<QueryString>
+						<Query>
+							<Find>
+								<Polygon>
+									<ID eq="[:$Request.Message.Value.Publish.$sid:]" />
+								</Polygon>
+							</Find>
+						</Query>
+					</QueryString>
+				</executeQuery>
+				<CalculatePolygonArea>
+					<ZoneName>[:$Response.Message.Value.Find.Result.Polygon.ZoneName:]</ZoneName>
+				</CalculatePolygonArea>
+			</ActionName>
+		</SubscribeToTQL>
+	</Result>
+</Macro>

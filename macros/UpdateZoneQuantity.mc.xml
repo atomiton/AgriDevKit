@@ -1,0 +1,49 @@
+<Macro name="UpdateZoneQuantity">
+	<Argument>
+		<ZoneName />
+		<Qty />
+	</Argument>
+	<Result>
+		<Log message="Adding Qty: [:$Macro.Argument.Qty:] for zone: [:$Macro.Argument.ZoneName:]" />
+		<executeQuery>
+			<QueryString>
+				<Find format="current,version">
+					<ZoneAggregate>
+						<ZoneName eq="[:$Macro.Argument.ZoneName:]" />
+					</ZoneAggregate>
+				</Find>
+				<JavaScript>
+					var qty = parseFloat("[:$Response.Message.Value.Find.Result.ZoneAggregate.Fertilizer.QuantitySprayed.Value:]");
+					var qtyCumml = parseFloat("[:$Response.Message.Value.Find.Result.ZoneAggregate.Fertilizer.QuantitySprayedCummulative.Value:]");
+					var qtyAdd = parseFloat("[:$Macro.Argument.Qty:]");
+					if(isNaN(qty)) {
+						qty = 0;
+					}
+					if(isNaN(qtyCumml)) {
+						qtyCumml = 0;
+					}	
+					if(qty == -1){
+						qty = qtyAdd;
+					} else{
+						qty = qty + qtyAdd;
+					}
+					
+					if(qtyCumml == -1){
+						qtyCumml = qtyAdd;
+					} else{
+						qtyCumml = qtyCumml + qtyAdd;
+					}
+					
+					sffContext.setLocalData("QtySpr",qty);
+					sffContext.setLocalData("QtyCumml",qtyCumml);
+				</JavaScript>
+				<SetResponseData key="Message.Value.Find.Result.ZoneAggregate.Fertilizer.QuantitySprayed.Value" value="[:$LocalData.QtySpr:]" />
+				<SetResponseData key="Message.Value.Find.Result.ZoneAggregate.Fertilizer.QuantitySprayedCummulative.Value" value="[:$LocalData.QtyCumml:]" />
+				<Update>
+					<from>Result</from>
+					<Include>$Response.Message.Value.Find</Include>
+				</Update>
+			</QueryString>
+		</executeQuery>
+	</Result>
+</Macro>

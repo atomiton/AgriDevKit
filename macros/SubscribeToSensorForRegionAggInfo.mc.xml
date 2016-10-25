@@ -1,0 +1,37 @@
+<Macro name="SubscribeToSensorForRegionAggInfo">
+	<Argument />
+		
+	<Result>
+		<Log message="Subscribe to Sensor Updates RegionAggregateInfo" />
+		<SubscribeToTQL TopicName="TQL.Update.gateway.agriculture.ZoneAggregateInfo.AvgValue.*" TopicId="[:RuntimeParams.TopicFacetIDName:]SensorModelRegionAggInfo">
+			<ActionName>
+				<Log message="Known SensorValue==========: [:$Request.Message.Value.Publish.Value:]" />
+				<Log message="$SID SensorID==========: [:$Request.Message.Value.Publish.$sid:]" />
+				<executeQuery>
+					<QueryString>
+						<Query>
+							<Find>
+								<ZoneAggregateInfo>
+									<ID eq="[:$Request.Message.Value.Publish.$sid:]" />
+								</ZoneAggregateInfo>
+							</Find>
+							<SetProcessData Key="SensorName" Value="[:$Response.Message.Value.Find.Result.ZoneAggregateInfo.SensorName:]" />
+							<Find>
+								<Zone>
+									<Name eq="[:$Response.Message.Value.Find.Result.ZoneAggregateInfo.ZoneName:]" />
+								</Zone>
+							</Find>
+							<SetProcessData Key="RegionName" Value="[:$Response.Message.Value.Find.Result.Zone.RegionID:]" />
+							<Log Message="SubscribeToSensorForRegionAggInfo  =========[:$ProcessData.RegionName:]"/>
+							<Log Message="SubscribeToSensorForRegionAggInfo  =========[:$ProcessData.SensorName:]"/>
+							<GetRegionAbstractInfo>
+								<FieldName>[:$ProcessData.RegionName:]</FieldName>	
+								<SensorName>[:$ProcessData.SensorName:]</SensorName>	
+							</GetRegionAbstractInfo>
+						</Query>
+					</QueryString>
+				</executeQuery>
+			</ActionName>
+		</SubscribeToTQL>
+	</Result>
+</Macro>

@@ -1,0 +1,8 @@
+<Query>
+  	<CreateSystemConfigCloud/>
+    <SubscribeToSensorForRegionAggInfo/>
+    <SubscribeToZoneAggInfoOnUpdate/>
+    <RemoveStaleDataCloud/>
+    <RemoveStaleRegionDataCloud/>
+</Query>
+

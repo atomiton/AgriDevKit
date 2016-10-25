@@ -1,0 +1,66 @@
+<Macro name="SubscribeToZoneAggInfoOnUpdate">
+	<Argument/>
+	<Result>
+		<Log Message="*********** Start SubscribeToZoneAggInfoOnUpdate*************"/>
+		<SubscribeToTQL TopicName="TQL.Update.gateway.agriculture.ZoneAggregateInfo.AvgValue.*" TopicId="[:RuntimeParams.TopicFacetIDName:]ZoneAggInfoOnUpdate">
+			<ActionName>
+				<Log message="Known ZoneAggInfoOnUpdate ==========: [:$Request.Message.Value.Publish:]" />
+				<Log message="$SID ZoneAggInfoOnUpdate ==========: [:$Request.Message.Value.Publish.$sid:]" />
+				<JavaScript>
+					function formattedDate(dateIn) {
+						
+						var date = parseInt(dateIn);
+						var dLocal = new Date(date);
+						var dateUTC = date + dLocal.getTimezoneOffset()*60000;
+						var d = new Date(dateUTC);
+						dformat = [d.getFullYear().toString().substr(0,4),
+							(d.getMonth()+1).padLeft(),
+							d.getDate().padLeft()].join('-');
+						dformat = dformat+"T";
+						dformat = dformat + [d.getHours().padLeft(),
+							d.getMinutes().padLeft(),
+							d.getSeconds().padLeft()].join(':');
+						dformat = dformat+"Z";
+							
+						return dformat;
+					}
+					Number.prototype.padLeft = function(base,chr){
+						var  len = (String(base || 10).length - String(this).length)+1;
+						return len > 0? new Array(len).join(chr || '0')+this : this;
+					}
+
+					sffContext.setLocalData("CurrentTime", formattedDate(new Date().getTime()));
+				</JavaScript> 
+				<executeQuery>
+					<QueryString>
+						<Query>
+							<Find format="current,version">
+								<ZoneAggregateInfo>
+									<ID eq="[:$Request.Message.Value.Publish.$sid:]"/>
+								</ZoneAggregateInfo>
+							</Find>
+						</Query>
+					</QueryString>
+				</executeQuery>
+				<executeQuery>
+					<QueryString>
+						<Query>
+							<Create>
+								<ZoneAggInfoHistoryModel>
+									<ZoneName>[:$Response.Message.Value.Find.Result.ZoneAggregateInfo.ZoneName.Value:]</ZoneName>
+									<SensorName>[:$Response.Message.Value.Find.Result.ZoneAggregateInfo.SensorName.Value:]</SensorName>
+									<MinValue>[:$Response.Message.Value.Find.Result.ZoneAggregateInfo.MinValue.Value:]</MinValue>
+									<MaxValue>[:$Response.Message.Value.Find.Result.ZoneAggregateInfo.MaxValue.Value:]</MaxValue>
+									<AvgValue>[:$Response.Message.Value.Find.Result.ZoneAggregateInfo.AvgValue.Value:]</AvgValue>
+									<NAvgValue>[:$Response.Message.Value.Find.Result.ZoneAggregateInfo.NAvgValue.Value:]</NAvgValue>
+									<Unit>[:$Response.Message.Value.Find.Result.ZoneAggregateInfo.Unit.Value:]</Unit>
+									<RecordDate>[:$LocalData.CurrentTime:]</RecordDate>
+								</ZoneAggInfoHistoryModel>
+							</Create>
+						</Query>
+					</QueryString>
+				</executeQuery>
+			</ActionName>
+		</SubscribeToTQL>
+	</Result>
+</Macro>

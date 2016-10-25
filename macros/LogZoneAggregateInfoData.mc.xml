@@ -1,0 +1,70 @@
+<Macro name="LogZoneAggregateInfoData">
+	<Argument />
+	<Result>
+		<JavaScript>
+			function formattedDate(dateIn) {
+				<!-- sffLog.info("Parsing data: " + dateIn); -->
+				var date = parseInt(dateIn);
+				var dLocal = new Date(date);
+				var dateUTC = date + dLocal.getTimezoneOffset()*60000;
+				var d = new Date(dateUTC);
+				dformat = [d.getFullYear().toString().substr(0,4),
+					(d.getMonth()+1).padLeft(),
+					d.getDate().padLeft()].join('-');
+				dformat = dformat+"T";
+				dformat = dformat + [d.getHours().padLeft(),
+					d.getMinutes().padLeft(),
+					d.getSeconds().padLeft()].join(':');
+				dformat = dformat+"Z";
+					<!-- sffLog.info("dformat: " + dformat); -->
+				return dformat;
+			}
+			Number.prototype.padLeft = function(base,chr){
+				var  len = (String(base || 10).length - String(this).length)+1;
+				return len > 0? new Array(len).join(chr || '0')+this : this;
+			}
+
+			sffContext.setLocalData("CurrentTime", formattedDate(new Date().getTime()));
+		</JavaScript> 
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Find format="current,version">
+						<ZoneAggregateInfo>
+							<ID ne=""/>
+						</ZoneAggregateInfo>
+					</Find>
+				</Query>
+			</QueryString>
+		</executeQuery>
+		<For each="zones" in="Find.Result.ZoneAggregateInfo" using="$ProcessData" >
+			<JavaScript>
+				var value = parseFloat("[:$ProcessData.zones.AvgValue.Value:]");
+				var sensor = "[:$ProcessData.zones.SensorName.Value:]";
+				if(sensor == 'SoilMoisture') {
+					sffContext.setLocalData("NormalizedValue",value/868.85);
+				} else {
+					sffContext.setLocalData("NormalizedValue",value);
+				}
+			</JavaScript>
+			<executeQuery>
+				<QueryString>
+					<Query>
+						<Create>
+							<ZoneAggInfoHistoryModel>
+								<ZoneName>[:$ProcessData.zones.ZoneName.Value:]</ZoneName>
+								<SensorName>[:$ProcessData.zones.SensorName.Value:]</SensorName>
+								<MinValue>[:$ProcessData.zones.MinValue.Value:]</MinValue>
+								<MaxValue>[:$ProcessData.zones.MaxValue.Value:]</MaxValue>
+								<AvgValue>[:$ProcessData.zones.AvgValue.Value:]</AvgValue>
+								<NAvgValue>[:$LocalData.NormalizedValue:]</NAvgValue>
+								<Unit>[:$ProcessData.zones.Unit.Value:]</Unit>
+								<RecordDate>[:$LocalData.CurrentTime:]</RecordDate>
+							</ZoneAggInfoHistoryModel>
+						</Create>
+					</Query>
+				</QueryString>
+			</executeQuery>
+		</For>
+	</Result>
+</Macro>

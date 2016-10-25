@@ -1,0 +1,3 @@
+MCUName,Latitude,Longitude,SensorID,SensorType
+00:80:00:00:00:00:ae:b0,34.563084,-111.848175,1,SOIL
+00:80:00:00:00:00:ae:b0,34.563084,-111.848175,2,TCB

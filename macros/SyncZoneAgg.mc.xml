@@ -1,0 +1,69 @@
+<Macro Name="SyncZoneAgg">
+	<Argument>
+		<InputMessage/>
+	</Argument>
+	<Result>
+		<NewLocalData>
+	       <TempData><Include>$Macro.Argument.InputMessage</Include></TempData>
+	    </NewLocalData>
+		<Log message="In ZoneAction: [:$LocalData.TempData:]" />
+		<For each="grids" from="$LocalData.TempData" in="Find.Result.ZoneAggregate">
+        	<!-- <Log message="Grids: [:$LocalData.grids:]"/> -->
+        	<Log message="Zone name::::::::: [:$LocalData.grids.ZoneName:]"/>
+        	<executeQuery>
+			    <QueryString>
+					<Query>
+						<Find format="version">
+							<ZoneAggregate>
+								<ZoneName eq="[:$LocalData.grids.ZoneName:]" />
+							</ZoneAggregate>
+						</Find>
+						
+						<if condition="/[:$Response.Message.Value.Find/count(Result):] eq 0">
+							<then>
+								<Create>
+									<ZoneAggregate>
+										<ZoneName>[:$LocalData.grids.ZoneName:]</ZoneName>
+										<LastUpdate>[:$LocalData.grids.LastUpdate:]</LastUpdate>
+										<Fertilizer>
+											<AreaSprayed>[:$LocalData.grids.Fertilizer.AreaSprayed:]</AreaSprayed>
+											<AreaSprayedCummulative>[:$LocalData.grids.Fertilizer.AreaSprayedCummulative:]</AreaSprayedCummulative>
+											<QuantitySprayed>[:$LocalData.grids.Fertilizer.QuantitySprayed:]</QuantitySprayed>
+											<QuantitySprayedCummulative>[:$LocalData.grids.Fertilizer.QuantitySprayedCummulative:]</QuantitySprayedCummulative>
+											<OptimumValue>[:$LocalData.grids.Fertilizer.OptimumValue:]</OptimumValue>
+										</Fertilizer>
+										<PesticideInfo>
+											<AreaSprayed>[:$LocalData.grids.PesticideInfo.AreaSprayed:]</AreaSprayed>
+											<AreaSprayedCummulative>[:$LocalData.grids.PesticideInfo.AreaSprayedCummulative:]</AreaSprayedCummulative>
+											<QuantitySprayed>[:$LocalData.grids.PesticideInfo.QuantitySprayed:]</QuantitySprayed>
+											<QuantitySprayedCummulative>[:$LocalData.grids.PesticideInfo.QuantitySprayedCummulative:]</QuantitySprayedCummulative>
+											<OptimumValue>[:$LocalData.grids.PesticideInfo.OptimumValue:]</OptimumValue>
+										</PesticideInfo>
+									</ZoneAggregate>
+								</Create>
+							</then>
+							<else>
+								<SetResponseData Key="Message.Value.Find.Result.ZoneAggregate.LastUpdate.Value" Value="[:$LocalData.grids.LastUpdate:]" />
+								<SetResponseData Key="Message.Value.Find.Result.ZoneAggregate.Fertilizer.AreaSprayed.Value" Value="[:$LocalData.grids.Fertilizer.AreaSprayed:]" />
+								<SetResponseData Key="Message.Value.Find.Result.ZoneAggregate.Fertilizer.AreaSprayedCummulative.Value" Value="[:$LocalData.grids.Fertilizer.AreaSprayedCummulative:]" />
+								<SetResponseData Key="Message.Value.Find.Result.ZoneAggregate.Fertilizer.QuantitySprayed.Value" Value="[:$LocalData.grids.Fertilizer.QuantitySprayed:]" />
+								<SetResponseData Key="Message.Value.Find.Result.ZoneAggregate.Fertilizer.QuantitySprayedCummulative.Value" Value="[:$LocalData.grids.Fertilizer.QuantitySprayedCummulative:]" />
+								<SetResponseData Key="Message.Value.Find.Result.ZoneAggregate.Fertilizer.OptimumValue.Value" Value="[:$LocalData.grids.Fertilizer.OptimumValue:]" />
+								<SetResponseData Key="Message.Value.Find.Result.ZoneAggregate.PesticideInfo.AreaSprayed.Value" Value="[:$LocalData.grids.PesticideInfo.AreaSprayed:]" />
+								<SetResponseData Key="Message.Value.Find.Result.ZoneAggregate.PesticideInfo.AreaSprayedCummulative.Value" Value="[:$LocalData.grids.PesticideInfo.AreaSprayedCummulative:]" />
+								<SetResponseData Key="Message.Value.Find.Result.ZoneAggregate.PesticideInfo.QuantitySprayed.Value" Value="[:$LocalData.grids.PesticideInfo.QuantitySprayed:]" />
+								<SetResponseData Key="Message.Value.Find.Result.ZoneAggregate.PesticideInfo.QuantitySprayedCummulative.Value" Value="[:$LocalData.grids.PesticideInfo.QuantitySprayedCummulative:]" />
+								<SetResponseData Key="Message.Value.Find.Result.ZoneAggregate.PesticideInfo.OptimumValue.Value" Value="[:$LocalData.grids.PesticideInfo.OptimumValue:]" />
+								
+								<Update>
+									<from>Result</from>
+									<Include>$Response.Message.Value.Find</Include>
+								</Update>
+							</else>
+						</if>
+				    </Query>
+			    </QueryString>
+			</executeQuery>
+        </For>
+	</Result>
+</Macro>

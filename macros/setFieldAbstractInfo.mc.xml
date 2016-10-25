@@ -1,0 +1,32 @@
+<Macro name="setFieldAbstractInfo">
+	<Argument>
+		<String name="SensorName"/>
+		<String name="AvgValue"/>
+		<String name="FieldName"/>
+		<DateTime name="Time"/>
+	</Argument>
+	<Result>
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<DeleteAll>
+						<FieldAggInfo>
+							<FieldName>[:$Macro.Argument.FieldName:]</FieldName>
+							<SensorName>[:$Macro.Argument.SensorName:]</SensorName>
+						</FieldAggInfo>
+					</DeleteAll>
+					<Create>
+						<FieldAggInfo>
+							<FieldName>[:$Macro.Argument.FieldName:]</FieldName>
+							<SensorName>[:$Macro.Argument.SensorName:]</SensorName>
+							<AvgValue>[:$Macro.Argument.AvgValue:]</AvgValue>
+							<Time>[:$Macro.Argument.Time:]</Time>
+						</FieldAggInfo>
+					</Create>
+					
+					<DelResponseData key="Message.Value.Create" /> 	
+				</Query>
+			</QueryString>
+		</executeQuery>
+	</Result>
+</Macro>

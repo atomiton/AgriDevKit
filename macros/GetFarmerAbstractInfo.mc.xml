@@ -1,0 +1,38 @@
+<Macro name="GetFarmerAbstractInfo">
+	<Argument>
+		<String name="ActID"/>
+		<String name="PestActID"/>
+	</Argument>
+	<Result>
+	<Log Message="*********** Start GetFarmerAbstractInfo*************"/>
+	<executeQuery>
+		<QueryString>
+			<Query>
+				<Find format="current,version">
+					<FertilizerActuatorModel>
+						<ActID eq ="[:$Macro.Argument.ActID:]"/>
+					</FertilizerActuatorModel>
+				</Find>
+					<AddResponseData key="Message.Value.Result.FarmerAbstractInfo.Fertilizer" value="" />
+					<AddResponseData key="Message.Value.Result.FarmerAbstractInfo.Fertilizer.FlowRate" value="[:$Response.Message.Value.Find.Result.FertilizerActuatorModel.FlowRate.Value:]" />
+					<AddResponseData key="Message.Value.Result.FarmerAbstractInfo.Fertilizer.Speed" value="[:$Response.Message.Value.Find.Result.FertilizerActuatorModel.Speed.Value:]" />
+			</Query>
+			<DelResponseData key="Message.Value.Find" /> 
+			<Query>
+				<Find format="current,version">
+					<PesticideActuatorModel>
+						<PestActID eq ="[:$Macro.Argument.PestActID:]"/>
+					</PesticideActuatorModel>
+				</Find>
+					<AddResponseData key="Message.Value.Result.FarmerAbstractInfo.Pesticide" value="" />
+					<AddResponseData key="Message.Value.Result.FarmerAbstractInfo.Pesticide.FlowRate" value="[:$Response.Message.Value.Find.Result.PesticideActuatorModel.FlowRate.Value:]" />
+					
+					<AddResponseData key="Message.Value.Result.FarmerAbstractInfo.Pesticide.Speed" value="[:$Response.Message.Value.Find.Result.PesticideActuatorModel.Speed.Value:]" />
+			</Query>
+			<DelResponseData key="Message.Value.Find" /> 
+		</QueryString>
+				
+	</executeQuery>
+								
+	</Result>
+</Macro>

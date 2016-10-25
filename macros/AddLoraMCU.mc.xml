@@ -1,0 +1,82 @@
+<Macro name="AddLoraMCU">
+	<Argument>
+		<String name="MCUName" />
+		<Double name="Latitude" />
+		<Double name="Longitude" />
+		<Boolean name="HasMetadata"/>
+		<Sensors>
+			<Sensor>
+				<String name="SensorID" />
+				<String name="SensorType" />
+			</Sensor>
+		</Sensors>
+		<String name="Label"/>
+	</Argument>
+	<Result>
+		<AddMCU>
+			<Name>[:$Macro.Argument.MCUName:]</Name>
+			<Latitude>[:$Macro.Argument.Latitude:]</Latitude>
+			<Longitude>[:$Macro.Argument.Longitude:]</Longitude>
+			<HasMetadata>[:$Macro.Argument.HasMetadata:]</HasMetadata>
+			<Label>[:$Macro.Argument.Label:]</Label>
+		</AddMCU>
+		
+		<MCUManager>
+			<Name>[:$Macro.Argument.MCUName:]</Name>
+			<Label>[:$Macro.Argument.Label:]</Label>
+		</MCUManager>
+		
+		
+		<SetLocalData key="Sensors">
+			<Value><Include>$Macro.Argument.Sensors</Include></Value>
+		</SetLocalData>
+		
+		<Log Message="ProcessData: [:$LocalData.Sensors:]" />
+		
+		<For each="sensor" in="Sensor" from="$LocalData.Sensors">
+			<executeQuery>
+				<QueryString>
+					<Find>
+						<LoraMcuMapping>
+							<MCUName>[:$Macro.Argument.MCUName:]</MCUName>
+							<or>
+								<SensorType>[:$LocalData.sensor.SensorType:]</SensorType>
+								<SensorID>[:$LocalData.sensor.SensorID:]</SensorID>
+							</or>
+						</LoraMcuMapping>
+					</Find>
+				</QueryString>
+			</executeQuery>
+			<if condition="/[:$Response.Message.Value.Find/count(Result):] eq 0">
+				<then>
+					<executeQuery>
+						<QueryString>
+							<Create>
+								<LoraMcuMapping>
+									<MCUName>[:$Macro.Argument.MCUName:]</MCUName>
+									<SensorType>[:$LocalData.sensor.SensorType:]</SensorType>
+									<SensorID>[:$LocalData.sensor.SensorID:]</SensorID>
+								</LoraMcuMapping>
+							</Create>
+						</QueryString>
+					</executeQuery>
+					<DeviceManager>
+						<MCUName>[:$Macro.Argument.MCUName:]</MCUName>
+						<SensorType>[:$LocalData.sensor.SensorType:]</SensorType>
+						<SensorValue></SensorValue>
+						<DeviceType>sensor</DeviceType>
+						<IsActive>false</IsActive>
+					</DeviceManager>
+					<SetResponseData Key="Message.Value.Result.Status" Value="Success" />
+					<SetResponseData Key="Message.Value.Result.Message" Value="Sensor added successfully" />
+				</then>
+				<else>
+					<SetResponseData Key="Message.Value.Result.Status" Value="Error" />
+					<SetResponseData Key="Message.Value.Result.Message" Value="Sensor with this configuration already exists" />
+				</else>
+			</if>
+		</For>
+		<DelResponseData key="Message.Value.Find" />
+		<DelResponseData key="Message.Value.Create" />
+	</Result>
+</Macro>

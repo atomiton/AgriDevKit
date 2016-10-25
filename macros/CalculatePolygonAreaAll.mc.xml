@@ -1,0 +1,21 @@
+<Macro name="CalculatePolygonAreaAll">
+	<Argument/>
+	<Result>
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Find>
+						<Zone>
+							<ZoneID ne="" />
+						</Zone>
+					</Find>
+				</Query>
+			</QueryString>
+		</executeQuery>
+		<For each="zones" in="Find.Result.Zone" using="$ProcessData" >
+			<CalculatePolygonArea>
+				<ZoneName>[:$ProcessData.zones.Name:]</ZoneName>	
+			</CalculatePolygonArea>			
+		</For>
+	</Result>
+</Macro>

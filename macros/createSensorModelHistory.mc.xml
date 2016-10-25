@@ -1,0 +1,64 @@
+<Macro name="createSensorModelHistory">
+	<Argument>
+		<SensorID />
+		<SensorValue />		
+	</Argument>
+	<Result>
+		<Log message=":::::::::::::::In createSensorModelHistory:::::::::::" />
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Find>
+						<SensorModel>
+							<ID eq="[:$Macro.Argument.SensorID:]"/>
+						</SensorModel>
+					</Find>
+				</Query>
+			</QueryString>
+		</executeQuery>
+		<SetLocalData>
+			<Key>SensorType</Key>
+			<Value>[:$Response.Message.Value.Find.Result.SensorModel.SensorType:]</Value>
+		</SetLocalData>
+		<SetLocalData>
+			<Key>MCUName</Key>
+			<Value>[:$Response.Message.Value.Find.Result.SensorModel.MCUName:]</Value>
+		</SetLocalData>
+		<JavaScript>
+			function formattedDate(dateIn) {
+				<!-- sffLog.info("Parsing data: " + dateIn); -->
+				var date = parseInt(dateIn);
+				var dLocal = new Date(date);
+				var dateUTC = date + dLocal.getTimezoneOffset()*60000;
+				var d = new Date(dateUTC);
+				dformat = [d.getFullYear().toString().substr(0,4),
+					(d.getMonth()+1).padLeft(),
+					d.getDate().padLeft()].join('-');
+				dformat = dformat+"T";
+				dformat = dformat + [d.getHours().padLeft(),
+					d.getMinutes().padLeft(),
+					d.getSeconds().padLeft()].join(':');
+				dformat = dformat+"Z";
+					<!-- sffLog.info("dformat: " + dformat); -->
+				return dformat;
+			}
+			Number.prototype.padLeft = function(base,chr){
+				var  len = (String(base || 10).length - String(this).length)+1;
+				return len > 0? new Array(len).join(chr || '0')+this : this;
+			}
+			sffContext.setProcessData("CurrentDateTime", formattedDate(new Date().getTime()));
+		</JavaScript>
+		<executeQuery>
+			<QueryString>
+				<Create>
+					<SensorHistoryModel>
+						<SensorType>[:$LocalData.SensorType:]</SensorType>
+						<SensorValue>[:$Macro.Argument.SensorValue:]</SensorValue>
+						<MCUName>[:$LocalData.MCUName:]</MCUName>
+						<RecordDate>[:$ProcessData.CurrentDateTime:]</RecordDate>
+					</SensorHistoryModel>
+				</Create>
+			</QueryString>
+		</executeQuery>
+	</Result>
+</Macro>

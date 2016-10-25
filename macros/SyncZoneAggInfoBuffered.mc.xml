@@ -1,0 +1,36 @@
+<Macro Name="SyncZoneAggInfoBuffered">
+	<Argument>
+		<InputMessage/>
+	</Argument>
+	<Result>
+		<NewLocalData>
+	       <TempData><Include>$Macro.Argument.InputMessage</Include></TempData>
+	    </NewLocalData>
+		<Log message="In ZoneAction Buffer: [:$LocalData.TempData:]" />
+		<For each="grids" from="$LocalData.TempData" in="Find.Result.ZoneAggInfoHistoryModel">
+        	<!-- <Log message="Grids: [:$LocalData.grids:]"/> -->
+        	<Log message="Zone name::::::::: [:$LocalData.grids.ZoneName:]"/>
+        	<executeQuery>
+			    <QueryString>
+					<Query>
+						<Create>
+							<ZoneAggInfoHistoryModel>
+								<ZoneName>[:$LocalData.grids.ZoneName:]</ZoneName>
+								<SensorName>[:$LocalData.grids.SensorName:]</SensorName>
+								<CurrentValue>[:$LocalData.grids.CurrentValue:]</CurrentValue>
+								<MinValue>[:$LocalData.grids.MinValue:]</MinValue>
+								<MaxValue>[:$LocalData.grids.MaxValue:]</MaxValue>
+								<AvgValue>[:$LocalData.grids.AvgValue:]</AvgValue>
+								<NAvgValue>[:$LocalData.grids.NAvgValue:]</NAvgValue>
+								<Unit>[:$LocalData.grids.Unit:]</Unit>
+								<Time>[:$LocalData.grids.Time:]</Time>
+								<Count>[:$LocalData.grids.Count:]</Count>
+								<RecordDate>[:$LocalData.grids.RecordDate:]</RecordDate>
+							</ZoneAggInfoHistoryModel>
+						</Create>
+				    </Query>
+			    </QueryString>
+			</executeQuery>
+        </For>
+	</Result>
+</Macro>

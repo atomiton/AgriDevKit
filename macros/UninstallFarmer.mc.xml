@@ -1,0 +1,34 @@
+<Macro name="UninstallFarmer">
+	<Argument />
+	<Result>
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<DeleteAll>
+						<GPSFacetModel>
+							<GPSID ne="" />
+						</GPSFacetModel>
+					</DeleteAll>
+					
+					<DeleteAll>
+						<FertilizerActuatorModel>
+							<ActID ne="" />
+						</FertilizerActuatorModel>
+					</DeleteAll>
+					
+					<DeleteAll>
+						<PesticideActuatorModel>
+							<PestActID ne="" />
+						</PesticideActuatorModel>
+					</DeleteAll>
+					
+					<DeleteAll>
+						<FarmerModel>
+							<ID ne=""/>
+						</FarmerModel>
+					</DeleteAll>
+				</Query>
+			</QueryString>
+		</executeQuery>
+	</Result>
+</Macro>

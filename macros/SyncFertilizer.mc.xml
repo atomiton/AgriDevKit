@@ -1,0 +1,46 @@
+<Macro Name="SyncFertilizer">
+	<Argument>
+		<InputMessage/>
+	</Argument>
+	<Result>
+		<NewLocalData>
+	       <TempData><Include>$Macro.Argument.InputMessage</Include></TempData>
+	    </NewLocalData>
+		<Log message="In SyncFertilizer: [:$LocalData.TempData:]" />
+		<For each="fert" from="$LocalData.TempData" in="Find.Result.FertilizerActuatorModel">
+        	<!-- <Log message="fert: [:$LocalData.fert:]"/> -->
+        	<Log message="FertilizerActuatorModel ActID::::::::: [:$LocalData.fert.ActID:]"/>
+        	<executeQuery>
+			    <QueryString>
+					<Query>
+						<Find format="version">
+							<FertilizerActuatorModel>
+								<ActID ne="" />
+							</FertilizerActuatorModel>
+						</Find>
+						
+						<if condition="/[:$Response.Message.Value.Find/count(Result):] eq 0">
+							<then>
+								<Create>
+									<FertilizerActuatorModel>
+										<Speed>[:$LocalData.fert.Speed:]</Speed>
+										<FlowRate>[:$LocalData.fert.FlowRate:]</FlowRate>
+									</FertilizerActuatorModel>
+								</Create>
+							</then>
+							<else>
+								<SetResponseData Key="Message.Value.Find.Result.FertilizerActuatorModel.Speed.Value" Value="[:$LocalData.fert.Speed:]" />
+								<SetResponseData Key="Message.Value.Find.Result.FertilizerActuatorModel.FlowRate.Value" Value="[:$LocalData.fert.FlowRate:]" />
+								
+								<Update>
+									<from>Result</from>
+									<Include>$Response.Message.Value.Find</Include>
+								</Update>
+							</else>
+						</if>
+				    </Query>
+			    </QueryString>
+			</executeQuery>
+        </For>
+	</Result>
+</Macro>

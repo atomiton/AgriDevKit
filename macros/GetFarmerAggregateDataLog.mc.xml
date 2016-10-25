@@ -1,0 +1,36 @@
+<Macro name="GetFarmerAggregateDataLog">
+    <Argument>
+        <String name="FarmerName" />
+    </Argument>
+    <Result>
+        <Log Message="*********** Start GetFarmerAggregateDataLog*************" />
+        <executeQuery>
+            <QueryString>
+                <Query>
+                    <Find format="current,version">
+                        <FarmerModel>
+                            <Name eq="[:$Macro.Argument.FarmerName:]" />
+                        </FarmerModel>
+                    </Find>
+                    <If condition="/[:$Response.Message.Value.Find/count(Result):] eq 0">
+                        <then>
+                            <SetResponseData key="Message.Value.Result" value="[:$Response.Message.Value.Find/count(Result):]" />
+                        </then>
+                        <else>
+                            <For each="FarmerAgg" in="Find.Result.FarmerModel" using="$ProcessData">
+                                <GetFarmerAbstractInfo>
+                                    <ActID>[:$ProcessData.FarmerAgg.ActID.Value:]</ActID>
+                                    <PestActID>[:$ProcessData.FarmerAgg.PestActID.Value:]</PestActID>
+                                </GetFarmerAbstractInfo>
+                                <!-- <SetResponseData key="Message.Value.SensorName" value="[:$ProcessData.ZoneAgg.SensorName.Value:]" />
+			
+				<SetResponseData key="Message.Value.ID" value="[:$ProcessData.ZoneAgg.ID:]" /> -->
+                            </For>
+                        </else>
+                    </If>
+                    <DelResponseData key="Message.Value.Find" />
+                </Query>
+            </QueryString>
+        </executeQuery>
+    </Result>
+</Macro>

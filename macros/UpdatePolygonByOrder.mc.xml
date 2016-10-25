@@ -1,0 +1,60 @@
+<Macro Name="UpdatePolygonByOrder">
+  <Argument>
+   
+    <String name="ZoneName" />
+	<Number name="Order"/>
+  
+  </Argument>
+  <Result>
+    <Log Message="***************DeleteAndUpdatePolygonByOrder**********************"/>
+    
+  
+		  
+	<executeQuery>
+		<QueryString>
+			<Query>
+			
+			
+			 <find format='version,current'  OrderBy='Polygon.Order asc' >
+				<Polygon>
+					<ZoneName eq="[:$Macro.Argument.ZoneName:]"/>
+					<Order gt="[:$Macro.Argument.Order:]" />
+				</Polygon>
+			</find>
+		  
+		
+			 <For each="polygon" in="Find.Result.Polygon" using="$ProcessData" >
+					
+					<JavaScript>
+					
+					sffLog.info("inside for");
+					
+						var order = parseInt("[:$ProcessData.polygon.Order.Value:]") ; 
+					
+						order = order - 1;
+						
+						sffContext.setProcessData("Order",order);
+					
+					
+					
+					</JavaScript>
+					<log Message="order :[:$ProcessData.Order:]"/>
+					<log Message="polygon ID :[:$ProcessData.polygon.ID:]"/>
+					
+					<UpdatePolygonByID>
+						<ID>[:$ProcessData.polygon.ID:]</ID>
+						<Order>[:$ProcessData.Order:]</Order>
+					</UpdatePolygonByID>
+					
+					  
+				
+			</For>
+			</Query>
+		</QueryString>
+    </executeQuery>
+
+	
+        
+       
+  </Result>
+</Macro>

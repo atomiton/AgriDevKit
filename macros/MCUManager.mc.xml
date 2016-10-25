@@ -1,0 +1,100 @@
+<Macro name="MCUManager">
+	<Argument>
+		<String name="Name" />
+		<String name="Label" />
+	</Argument>
+	<Result>
+		<JavaScript>
+			function formattedDate(dateIn) {
+				var date = parseInt(dateIn);
+				var dLocal = new Date(date);
+				var dateUTC = date + dLocal.getTimezoneOffset()*60000;
+				var d = new Date(dateUTC);
+				dformat = [d.getFullYear().toString().substr(0,4),
+					(d.getMonth()+1).padLeft(),
+					d.getDate().padLeft()].join('-');
+				dformat = dformat+"T";
+				dformat = dformat + [d.getHours().padLeft(),
+					d.getMinutes().padLeft(),
+					d.getSeconds().padLeft()].join(':');
+				dformat = dformat+"Z";
+				return dformat;
+			}
+			Number.prototype.padLeft = function(base,chr){
+				var  len = (String(base || 10).length - String(this).length)+1;
+				return len > 0? new Array(len).join(chr || '0')+this : this;
+			}
+
+			sffContext.setLocalData("CurrentTime", formattedDate(new Date().getTime()));
+			sffContext.setLocalData("NextUpdate", formattedDate(new Date().getTime()+3000));
+		
+		</JavaScript>
+		<executeQuery>
+			<QueryString>
+				<Find>
+					<MCUModel>
+						<Name eq="[:$Macro.Argument.Name:]" />
+					</MCUModel>
+				</Find>
+			</QueryString>
+		</executeQuery>
+		<if condition="/[:$Response.Message.Value.Find/count(Result):] eq 0">
+			<then>
+				<Log message="In MCUManager inside if Name:::::::::: [:$Macro.Argument.Name:]" />
+				<if condition="/'[:$Macro.Argument.Name:]' ne 'undefined'">
+					<then>
+						<executeQuery>
+							<QueryString>
+								<Create>
+									<MCUModel>
+										<Name>[:$Macro.Argument.Name:]</Name>
+										<GatewayID></GatewayID>
+										<ZoneName></ZoneName>
+										<Location>
+											<latitude></latitude>
+											<longitude></longitude>
+										</Location>
+										<Status></Status>
+										<LastUpdated></LastUpdated>
+										<NextUpdate></NextUpdate>
+										<Label>[:$Macro.Argument.Label:]</Label>
+									</MCUModel>
+								</Create>
+							</QueryString>
+						</executeQuery>
+					</then>
+				</if>
+			</then>
+			<else>
+				<Log message="********************The MCU exists*******************************" />
+				<executeQuery>
+					<QueryString>
+						<Query>
+							<Find format="version">
+								<MCUModel>
+									<Name eq="[:$Macro.Argument.Name:]" />
+								</MCUModel>
+							</Find>
+							<SetResponseData>
+								<Key>Message.Value.Find.Result.MCUModel.LastUpdated.Value</Key>
+								<Value>[:$LocalData.CurrentTime:]</Value>
+							</SetResponseData>
+							<SetResponseData>
+								<Key>Message.Value.Find.Result.MCUModel.NextUpdate.Value</Key>
+								<Value>[:$LocalData.NextUpdate:]</Value>
+							</SetResponseData>
+							<SetResponseData>
+								<Key>Message.Value.Find.Result.MCUModel.Status.Value</Key>
+								<Value>Active</Value>
+							</SetResponseData>
+							<Update>
+								<from>Result</from>
+								<Include>$Response.Message.Value.Find</Include>
+							</Update>
+						</Query>
+					</QueryString>
+				</executeQuery>
+			</else>
+		</if>
+	</Result>
+</Macro>

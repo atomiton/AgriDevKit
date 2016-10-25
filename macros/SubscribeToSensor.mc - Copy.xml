@@ -1,0 +1,17 @@
+<Macro name="SubscribeToSensor">
+	<Argument />
+		
+	<Result>
+		<Log message="Subscribe to Sensor Updates" />
+		<SubscribeToTQL TopicName="TQL.Update.gateway.agriculture.SensorModel.SensorValue.*" TopicId="[:RuntimeParams.TopicFacetIDName:]SensorModel">
+			<ActionName>
+				<Log message="Known==========: [:$Request.Message.Value.Publish.Value:]" />
+				<Log message="$SID==========: [:$Request.Message.Value.Publish.$sid:]" />
+				<UpdateZoneInfo>
+					<SensorID>[:$Request.Message.Value.Publish.$sid:]</SensorID>
+					<SensorValue>[:$Request.Message.Value.Publish.Value:]</SensorValue>
+				</UpdateZoneInfo>
+			</ActionName>
+		</SubscribeToTQL>
+	</Result>
+</Macro>

@@ -1,0 +1,392 @@
+<Namespace name="gateway">
+	<Domain name="agriculture">
+	<Def name="BoundingBox">
+            <Include>[:RuntimeParams.TypesLocation:]BoundingBox.types.xml</Include> 
+        </Def>
+        <Def name="GeoLocation">
+            <Include>[:RuntimeParams.TypesLocation:]GeoLocation.types.xml</Include> 
+        </Def>
+    	 <Def name="SprayInfo">
+            <Include>[:RuntimeParams.TypesLocation:]SprayInfo.types.xml</Include> 
+        </Def>
+        
+        <Def Name="EnvInfo">
+			<Double Name="Temperature" />
+			<Double Name="Humidity" />
+			<Double Name="Light" />
+			<Double Name="Pressure" />
+			<Double Name="wind_speed" />
+			<String Name="rainfall" />
+			<String Name="wind_direction" />
+			<String Name="uv" />
+			<Double Name="wind_angle" />
+			<Double Name="sealevel_pressure" />
+			<String Name="local_time" />
+		</Def>
+
+        <AppFacet>
+            <Include>[:RuntimeParams.ThingFacetLocation:]MCUModelFacet.tf.xml
+            </Include>
+        </AppFacet>
+
+	    <AppModel name="MCUModel" combines="MCUModelFacet">
+            <Sid name="ID" />
+            <String name="Name"/>
+            <String name="GatewayID"/>
+            <String name="Status"/>
+            <DateTime name="LastUpdated" Format="$SimpleDateFormat(yyyy-MM-dd'T'HH:mm:ss'Z')"/>
+			<DateTime name="NextUpdate" Format="$SimpleDateFormat(yyyy-MM-dd'T'HH:mm:ss'Z')"/>
+            <Boolean name="HasMetadata"/>
+            <String name="Label"/>
+        </AppModel>
+		
+ 		<AppModel name="ProtocolHandeler">
+            <Sid name="ID" />
+        </AppModel>
+		
+		<DataModel Name="Region">
+            <Sid name="RegionID" />
+            <String name="Name" />
+            <String name="Description" />
+            <BoundingBox name="Area"/>
+			<GeoLocation name="MidPoint"/>
+            <Person name="Manager"/>
+            <Person name="Owner"/>
+            <EnvInfo Name="RegionEnvData" default="$Null()"/>
+        </DataModel>
+		
+		<DataModel Name="Zone">
+            <Sid name="ZoneID" />
+            <String name="RegionID" />
+            <String name="Name" />
+            <Number name="Height"/>
+            <Number name="Width"/>
+            <Number name="Size"/>
+            <String name="CropID" />
+			<String name="Label" />
+        </DataModel>
+      
+		<DataModel Name="Grid">
+            <Sid name="GridID" />
+            <String name="Name" />
+            <String name="ZoneName" />
+            <BoundingBox name="Area"/>
+        </DataModel>  
+		
+		<DataModel Name="ZoneGatewayDiscovery">
+            <Sid name="ID" />
+            <String name="ZoneName" />
+            <String name="GatewayID"/>
+        </DataModel>
+		
+		<DataModel Name="Gateway">
+            <Sid name="ID" />
+            <String name="Name"/>
+        </DataModel>
+
+		 <Def name="Device">
+            <Sid name="ID" />
+			<String name="Name" />
+			<String name="Type" />
+			<String name="MCUName" />
+        </Def>
+
+		<ThingFacet>
+            <Include>[:RuntimeParams.ThingFacetLocation:]SensorModelFacet.tf.xml
+            </Include>
+        </ThingFacet>
+		
+ 		<AppModel name="SensorModel" inherits="Device" combines="SensorModelFacet">
+			<String name="SensorID" />
+            <String name="SensorType" />
+			<String name="SensorValue" />
+            <String name="Unit" />
+			<String name="IsActive" />
+        </AppModel>
+
+        <AppModel name="ActuatorModel" inherits="Device" >
+			<String name="ActuatorID"/>
+        </AppModel>
+
+        <DataModel Name="ZoneInfo">
+			<Sid name="ID" />
+            <String name="ZoneName" />
+            <Number name="AirTemperature" />
+            <Number name="AirHumidity" />
+            <Number name="SoilTemperature" />
+            <Number name="SoilMoisture" />
+            <Number name="LeafWetness" />
+            <Number name="AtmosphericPressure" />
+            <Number name="SolarRadiation" />
+            <Number name="UVRadiation" />
+            <Number name="TrunkDiameter" />
+            <Number name="StemDiameter" />
+            <Number name="FruitDiameter" />
+            <Number name="Anemometer" />
+            <Number name="Windvane" />
+            <Number name="Pluviometer" />
+            <Number name="Luminosity" />
+			<GeoLocation name="Center" />
+			<Integer name="Count" default="1"/>
+        </DataModel>  
+
+		<ThingFacet>
+            <Include>[:RuntimeParams.ThingFacetLocation:]HttpHandlerFacet.tf.xml
+            </Include>
+        </ThingFacet>
+		
+		<ThingModel name="HttpHandler" combines="HttpHandlerFacet">
+			<Sid name="ID" />
+			<String name="name" />
+			<String name="protocol" />
+		</ThingModel>
+		
+		<ThingFacet>
+            <Include>[:RuntimeParams.ThingFacetLocation:]LoraHttpHandlerFacet.tf.xml
+            </Include>
+        </ThingFacet>
+		
+		<ThingModel name="LoraHttpHandler" combines="LoraHttpHandlerFacet">
+			<Sid name="ID" />
+			<String name="name" />
+			<String name="protocol" />
+		</ThingModel>
+		
+		<ThingFacet>
+            <Include>[:RuntimeParams.ThingFacetLocation:]XBeeHandlerFacet.tf.xml
+            </Include>
+        </ThingFacet>
+		
+		<ThingModel name="XbeeHandler" combines="XbeeHandlerFacet">
+			<Sid Name="ID" />
+			<GeoLocation Name="location" />
+			<Number Name="Frequency" />
+		</ThingModel>
+		
+		<ThingFacet>
+            <Include>[:RuntimeParams.ThingFacetLocation:]PerifHandlerFacet.tf.xml
+            </Include>
+        </ThingFacet>
+		
+		<ThingModel name="PerifHandler" combines="PerifHandlerFacet">
+			<Sid Name="ID" />
+		</ThingModel>
+	
+
+        <ThingFacet>
+            <Include>[:RuntimeParams.ThingFacetLocation:]GPSFacet.tf.xml
+            </Include>
+        </ThingFacet>
+		
+		<ThingModel name="GPSFacetModel" combines="GPSFacet">
+			<Sid name="GPSID" />
+		</ThingModel>
+		
+		 <ThingFacet>
+            <Include>[:RuntimeParams.ThingFacetLocation:]Actuator.tf.xml
+            </Include>
+        </ThingFacet>
+		
+		<ThingModel name="FertilizerActuatorModel" combines="Actuator">
+            <Sid name="ActID" />
+        </ThingModel>
+
+        <ThingModel name="PesticideActuatorModel" combines="Actuator">
+			<Sid name="PestActID" />
+		</ThingModel>
+		
+		<ThingFacet>
+            <Include>[:RuntimeParams.ThingFacetLocation:]WeatherStation.tf.xml
+            </Include>
+        </ThingFacet>
+        
+		<ThingModel Name="WeatherStationModel" Combines="WeatherStationFacet">
+			<Sid Name="EnvId" />
+			<Reference Name="RegionID" Type="Region" Cardinality="1"/>
+		</ThingModel>
+		
+		
+<!-- 
+        <ThingFacet>
+            <Include>[:RuntimeParams.ThingFacetLocation:]AccelerometerFacet.tf.xml
+            </Include>
+        </ThingFacet>
+
+        <ThingFacet>
+            <Include>[:RuntimeParams.ThingFacetLocation:]FlowControlFacet.tf.xml
+            </Include>
+        </ThingFacet> -->
+		
+		<DataModel name="SensorDataType">
+			<Sid name="ID" />
+			<String name="Name" />
+			<String name="MCECodeName" />
+			<String name="Datatype" />
+			<String name="Unit" />
+			<String name="DefaultValue" />
+		</DataModel>
+		
+		<Def name="Person">
+			<String name="Name" />
+			<String name="Address1" />
+			<String name="Address2" />
+			<String name="ZipCode" />
+			<String name="MobileNumber" />
+		</Def>
+		
+		<DataModel name="FarmOwner">
+			<Sid name="ID" />
+			<String name="FieldName" />
+			<Person name="Info" />
+		</DataModel>
+		
+		<DataModel name="FarmerModel">
+			<Sid name="ID" />
+			<String name="Name" />
+			<String name="GPSID" />
+            <String name="ActID" />
+			<String name="PestActID" />
+			<String name="Info" />
+			<String name="CurrentZone" />
+			<Number name="Speed" />
+			<Number name="Direction" />
+			<Number name="LastZoneChangeTS" />
+			<Double name="latitude"/>
+			<Double name="longitude"/>
+		</DataModel>
+		
+		<DataModel name="ZoneAggregateInfo">
+            <Sid name="ID" />
+            <String name="ZoneName" />
+            <String name="SensorName" />
+            <Number name="CurrentValue" />
+            <Number name="MinValue" />
+            <Number name="MaxValue" />
+            <Number name="AvgValue" />
+            <Number name="NAvgValue" />
+            <String name="Unit" />
+            <DateTime name="Time" Format="$SimpleDateFormat(yyyy-MM-dd'T'HH:mm:ss'Z')"/>
+            <Integer name="Count"/>
+        </DataModel>
+
+         <DataModel name="ZoneAggregate">
+            <Sid name="ID" />
+            <String name="ZoneName" />
+            <DateTime name="LastUpdate" Format="$SimpleDateFormat(yyyy-MM-dd'T'HH:mm:ss'Z')"/>
+            <Number name="TotalArea"/>
+            <SprayInfo name="PesticideInfo"/>
+            <SprayInfo name="Fertilizer"/>
+        </DataModel>
+
+        <DataModel name="ZoneAggInfoHistoryModel">
+            <Sid name="ID"/>
+            <String name="ZoneName" />
+            <String name="SensorName"/>
+            <Number name="MinValue" />
+            <Number name="MaxValue" />
+            <Number name="AvgValue" />
+			<Number name="NAvgValue" />
+            <String name="Unit" />
+            <DateTime name="RecordDate" Format="$SimpleDateFormat(yyyy-MM-dd'T'HH:mm:ss'Z')"/>
+        </DataModel>
+
+         <DataModel name="ZoneAggHistoryModel">
+            <Sid name="ID"/>
+            <String name="ZoneName" />
+            <SprayInfo name="PesticideInfo" />
+            <SprayInfo name="Fertilizer"/>
+            <DateTime name="RecordDate" Format="$SimpleDateFormat(yyyy-MM-dd'T'HH:mm:ss'Z')"/>
+        </DataModel>
+		
+		<DataModel name="CropModel">
+            <Sid name="ID"/>            
+			<String name="CropID" />
+            <String name="CropName" />
+            <String name="CropType" />
+        </DataModel>
+		
+		<DataModel name="CropStagesModel">
+            <Sid name="ID"/>            
+			<String name="CropStagesID" />
+			<String name="CropID" />
+            <String name="CropStage" />
+            <String name="StageDescription" />
+            <Number name="StageDuration" />
+        </DataModel>
+		
+		<DataModel name="EquipmentModel">
+            <Sid name="ID"/>            
+			<String name="EquipmentID" />
+            <String name="Type" />
+            <String name="Make" />
+            <String name="Year" />
+			<String name="Model" />
+			<String name="Engine" />
+			<String name="VIN" />
+			<String name="SerialNo" />
+			<String name="UnitNo" />
+			<String name="Mileage" />
+			<Number name="EngineHrs" />
+			<String name="FuelConsumed" />
+			<String name="Address" />
+			<GeoLocation name="Location" />
+        </DataModel>
+		 
+		 <DataModel name="FieldAggInfo">
+            <Sid name="ID"/>            
+			<String name="FieldName" />
+			<String name="SensorName" />
+            <String name="AvgValue" />
+            <DateTime name="Time" Format="$SimpleDateFormat(yyyy-MM-dd'T'HH:mm:ss'Z')"/>
+        </DataModel>
+		
+		 <ThingFacet>
+            <Include>[:RuntimeParams.ThingFacetLocation:]ReqiredQuantityFacet.af.xml
+            </Include>
+        </ThingFacet>
+		
+		<ThingFacet>
+            <Include>[:RuntimeParams.ThingFacetLocation:]LoraExtHttpHandlerFacet.tf.xml
+            </Include>
+        </ThingFacet>
+		
+		<ThingModel name="SmartFarmLoraInterface" combines="LoraExtHttpHandlerFacet">
+			<Sid name="ID" />
+		</ThingModel>
+		
+		<AppModel name="ReqiredQuantityModel" combines="ReqiredQuantityFacet">
+			<Sid name="ID" />
+			<String name="Name" />
+		</AppModel>
+		
+		<DataModel Name="SystemConfig">
+            <Sid name="ID" />
+            <String name="Key" />
+            <String name="Value"/>
+        </DataModel>
+
+        <DataModel Name="Polygon">
+            <Sid name="ID" />
+            <String name="ZoneName" />
+            <GeoLocation name="GeoArea"/>
+			<Integer name="Order" />
+        </DataModel>
+		
+		<DataModel Name="LoraMcuMapping">
+            <Sid name="ID" />
+            <String name="MCUName" />
+            <String name="SensorType"/>
+			<String name="SensorID" />
+        </DataModel>
+
+
+        <DataModel name="SensorHistoryModel" >
+            <Sid name="ID" />
+            <String name="SensorType" />
+            <String name="SensorValue" />
+            <String name="MCUName" />
+            <DateTime name="RecordDate" Format="$SimpleDateFormat(yyyy-MM-dd'T'HH:mm:ss'Z')"/>
+        </DataModel>
+		
+	</Domain>
+</Namespace>

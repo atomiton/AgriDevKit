@@ -1,0 +1,191 @@
+<Macro Name="UpdateWeatherStationToRegion">
+	<Argument>
+		<String name="RegionName" />
+	</Argument>
+	<Result>
+		<Log message="Updating Weather Info to Zone From Weather Station...." />
+		<Log message="Region Name is '[:$Macro.Argument.RegionName:]'...." />
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Find format="current, version">
+						<Region>
+							<Name>[:$Macro.Argument.RegionName:]</Name>
+						</Region>
+					</Find>
+				</Query>
+			</QueryString>
+		</executeQuery>
+		<if condition="$Response.Message.Value/Find/Status eq 'Success'">
+			<then>
+				<Log message="Finding Region Success...." />
+				<SetContextData key="RegionID">
+					<Value>[:$Response.Message.Value.Find.Result.Region.RegionID:]
+					</Value>
+				</SetContextData>
+			</then>
+		</if>
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Find format="version,Known">
+						<WeatherStationModel>
+							<RegionID>[:$ContextData.RegionID:]</RegionID>
+						</WeatherStationModel>
+					</Find>
+				</Query>
+			</QueryString>
+		</executeQuery>
+		<if condition="$Response.Message.Value/Find/Status eq 'Success'">
+			<then>
+				<Log message="Found the weather station...." />
+				<SetContextData key="Temperature">
+					<Value>[:$Response.Message.Value.Find.Result.WeatherStationModel.EnvData.Temperature.Known:]
+					</Value>
+				</SetContextData>
+				<SetContextData key="Humidity">
+					<Value>[:$Response.Message.Value.Find.Result.WeatherStationModel.EnvData.Humidity.Known:]
+					</Value>
+				</SetContextData>
+				<SetContextData key="Pressure">
+					<Value>[:$Response.Message.Value.Find.Result.WeatherStationModel.EnvData.Pressure.Known:]
+					</Value>
+				</SetContextData>
+				<SetContextData key="wind_speed">
+					<Value>[:$Response.Message.Value.Find.Result.WeatherStationModel.EnvData.wind_speed.Known:]
+					</Value>
+				</SetContextData>
+				<SetContextData key="rainfall">
+					<Value>[:$Response.Message.Value.Find.Result.WeatherStationModel.EnvData.rainfall.Known:]
+					</Value>
+				</SetContextData>
+				<SetContextData key="Light">
+					<Value>[:$Response.Message.Value.Find.Result.WeatherStationModel.EnvData.Light.Known:]
+					</Value>
+				</SetContextData>
+				<SetContextData key="wind_angle">
+					<Value>[:$Response.Message.Value.Find.Result.WeatherStationModel.EnvData.wind_angle.Known:]
+					</Value>
+				</SetContextData>
+				<SetContextData key="sealevel_pressure">
+					<Value>[:$Response.Message.Value.Find.Result.WeatherStationModel.EnvData.sealevel_pressure.Known:]
+					</Value>
+				</SetContextData>
+				<SetContextData key="uv">
+					<Value>[:$Response.Message.Value.Find.Result.WeatherStationModel.EnvData.uv.Known:]
+					</Value>
+				</SetContextData>
+				<SetContextData key="local_time">
+					<Value>[:$Response.Message.Value.Find.Result.WeatherStationModel.EnvData.local_time.Known:]
+					</Value>
+				</SetContextData>
+
+				<SetContextData key="wind_direction">
+					<Value>[:$Response.Message.Value.Find.Result.WeatherStationModel.EnvData.wind_direction.Known:]
+					</Value>
+				</SetContextData>
+
+			</then>
+			<else>
+				<SetContextData key="Temperature">
+					<Value>-1</Value>
+				</SetContextData>
+				<SetContextData key="Humidity">
+					<Value>-1</Value>
+				</SetContextData>
+				<SetContextData key="Pressure">
+					<Value>-1</Value>
+				</SetContextData>
+				<SetContextData key="wind_speed">
+					<Value>-1</Value>
+				</SetContextData>
+				<SetContextData key="rainfall">
+					<Value>-1</Value>
+				</SetContextData>
+				<SetContextData key="Light">
+					<Value>-1</Value>
+				</SetContextData>
+				<SetContextData key="wind_angle">
+					<Value>-1</Value>
+				</SetContextData>
+				<SetContextData key="sealevel_pressure">
+					<Value>-1</Value>
+				</SetContextData>
+				<SetContextData key="uv">
+					<Value>-1</Value>
+				</SetContextData>
+				<SetContextData key="local_time">
+					<Value>"--"</Value>
+				</SetContextData>
+				<SetContextData key="wind_direction">
+					<Value>"--"</Value>
+				</SetContextData>
+			</else>
+		</if>
+
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Find format="current,version">
+						<Region>
+							<RegionID>[:$ContextData.RegionID:]</RegionID>
+						</Region>
+					</Find>
+					<SetResponseData>
+						<Key>Message.Value.Find.Result.Region.RegionEnvData.Temperature.Value</Key>
+						<Value>[:$ContextData.Temperature:]</Value>
+					</SetResponseData>
+					<SetResponseData>
+						<Key>Message.Value.Find.Result.Region.RegionEnvData.Humidity.Value</Key>
+						<Value>[:$ContextData.Humidity:]</Value>
+					</SetResponseData>
+					<SetResponseData>
+						<Key>Message.Value.Find.Result.Region.RegionEnvData.Light.Value</Key>
+						<Value>[:$ContextData.Light:]</Value>
+					</SetResponseData>
+					<SetResponseData>
+						<Key>Message.Value.Find.Result.Region.RegionEnvData.Pressure.Value</Key>
+						<Value>[:$ContextData.Pressure:]</Value>
+					</SetResponseData>
+					<SetResponseData>
+						<Key>Message.Value.Find.Result.Region.RegionEnvData.wind_speed.Value</Key>
+						<Value>[:$ContextData.wind_speed:]</Value>
+					</SetResponseData>
+					<SetResponseData>
+						<Key>Message.Value.Find.Result.Region.RegionEnvData.rainfall.Value</Key>
+						<Value>[:$ContextData.rainfall:]</Value>
+					</SetResponseData>
+					<SetResponseData>
+						<Key>Message.Value.Find.Result.Region.RegionEnvData.wind_direction.Value</Key>
+						<Value>[:$ContextData.wind_direction:]</Value>
+					</SetResponseData>
+					<SetResponseData>
+						<Key>Message.Value.Find.Result.Region.RegionEnvData.uv.Value</Key>
+						<Value>[:$ContextData.uv:]</Value>
+					</SetResponseData>
+					<SetResponseData>
+						<Key>Message.Value.Find.Result.Region.RegionEnvData.wind_angle.Value</Key>
+						<Value>[:$ContextData.wind_angle:]</Value>
+					</SetResponseData>
+					<SetResponseData>
+						<Key>Message.Value.Find.Result.Region.RegionEnvData.sealevel_pressure.Value</Key>
+						<Value>[:$ContextData.sealevel_pressure:]</Value>
+					</SetResponseData>
+					<SetResponseData>
+						<Key>Message.Value.Find.Result.Region.RegionEnvData.local_time.Value</Key>
+						<Value>[:$ContextData.local_time:]</Value>
+					</SetResponseData>
+					<Update>
+						<From>
+							Result
+						</From>
+						<Include>
+							$Response.Message.Value.Find
+						</Include>
+					</Update>
+				</Query>
+
+			</QueryString>
+		</executeQuery>
+	</Result>
+</Macro>

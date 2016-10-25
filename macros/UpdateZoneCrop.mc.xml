@@ -1,0 +1,41 @@
+<Macro name="UpdateZoneCrop">
+	<Argument>
+		<CropName />
+		<CropType />
+		<ZoneName />
+	</Argument>
+	
+	<Result>
+		<Save>
+			<CropModel>
+			  <CropID>[:$Macro.Argument.CropName:][:$Macro.Argument.CropType:]</CropID>
+			  <CropName>[:$Macro.Argument.CropName:]</CropName>
+			  <CropType>[:$Macro.Argument.CropType:]</CropType>
+			</CropModel>
+		</Save>
+		<Save>
+			<CropModel>
+			  <ID>[:$Response.Message.Value.Save.CropModel.ID:]</ID>
+			  <CropID>[:$Response.Message.Value.Save.CropModel.ID:]</CropID>
+			</CropModel>
+		</Save>
+		<Find format="Version">
+			<Zone>
+				<Name eq="[:$Macro.Argument.ZoneName:]" />
+			</Zone>
+		</Find>
+		<Save>
+			<Zone>
+				<ZoneID>[:$Response.Message.Value.Find.Result.Zone.ZoneID:]</ZoneID>
+				<CropID>
+					<Value>
+						[:$Response.Message.Value.Save.CropModel.ID:]
+					</Value>
+					<Version>
+						[:$Response.Message.Value.Find.Result.Zone.CropID.Version:]
+					</Version>
+				</CropID>
+			</Zone>
+		</Save>
+	</Result>
+</Macro>

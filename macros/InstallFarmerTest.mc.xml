@@ -1,0 +1,94 @@
+<Macro name="InstallFarmerTest">
+	<Argument />
+	<Result>
+		<SubscibeFarmerChangedZone />
+		<SubscibeToCalcFertFlowRate />
+		<SubscibeFarmerChangedZoneForPest />
+		<SubscibeToCalcPestFlowRate />
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<DeleteAll>
+						<TestGPSFacetModel>
+							<GPSID ne="" />
+						</TestGPSFacetModel>
+					</DeleteAll>
+					<Create>
+						<TestGPSFacetModel>
+							<Payload>$Null()</Payload>
+							<latitude>0</latitude>
+							<longitude>0</longitude>
+							<Speed>0</Speed>
+							<Direction>0</Direction>
+							<SubscribeGPS>0</SubscribeGPS>
+							<Count>0</Count>
+						 </TestGPSFacetModel>
+					</Create>
+				</Query>
+				
+				<Log message="Created GPSID: [:$Response.Message.Value.Create.TestGPSFacetModel.GPSID:]" />
+				<SetLocalData key="GPSID" value="[:$Response.Message.Value.Create.TestGPSFacetModel.GPSID:]" />
+				
+				<Query>
+					<DeleteAll>
+						<FertilizerActuatorModel>
+							<ActID ne="" />
+						</FertilizerActuatorModel>
+					</DeleteAll>
+					<Create>
+						<FertilizerActuatorModel>
+							<Speed>4</Speed>
+							<FlowRate>0.2</FlowRate>
+							<DevicePort>/dev/ttyACM0</DevicePort>
+							<Frequency>9600</Frequency>
+							<Length>$Null()</Length>
+							<Operation>userframe</Operation>
+							<Command>8400702E</Command>
+						 </FertilizerActuatorModel>
+					</Create>
+				</Query>
+				
+				<SetLocalData key="ActID" value="[:$Response.Message.Value.Create.FertilizerActuatorModel.ActID:]" />
+
+				<Query>
+					<DeleteAll>
+						<PesticideActuatorModel>
+							<PestActID ne="" />
+						</PesticideActuatorModel>
+					</DeleteAll>
+					<Create>
+						<PesticideActuatorModel>
+							<Speed>4</Speed>
+							<FlowRate>0.2</FlowRate>
+						 </PesticideActuatorModel>
+					</Create>
+				</Query>
+				<SetLocalData key="PestActID" value="[:$Response.Message.Value.Create.PesticideActuatorModel.PestActID:]" />
+
+				<DeleteAll>
+					<FarmerModel>
+						<ID ne=""/>
+					</FarmerModel>
+				</DeleteAll>
+				
+				<JavaScript>
+					sffContext.setLocalData("CurrentTimestamp",(new Date()).getTime());
+				</JavaScript>
+				
+				<create>
+					<FarmerModel>
+						<GPSID>[:$LocalData.GPSID:]</GPSID>
+						<ActID>[:$LocalData.ActID:]</ActID>
+						<PestActID>[:$LocalData.PestActID:]</PestActID>
+						<Info></Info>
+						<CurrentZone></CurrentZone>
+						<Speed>0</Speed>
+						<Direction>0</Direction>
+						<LastZoneChangeTS>[:$LocalData.CurrentTimestamp:]</LastZoneChangeTS>
+					</FarmerModel>
+				</create>
+				
+			</QueryString>
+		</executeQuery>
+	</Result>
+</Macro>

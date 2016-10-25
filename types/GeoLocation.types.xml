@@ -1,0 +1,4 @@
+<Def name="GeoLocation" >
+	<Double name="latitude" />
+	<Double name="longitude" />
+</Def>

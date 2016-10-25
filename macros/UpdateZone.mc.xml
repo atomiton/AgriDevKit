@@ -1,0 +1,33 @@
+<Macro Name="UpdateZone">
+	<Argument>
+		<String name="ZoneName" />
+		<String name="Label"/>
+	</Argument>
+	<Result>
+		<Log Message="Updating Zone Info..." Level="INFO"/>
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Find format="current, version">
+						<Zone>
+							<Name>[:$Macro.Argument.ZoneName:]</Name>
+						</Zone>
+					</Find>
+					<if condition="/[:$Response.Message.Value.Find/count(Result):] ne 0">
+						<then>
+							<Save>
+								<Zone>
+									<ZoneID>[:$Response.Message.Value.Find.Result.Zone.ZoneID:]</ZoneID>
+									<Label>
+										<Value>[:$Macro.Argument.Label:]</Value>
+										<Version>[:$Response.Message.Value.Find.Result.Zone.Label.Version:]</Version>
+									</Label>
+								</Zone>
+							</Save>
+						</then>
+					</if>
+				</Query>
+			</QueryString>
+		</executeQuery>
+	</Result>
+</Macro>

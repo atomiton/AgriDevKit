@@ -1,0 +1,42 @@
+<Macro Name="updateMCUModelGridName">
+	<Argument>
+		<String name="GridName"/>
+		<String name="ID"/>
+	</Argument>
+	<Result>
+		 <JavaScript>
+			var gridName = '[:$Macro.Argument.GridName:]';
+			validGrid=false;
+			if(gridName.indexOf(":$") != -1) {
+				sffContext.setProcessData("ValidGrid","false");
+				ValidGrid = false;
+			} else {
+				sffContext.setProcessData("ValidGrid","true");
+				ValidGrid = true;
+			}
+		</JavaScript> 
+		<!-- <Log message="Valid Grid ::::::::::: [:$ProcessData.ValidGrid:]" /> -->
+		<if condition="/'[:$ProcessData.ValidGrid:]' eq 'true'">
+			<executeQuery>
+				<QueryString>
+					<Query>
+						<Find format="version">
+							<MCUModel>
+								<ID eq ="[:$Macro.Argument.ID:]"/>
+							</MCUModel>
+						</Find>
+
+						<SetResponseData>
+							<key>Message.Value.Find.Result.MCUModel.GridName.Value</key>
+							<value>[:$Macro.Argument.GridName:]</value>
+						</SetResponseData>
+						<Update>
+							<from>Result</from>
+							<Include>$Response.Message.Value.Find</Include>
+						</Update>
+					</Query>
+				</QueryString>
+			</executeQuery>
+		</if>
+	</Result>
+</Macro>

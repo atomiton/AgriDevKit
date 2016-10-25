@@ -1,0 +1,33 @@
+<Macro name="GetZoneAggregateDataLog">
+    <Argument>
+        <String name="MCUName" />
+    </Argument>
+    <Result>
+        <Log Message="*********** Start GetZoneAggregateDataLog*************" />
+        <executeQuery>
+            <QueryString>
+                <Query>
+                    <Find format="current,version">
+                        <SensorModel>
+                            <MCUName eq="[:$Macro.Argument.MCUName:]" />
+                        </SensorModel>
+                    </Find>
+                    <If condition="/[:$Response.Message.Value.Find/count(Result):] eq 0">
+                        <then>
+                            <SetResponseData key="Message.Value.Result" value="[:$Response.Message.Value.Find/count(Result):]" />
+                        </then>
+                        <else>
+                            <For each="sensorAgg" in="Find.Result.SensorModel" using="$ProcessData">
+                                <GetZoneAbstractInfo>
+                                    <SensorName>[:$ProcessData.sensorAgg.SensorType.Value:]</SensorName>
+                                    <ID>[:$ProcessData.sensorAgg.ID:]</ID>
+                                </GetZoneAbstractInfo>
+                            </For>
+                        </else>
+                    </If>
+                    <DelResponseData key="Message.Value.Find" />
+                </Query>
+            </QueryString>
+        </executeQuery>
+    </Result>
+</Macro>

@@ -1,0 +1,33 @@
+<ThingFacet Name="LoraExtHttpHandlerFacet">
+    <String name="startSensorsSubscription" />
+	<String name="MCUName" />
+	<String name="Data" KnownBy="LoraSubscribeMCU" update="auto"/>
+    <Action name="LoraSubscribeMCU">
+        <Workflow Limit="1" Live="1" Timeout="-1">
+            <Task name="Main">
+               <Event name="Argument" as="ActionArgument" />
+               
+                
+            <Invoke name="readData" waitFor="Argument">
+             <FacetScript>
+                <LoraMessageInterceptor>
+                    <Message><include>Event.Argument.Data.Value</include></Message>
+                </LoraMessageInterceptor> 
+             </FacetScript>
+            </Invoke>
+    
+		<Log message="Data1: [:Event.Argument.Data.Value:]" />
+		<Log message="Data1: [:Event.Argument.Data:]" />
+    <Invoke name="delay" delay="PT5S" />
+    
+                <Output name="Result" as="ActionResult">
+                    <Value>
+                        <startSensorsSubscription>
+       [%:Event.Argument.startSubscription.Value:%]
+                        </startSensorsSubscription>
+                    </Value>
+                </Output>
+            </Task>
+        </Workflow>
+    </Action>
+</ThingFacet>

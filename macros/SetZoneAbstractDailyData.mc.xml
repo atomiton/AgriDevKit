@@ -1,0 +1,18 @@
+<Macro name="SetZoneAbstractDailyData">
+	<Argument>
+		<String name="SensorName"/>
+		<Number name="AvgValue"/>
+		<String name="Time"/>
+	</Argument>
+	<Result>
+		<Log Message="*********** Start SetZoneAbstractDailyData*************"/>
+		
+		<AddResponseData key="Message.Value.Result.SensorAbstractDailyData.Mapping" value="" />
+		
+		<AddResponseData key="Message.Value.Result.SensorAbstractDailyData.Mapping.SensorName" value="[:$Macro.Argument.SensorName:]" />
+			
+		<AddResponseData key="Message.Value.Result.SensorAbstractDailyData.Mapping.AvgValue" value="[:$Macro.Argument.AvgValue:]" />
+		<AddResponseData key="Message.Value.Result.SensorAbstractDailyData.Mapping.Time" value="[:$Macro.Argument.Time:]" />
+				
+	</Result>
+</Macro>

@@ -1,0 +1,121 @@
+<Macro name="CreateZoneAggregate">
+	<Argument>
+		<SensorID />
+		<SensorValue />
+	</Argument>
+		
+	<Result>
+		<Log Message="********************* CreateZoneAggregate ******************************** "/>
+		<Log Message="CreateZoneAggregate Data: [:$Macro.Argument:]"/>
+		<JavaScript>
+			function formattedDate(dateIn) {
+				<!-- sffLog.info("Parsing data: " + dateIn); -->
+				var date = parseInt(dateIn);
+				var dLocal = new Date(date);
+				var dateUTC = date + dLocal.getTimezoneOffset()*60000;
+				var d = new Date(dateUTC);
+				dformat = [d.getFullYear().toString().substr(0,4),
+					(d.getMonth()+1).padLeft(),
+					d.getDate().padLeft()].join('-');
+				dformat = dformat+"T";
+				dformat = dformat + [d.getHours().padLeft(),
+					d.getMinutes().padLeft(),
+					d.getSeconds().padLeft()].join(':');
+				dformat = dformat+"Z";
+					<!-- sffLog.info("dformat: " + dformat); -->
+				return dformat;
+			}
+			Number.prototype.padLeft = function(base,chr){
+				var  len = (String(base || 10).length - String(this).length)+1;
+				return len > 0? new Array(len).join(chr || '0')+this : this;
+			}
+
+			sffContext.setLocalData("CurrentDateTime", formattedDate(new Date().getTime()));
+		</JavaScript>
+		<Log Message="CreateZoneAggregate CurrentDateTime: [:$LocalData.CurrentDateTime:]"/>
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Find>
+						<SensorModel>
+							<ID eq="[:$Macro.Argument.SensorID:]"/>
+						</SensorModel>
+					</Find>
+				</Query>
+			</QueryString>
+		</executeQuery>
+		<SetLocalData>
+			<Key>SensorType</Key>
+			<Value>[:$Response.Message.Value.Find.Result.SensorModel.SensorType:]</Value>
+		</SetLocalData>
+		<SetLocalData>
+			<Key>MCUName</Key>
+			<Value>[:$Response.Message.Value.Find.Result.SensorModel.MCUName:]</Value>
+		</SetLocalData>
+		<Log Message="********************* CreateZoneAggregate SensorType: [:$LocalData.SensorType:]******************************** "/>
+		
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Find format="current,version">
+						<MCUModel>
+							<Name>[:$LocalData.MCUName:]</Name>
+						</MCUModel>
+					</Find>
+				</Query>
+			</QueryString>
+		</executeQuery>
+		<SetLocalData>
+			<Key>ZoneName</Key>
+			<Value>[:$Response.Message.Value.Find.Result.MCUModel.ZoneName.Value:]</Value>
+		</SetLocalData>
+	
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Find format="current,version">
+						<ZoneAggregate>
+							<ZoneName>[:$LocalData.ZoneName:]</ZoneName>
+						</ZoneAggregate>
+					</Find>
+				</Query>
+			</QueryString>
+		</executeQuery>
+		<if condition="/[:$Response.Message.Value.Find/count(Result):] eq 0">
+			<then>
+				<executeQuery>
+					<QueryString>
+						<Query>
+							<Create>
+								<ZoneAggregate>
+									<ZoneName>[:$LocalData.ZoneName:]</ZoneName>
+									<LastUpdate>[:$LocalData.CurrentDateTime:]</LastUpdate>
+									<Fertilizer>
+										<AreaSprayed>-1</AreaSprayed>
+										<AreaSprayedCummulative>-1</AreaSprayedCummulative>
+										<QuantitySprayed>-1</QuantitySprayed>
+										<QuantitySprayedCummulative>-1</QuantitySprayedCummulative>
+										<OptimumValue>-1</OptimumValue>
+									</Fertilizer>
+									<PesticideInfo>
+										<AreaSprayed>-1</AreaSprayed>
+										<AreaSprayedCummulative>-1</AreaSprayedCummulative>
+										<QuantitySprayed>-1</QuantitySprayed>
+										<QuantitySprayedCummulative>-1</QuantitySprayedCummulative>
+										<OptimumValue>-1</OptimumValue>
+									</PesticideInfo>
+								</ZoneAggregate>
+							</Create>
+						</Query>
+					</QueryString>
+				</executeQuery>
+			</then>
+		</if>
+		<!-- <CreateZoneAggregateInfo>
+			<ZoneName>[:$LocalData.ZoneName:]</ZoneName>
+			<CurrentValue>[:$Macro.Argument.SensorValue:]</CurrentValue>
+			<SensorType>[:$LocalData.SensorType:]</SensorType>
+			<Time>[:$LocalData.CurrentDateTime:]</Time>
+		</CreateZoneAggregateInfo> -->
+	</Result>
+</Macro>

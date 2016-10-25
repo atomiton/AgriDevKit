@@ -1,0 +1,52 @@
+<ThingFacet Name="SensorModelFacet">
+    <String name="startSensorsSubscription" KnownBy="SubscribeMCU" />
+   
+    <Action name="SubscribeMCU">
+        <Workflow Limit="1" Live="1" Timeout="10">
+            <Task name="Main">
+                <Event name="Argument" as="ActionArgument" />
+                <Invoke name="ReadValue" waitFor="Argument">
+					<FacetScript>
+						<Log message="Test:::: [%:Event.Argument.SensorID.Value:%]" />
+						<NewFacetInstance fid="[%:Event.Argument.SensorID.Value:%]"
+							Name="TQL[%:Event.Argument.SensorID:%]" Type="SffTcpFacet">
+							<OnActivate>
+								<Log message="create new Facet" />
+							</OnActivate>
+							<OnOpen ModifyPipeline="HttpServerExtensionArgs" />
+							<OnRequest>
+								<DoRequest>
+									<Process Return="CMD_NOP">
+										<Log message="Got request..." />
+										<Message>
+											<Value>
+												<Include>$Request.Message.Value</Include>
+											</Value>
+										</Message>
+									</Process>
+								</DoRequest>
+								<DoResponse>
+									<Process>
+										<Log message="Writing response..." />
+										<GenMsgArgs>
+											<Include>$Response.Message.Value</Include>
+										</GenMsgArgs>
+										<Include>GenerateMessage</Include>
+									</Process>
+								</DoResponse>
+							</OnRequest>
+						</NewFacetInstance>
+					</FacetScript>
+				</Invoke>
+
+                <Output name="Result" as="ActionResult">
+                    <Value>
+                        <startSensorsSubscription>
+							[:Event.Argument.startSubscription.Value:]
+                        </startSensorsSubscription>
+                    </Value>
+                </Output>
+            </Task>
+        </Workflow>
+    </Action>
+</ThingFacet>

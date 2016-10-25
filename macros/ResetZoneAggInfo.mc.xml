@@ -1,0 +1,42 @@
+<Macro Name="ResetZoneAggInfo">
+	<Argument>
+		<String name="ZoneName"/>
+	</Argument>
+	<Result>
+		<Log Message="*********** Start ResetZoneAggInfo*************"/>
+		<Log Message="Zone Name ResetZoneAggInfo============ [:$Macro.Argument.ZoneName:]"/>
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Find format="version">
+						<ZoneAggregateInfo>
+							<ZoneName eq='[:$Macro.Argument.ZoneName:]'/>
+						</ZoneAggregateInfo>
+					</Find>
+					
+					<SetResponseData>
+						<key>Message.Value.Find.Result.ZoneAggregateInfo.MinValue.Value</key>
+						<value>99999</value>
+					</SetResponseData>
+					<SetResponseData>
+						<key>Message.Value.Find.Result.ZoneAggregateInfo.MaxValue.Value</key>
+						<value>-1</value>
+					</SetResponseData>
+					<SetResponseData>
+						<key>Message.Value.Find.Result.ZoneAggregateInfo.AvgValue.Value</key>
+						<value>-1</value>
+					</SetResponseData>
+					<SetResponseData>
+						<key>Message.Value.Find.Result.ZoneAggregateInfo.Count.Value</key>
+						<value>1</value>
+					</SetResponseData>
+
+					<Update>
+						<from>Result</from>
+						<Include>$Response.Message.Value.Find</Include>
+					</Update>
+				</Query>
+			</QueryString>
+		</executeQuery>
+	</Result>
+</Macro>

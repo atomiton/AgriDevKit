@@ -1,0 +1,39 @@
+<Macro Name="UpdateZoneHeightWidthSize">
+  <Argument>
+    <String name="ZoneName" />
+    <Number name="Height" />
+    <Number name="Width" />
+    <Number name="Area" />
+  </Argument>
+  <Result>
+    <!-- <Log Message="+++++++++++++++++++++++++UpdateZoneHeightWidthSize+++++++++++++++++++++++++"/>
+     -->
+    <executeQuery>
+      <QueryString>
+        <Query>
+          <Find format="version, current">
+            <Zone>
+              <Name eq="[:$Macro.Argument.ZoneName:]"/>
+            </Zone>
+          </Find>
+          <SetResponseData>
+            <Key>Message.Value.Find.Result.Zone.Height.Value</Key>
+            <Value>[:$Macro.Argument.Height:]</Value>
+          </SetResponseData>
+          <SetResponseData>
+            <Key>Message.Value.Find.Result.Zone.Width.Value</Key>
+            <Value>[:$Macro.Argument.Width:]</Value>
+          </SetResponseData>
+          <SetResponseData>
+            <Key>Message.Value.Find.Result.Zone.Size.Value</Key>
+            <Value>[:$Macro.Argument.Area:]</Value>
+          </SetResponseData>
+          <Update>
+            <from>Result</from>
+            <Include>$Response.Message.Value.Find</Include>
+          </Update>
+        </Query>
+      </QueryString>
+    </executeQuery>
+  </Result>
+</Macro>

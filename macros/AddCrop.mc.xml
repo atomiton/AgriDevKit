@@ -1,0 +1,34 @@
+<Macro Name="AddCrop">
+	<Argument>
+		<String name="CropID"/>
+		<String name="CropName"/>
+		<String name="CropType"/>
+		
+	</Argument>
+	<Result>
+		<Log Message="Saving Crop Info..." />
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Find format="current, version">
+						<CropModel>
+							<CropID>[:$Macro.Argument.CropID:]</CropID>
+						</CropModel>
+					</Find>
+					<if condition="/[:$Response.Message.Value.Find/count(Result):] eq 0">
+						<then>
+							<Create>
+								<CropModel>
+									<CropID>[:$Macro.Argument.CropID:]</CropID>
+									<CropName>[:$Macro.Argument.CropName:]</CropName>
+									<CropType>[:$Macro.Argument.CropType:]</CropType>
+
+								</CropModel>
+							</Create>
+						</then>
+					</if>
+				</Query>
+			</QueryString>
+		</executeQuery>
+	</Result>
+</Macro>

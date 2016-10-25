@@ -1,0 +1,61 @@
+<Macro Name="RemoveStaleDataCloud">
+    <Argument />
+    <Result>
+        <DeleteScheduleJob>
+            <JobName>RemoveStaleDataCloud</JobName>
+        </DeleteScheduleJob>
+        <executeQuery>
+            <QueryString>
+                <Query>
+                    <Find>
+                        <SystemConfig>
+                            <Key eq="DATA_LIVE_TIME_SCHEDULER" />
+                        </SystemConfig>
+                    </Find>
+                </Query>
+            </QueryString>
+        </executeQuery>
+        <SetLocalData Key="DATA_LIVE_TIME_SCHEDULER" Value="[:$Response.Message.Value.Find.Result.SystemConfig.Value:]" />
+        <DelResponseData key="Message.Value.Find" />
+        <ScheduleJob>
+            <Name>RemoveStaleDataCloud</Name>
+            <ScheduleInterval>[:$LocalData.DATA_LIVE_TIME_SCHEDULER:]</ScheduleInterval>
+            <ActionCode>
+                <executeQuery>
+                    <QueryString>
+                        <Query>
+                            <Find>
+                                <SystemConfig>
+                                    <Key eq="DATA_LIVE_TIME" />
+                                </SystemConfig>
+                            </Find>
+                        </Query>
+                    </QueryString>
+                </executeQuery>
+                <SetLocalData Key="DATA_LIVE_TIME" Value="[:$Response.Message.Value.Find.Result.SystemConfig.Value:]" />
+                <JavaScript>
+			     	var liveTime = parseInt("[:$LocalData.DATA_LIVE_TIME:]");
+			     	<!-- sffLog.info("DataLive time raw: " + "[:$LocalData.DATA_LIVE_TIME:]");
+			     	sffLog.info("DataLive time: " + liveTime); -->
+			     	var date = (new Date()).getTime()-(liveTime*60000);
+			     	var dateUTC = new Date(date);
+			     	var time = dateUTC.toISOString();
+			     	time = time.substr(0,time.length()-5) + "Z";
+			        sffLog.info("Deletion Time: " +time);
+			        sffContext.setLocalData("CurrentTime", time);
+			    </JavaScript>
+                <executeQuery>
+                    <QueryString>
+                        <Query>
+                            <DeleteAll>
+                                <ZoneAggregateInfo>
+                                    <Time lt="[:$LocalData.CurrentTime:]" />
+                                </ZoneAggregateInfo>
+                            </DeleteAll>
+                        </Query>
+                    </QueryString>
+                </executeQuery>
+            </ActionCode>
+        </ScheduleJob>
+    </Result>
+</Macro>

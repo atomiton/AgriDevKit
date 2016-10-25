@@ -1,0 +1,137 @@
+<ThingFacet name="ReqiredQuantityFacet">
+	<String name="ZoneName" knownBy="GetRequiredValues"/>
+    <Number name="CurrentTemp" knownBy="GetRequiredValues"/>
+    <Number name="CurrentHumidity" knownBy="GetRequiredValues" />
+
+ <AA>[:#o#Output.Argument:]</AA>
+    <Action name="GetRequiredValues">
+        <Workflow Limit="1" Live="1" Timeout="-1">
+            <Task name="Main">
+                <Event name="Argument" as="ActionArgument" />
+                <Invoke Name="CreateCommand" waitFor="Argument">
+                    <JavaScript>
+                      var command = "java -jar [:RuntimeParams.SpacesLocation:]OptimumFarmValueCalculator.jar";
+                      var currentTemp = parseInt('[%:Event.Argument.CurrentTemp.Value:%]');
+                      var currentHumidity = parseInt('[%:Event.Argument.CurrentHumidity.Value:%]');
+
+                      sffLog.info("currentTemp type:"+typeof currentTemp);
+                      sffLog.info("currentHumidity type:" +typeof currentHumidity);
+					  var zoneName = "[%:Event.Argument.ZoneName.Value:%]";
+					  if(zoneName.indexOf(":") != -1) {
+						zoneName = "1";
+					  }
+                      var outputFile = String("[:RuntimeParams.SpacesLocation:]OptimumZoneValues_"+zoneName+".txt");
+                      
+                      sffLog.info("Before calling jar file  : " + command);
+                      
+                      command = command.concat(" "+currentTemp + " "+currentHumidity);
+                      command = command.concat(" \"" + outputFile + "\"");
+                      
+                      sffLog.info("Command to call Optimum value Algorithm : " + command);
+                      command;
+                    </JavaScript>
+                  </Invoke>
+                  
+                  <Invoke name="ExecuteCommand" execute="[:Invoke.CreateCommand:]"/>
+                  <Log Message="Check Command Status : [:Invoke.ExecuteCommand:]"/>
+				  
+				  <Invoke name="WriteToModel">
+                    <JavaScript>
+					    var optQuantityPest = 0;
+						var optQuantityUnitPest ="ml";
+						var optQuantityFert = 0;
+						var optQuantityUnitFert ="gms";
+						var zoneName = "[%:Event.Argument.ZoneName.Value:%]";
+						if(zoneName.indexOf(":") != -1) {
+							zoneName = "1";
+						}
+						var file = new java.io.File("[:RuntimeParams.SpacesLocation:]OptimumZoneValues_"+zoneName+".txt");
+						sffLog.info("File : " + file.getAbsolutePath());
+						if(file.exists()) {
+							var fileData = sff.loadTxt("text", file.getAbsolutePath());
+							sffLog.info(fileData); /* #Pesticide:2:ml#Ferilizer:4:gm */
+							
+							var splitted = fileData.split("#");								
+							
+							for(i= splitted.length -1; i!=0; i--){
+									if(splitted[i].startsWith("Pesticide"))
+									{
+												var pestcideData = splitted[i].split(":");
+												optQuantityPest = pestcideData[1];
+												optQuantityUnitPest =   pestcideData[2];
+										 
+									}
+									else if(splitted[i].startsWith("Ferilizer"))
+									{
+												var fertizerData = splitted[i].split(":");  
+												optQuantityFert = fertizerData[1];
+												optQuantityUnitFert = fertizerData[2];
+											}
+									  }
+							
+									sffLog.info( "optimum Quantity Pesticide:: " + optQuantityPest + " opt Quantity Pesticide Unit:: "+ optQuantityUnitPest + " opt Quantity Fertilizer:: " + optQuantityFert + " opt Quantity Fertilizer Unit:: " +optQuantityUnitFert);
+
+						  Variable.pesticide=optQuantityPest;
+						  Variable.pesticideUnit=optQuantityUnitPest;
+						  Variable.fertilizer=optQuantityFert;
+						  Variable.fertilizerUnit=optQuantityUnitFert;
+						  {};
+						}
+                      
+                    </JavaScript>
+                  </Invoke>
+
+                  <Invoke name="updateZoneAggregate" >
+                    <FacetScript>
+                      <Log message="Updated values:: [:Variable.fertilizer:]" />
+                      <Log message="ZoneName:: [%:Event.Argument.ZoneName.Value:%]" />
+                      <Log message="Fert:: [:Variable.fertilizer:]" />
+                      <Log message="Pest:: [:Variable.pesticide:]" />
+                      <!-- <updateZoneAggregate>
+                        <ZoneName>[:$Macro.Argument.ZoneName:]</ZoneName>
+                        <Pesticide>[:Variable.pesticide:]</Pesticide>
+                        <Fertilizer>[:Variable.fertilizer:]</Fertilizer>
+                      </updateZoneAggregate> -->
+                      <executeQuery>
+                        <QueryString>
+                          <Query>
+                            <Find format="version, current">
+                              <ZoneAggregate>
+                                <ZoneName eq="[%:Event.Argument.ZoneName.Value:%]"/>
+                              </ZoneAggregate>
+                            </Find>
+							<Log message="" />
+                            <SetResponseData>
+                              <Key>Message.Value.Find.Result.ZoneAggregate.PesticideInfo.OptimumValue.Value</Key>
+                              <Value>[:Variable.pesticide:]</Value>
+                            </SetResponseData>
+                            <SetResponseData>
+                              <Key>Message.Value.Find.Result.ZoneAggregate.Fertilizer.OptimumValue.Value</Key>
+                              <Value>[:Variable.fertilizer:]</Value>
+                            </SetResponseData>
+                             <Update>
+                              <from>Result</from>
+                              <Include>$Response.Message.Value.Find</Include>
+                            </Update>
+
+                            <!-- <Log message="ZoneName Update:: [:$Macro.Argument.ZoneName:]" />
+                            <Log message="Fert Update:: [:Variable.fertilizer:]" />
+                            <Log message="Pest Update: [:Variable.pesticide:]" /> -->
+                           
+                          </Query>
+                        </QueryString>
+                      </executeQuery>
+                    </FacetScript>
+                  </Invoke>
+
+                <Output name="Result" as="ActionResult">
+                    <Value>
+						<ZoneName>[%:Event.Argument.ZoneName.Value:%]</ZoneName>
+						<CurrentTemp>[%:Event.Argument.CurrentTemp.Value:%]</CurrentTemp>
+						<CurrentHumidity>[%:Event.Argument.CurrentHumidity.Value:%]</CurrentHumidity>
+                    </Value>
+                </Output>
+            </Task>
+        </Workflow>
+    </Action>
+</ThingFacet>

@@ -1,0 +1,56 @@
+<Macro Name="CreateSystemConfigZone">
+	<Argument>
+		<CLOUD_URL />
+	</Argument>
+	<Result>
+		<Log Message="Saving System Config Info..." />
+		
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Create>
+						<SystemConfig>
+							<Key>CLD_SYNC_TIME_ZONE</Key>
+							<Value>5min</Value>
+						</SystemConfig>
+					</Create>
+
+					<Create>
+						<SystemConfig>
+							<Key>CLD_SYNC_TIME</Key>
+							<Value>1min</Value>
+						</SystemConfig>
+					</Create>
+					
+					<Create>
+						<SystemConfig>
+							<Key>GW_AVG_CALC_TIME</Key>
+							<Value>1min</Value>
+						</SystemConfig>
+					</Create>
+					
+					<Create>
+						<SystemConfig>
+							<Key>CLD_SYNC_TIME_FARMER</Key>
+							<Value>3sec</Value>
+						</SystemConfig>
+					</Create> 
+
+					<Create>
+						<SystemConfig>
+							<Key>CLD_URL</Key>
+							<Value>[:$Macro.Argument.CLOUD_URL:]</Value>
+						</SystemConfig>
+					</Create>
+
+					<Create>
+						<SystemConfig>
+							<Key>MCU_STATUS</Key>
+							<Value>1min</Value>
+						</SystemConfig>
+					</Create>
+				</Query>
+			</QueryString>
+		</executeQuery>
+	</Result>
+</Macro>

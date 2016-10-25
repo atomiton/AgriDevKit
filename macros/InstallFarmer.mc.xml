@@ -1,0 +1,115 @@
+<Macro name="InstallFarmer">
+	<Argument>
+		<CLOUD_URL />
+		<ZONE_URL />
+		<Simulated />
+	</Argument>
+	<Result>
+		<deleteAll>
+			<SystemConfig>
+				<ID ne="" />
+			</SystemConfig>
+		</deleteAll>
+		<CreateSystemConfigFarmer>
+			<CLOUD_URL>[:$Macro.Argument.CLOUD_URL:]</CLOUD_URL>
+			<ZONE_URL>[:$Macro.Argument.ZONE_URL:]</ZONE_URL>
+		</CreateSystemConfigFarmer>
+		<SubscibeFarmerChangedZone />
+		<SubscibeToCalcFertFlowRate />
+		<SubscibeFarmerChangedZoneForPest />
+		<SubscibeToCalcPestFlowRate />
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<DeleteAll>
+						<GPSFacetModel>
+							<GPSID ne="" />
+						</GPSFacetModel>
+					</DeleteAll>
+					<Create>
+						<GPSFacetModel>
+							<Payload></Payload>
+							<latitude>0</latitude>
+							<longitude>0</longitude>
+							<Speed>0</Speed>
+							<Direction>0</Direction>
+							<SubscribeGPS>0</SubscribeGPS>
+							<Count>0</Count>
+							<SensorURL>phid://</SensorURL>
+							<SensorInterfaceIndex>1</SensorInterfaceIndex>
+							<SensorInterfaceType>PhidgetGPS</SensorInterfaceType>
+							<Simulated>[:$Macro.Argument.Simulated:]</Simulated>
+						 </GPSFacetModel>
+					</Create>
+				</Query>
+				
+				<Log message="Created GPSID: [:$Response.Message.Value.Create.GPSFacetModel.GPSID:]" />
+				<SetLocalData key="GPSID" value="[:$Response.Message.Value.Create.GPSFacetModel.GPSID:]" />
+				
+				<Query>
+					<DeleteAll>
+						<FertilizerActuatorModel>
+							<ActID ne="" />
+						</FertilizerActuatorModel>
+					</DeleteAll>
+					<Create>
+						<FertilizerActuatorModel>
+							<Speed>4</Speed>
+							<FlowRate>0.2</FlowRate>
+							<DevicePort>/dev/ttyACM0</DevicePort>
+							<Frequency>9600</Frequency>
+							<Length>$Null()</Length>
+							<Operation>userframe</Operation>
+							<Command>8400702E</Command>
+						 </FertilizerActuatorModel>
+					</Create>
+				</Query>
+				
+				<SetLocalData key="ActID" value="[:$Response.Message.Value.Create.FertilizerActuatorModel.ActID:]" />
+
+				<Query>
+					<DeleteAll>
+						<PesticideActuatorModel>
+							<PestActID ne="" />
+						</PesticideActuatorModel>
+					</DeleteAll>
+					<Create>
+						<PesticideActuatorModel>
+							<Speed>4</Speed>
+							<FlowRate>0.2</FlowRate>
+						 </PesticideActuatorModel>
+					</Create>
+				</Query>
+				<SetLocalData key="PestActID" value="[:$Response.Message.Value.Create.PesticideActuatorModel.PestActID:]" />
+
+				<DeleteAll>
+					<FarmerModel>
+						<ID ne=""/>
+					</FarmerModel>
+				</DeleteAll>
+				
+				<JavaScript>
+					sffContext.setLocalData("CurrentTimestamp",(new Date()).getTime());
+				</JavaScript>
+				
+				<create>
+					<FarmerModel>
+						<GPSID>[:$LocalData.GPSID:]</GPSID>
+						<ActID>[:$LocalData.ActID:]</ActID>
+						<Name>Farmer1</Name>
+						<PestActID>[:$LocalData.PestActID:]</PestActID>
+						<Info></Info>
+						<CurrentZone></CurrentZone>
+						<Speed>0</Speed>
+						<Direction>0</Direction>
+						<LastZoneChangeTS>[:$LocalData.CurrentTimestamp:]</LastZoneChangeTS>
+						<latitude>0</latitude>
+						<longitude>0</longitude>
+					</FarmerModel>
+				</create>
+				
+			</QueryString>
+		</executeQuery>
+		<ReplicateToCloudFarmer/>
+	</Result>
+</Macro>

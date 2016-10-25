@@ -1,0 +1,37 @@
+<Macro name="MessageProcessor">
+	<Argument>
+		<MessageData />
+	</Argument>
+	<Result>
+		<JavaScript>
+			<Resp><Include>[:$Macro.Argument.MessageData:]</Include></Resp>
+			sffLog.info("Timestamp Value:::::::::: " + Resp.mcudata.Name);
+			
+			function createResponse(key, value) {
+				var setResponseData = ListMap.static.newInstance();   
+				var rc = setResponseData.instanceAdd("SetResponseData");
+				rc.put("Key", "Message.Value."+key);
+				rc.put("Value", value);
+				return setResponseData;
+			}
+		
+			var responses = [];
+			
+			responses.push(createResponse("Result.MCUMessage",""));
+			responses.push(createResponse("Result.MCUMessage.SeqID",Resp.mcudata.Timestamp));
+			responses.push(createResponse("Result.MCUMessage.MessageID",Resp.mcudata.Name));
+			responses.push(createResponse("Result.MCUMessage.SensorID",Resp.mcudata.Name));
+			responses.push(createResponse("Result.MCUMessage.SensorType",Resp.mcudata.Name));
+			responses.push(createResponse("Result.MCUMessage.SensorValue",Resp.mcudata.Name));
+			responses.push(createResponse("Result.MCUMessage.Type",Resp.mcudata.Data.Type));
+			responses.push(createResponse("Result.MCUMessage.ActuatorID",Resp.mcudata.Name));
+			
+			var result = "";
+			for(i =0 ; i &lt; responses.length; i++) {
+				result = result + responses[i];
+			}
+			sffLog.info("result: " + result);
+			result;
+		</JavaScript>
+	</Result>
+</Macro>

@@ -1,0 +1,9 @@
+CropStageId,CropId,CropStage,StageDescription,StageDuration
+CropStage-1,crop-001,Pre-Plant,Seed treatment,0
+CropStage-2,crop-002,Planting,in-flurrow,14
+CropStage-3,crop-003,Growth stage 1,sSprout development,28
+CropStage-4,crop-004,Growth stage 2,Vegetative growth,42
+CropStage-5,crop-005,Growth stage 3,Tuber initiation,70
+CropStage-6,crop-006,Growth stage 4,Tuber bulking,84
+CropStage-7,crop-007,Growth stage 5,Tuber bulking,98
+CropStage-8,crop-008,Vine kill & Harvest,Maturity,112

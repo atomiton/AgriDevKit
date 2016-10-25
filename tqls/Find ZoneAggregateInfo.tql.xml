@@ -1,0 +1,9 @@
+<Query>
+<Find>
+  <ZoneAggregateInfo>
+    <ID ne="" />
+  </ZoneAggregateInfo>
+</Find>
+<SetResponseData key="Message.Value.Count" value="[:$Response.Message.Value.Find/count(Result):]" />
+</Query>
+

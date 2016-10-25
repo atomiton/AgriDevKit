@@ -1,0 +1,52 @@
+<Macro name="SubscribeToZoneAggOnUpdate">
+	<Argument />
+		
+	<Result>
+		<Log message="Subscribe to ZoneAgg on Update" />
+		<SubscribeToTQL TopicName="TQL.Update.gateway.agriculture.ZoneAggregate.*" TopicId="[:RuntimeParams.TopicFacetIDName:]ZoneAggUpdate">
+			<ActionName>
+				<Log message="Known ZoneAgg UP==========: [:$Request.Message.Value.Publish.Value:]" />
+				<Log message="$SID ZoneAgg UP==========: [:$Request.Message.Value.Publish.$sid:]" />
+				<GetCloudURL/>
+				<SetLocalData Key="CLD_URL" Value="[:$Response.Message.Value.Result.URL:]"/>
+				<executeQuery>
+					<QueryString>
+						<Query>
+							<Find>
+								<SystemConfig>
+									<Key eq="CLD_SYNC_TIME" />
+								</SystemConfig>
+							</Find>
+						</Query>
+					</QueryString>
+				</executeQuery>
+				<SetLocalData Key="CLD_SYNC_TIME" Value="[:$Response.Message.Value.Find.Result.SystemConfig.Value:]"/>
+				
+				<executeQuery>
+					<QueryString>
+						<Query>
+							<Find>
+								<ZoneAggregate>
+									<ID eq="[:$Request.Message.Value.Publish.$sid:]" />
+								</ZoneAggregate>
+							</Find>
+					   </Query>
+					</QueryString>
+				</executeQuery>
+				<SetProcessData key="ZoneAggregateVal">
+					<Value><Include>$Response.Message.Value</Include></Value>
+				</SetProcessData>
+				<executeRemoteQuery>
+					<RemoteTQLEndPoint>[:$LocalData.CLD_URL:]</RemoteTQLEndPoint>
+						<QueryString>
+							<Query>
+								<SyncZoneAgg>
+									<InputMessage>[:$ProcessData.ZoneAggregateVal:]</InputMessage>
+								</SyncZoneAgg>
+							</Query>
+					</QueryString>
+				</executeRemoteQuery>
+			</ActionName>
+		</SubscribeToTQL>
+	</Result>
+</Macro>

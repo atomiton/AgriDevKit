@@ -1,0 +1,114 @@
+<Macro name="DeviceManager">
+	<Argument>
+		<String name="MCUName" />
+		<String name="SensorType" />
+		<String name="SensorValue" />
+		<String name="DeviceType" />		
+		<String name="IsActive" />		
+	</Argument>
+	<Result>
+		<Log message="In DeviceManager DeviceType::::::: [:$Macro.Argument.DeviceType:]" />
+		<if condition="/'[:$Macro.Argument.DeviceType:]' eq 'sensor'">
+			<then>
+				<Log message="In DeviceManager DeviceType SENSOR::::::: [:$Macro.Argument.DeviceType:]" />
+				<executeQuery>
+					<QueryString>
+						<Find>
+							<SensorModel>
+								<SensorType eq="[:$Macro.Argument.SensorType:]" />
+								<MCUName eq="[:$Macro.Argument.MCUName:]" />
+							</SensorModel>
+						</Find>
+					</QueryString>
+				</executeQuery>
+				<if condition="/[:$Response.Message.Value.Find/count(Result):] eq 0">
+					<then>
+						<Log message="SENSOR Not found" />
+						<executeQuery>
+							<QueryString>
+								<find>
+									<SensorDataType>
+										<MCECodeName>[:$Macro.Argument.SensorType:]</MCECodeName>
+										<DefaultValue>true</DefaultValue>
+									</SensorDataType>
+								</find>
+							</QueryString>
+						</executeQuery>
+						<executeQuery>
+							<QueryString>
+								<Create>
+									<SensorModel>
+										<SensorType>[:$Macro.Argument.SensorType:]</SensorType>
+										<SensorValue>[:$Macro.Argument.SensorValue:]</SensorValue>
+										<MCUName>[:$Macro.Argument.MCUName:]</MCUName>
+										<Unit>[:$Response.Message.Value.Find.Result.SensorDataType.Unit:]</Unit>
+										<IsActive>false</IsActive>
+									</SensorModel>
+								</Create>
+							</QueryString>
+						</executeQuery>
+					</then>
+				</if>
+				<if condition="/'[:$Macro.Argument.IsActive:]' eq 'true'">
+					<then>
+						<executeQuery>
+							<QueryString>
+								<Query>	
+									<Find format="current, version">
+										<SensorModel>
+											<SensorType eq="[:$Macro.Argument.SensorType:]" />
+											<MCUName eq="[:$Macro.Argument.MCUName:]" />
+										</SensorModel>
+									</Find>
+									<SetResponseData>
+										<Key>Message.Value.Find.Result.SensorModel.SensorValue.Value</Key>
+										<Value>[:$Macro.Argument.SensorValue:]</Value>
+									</SetResponseData>
+									<SetResponseData>
+										<Key>Message.Value.Find.Result.SensorModel.IsActive.Value</Key>
+										<Value>true</Value>
+									</SetResponseData>
+									<Update>
+										<from>Result</from>
+										<Include>$Response.Message.Value.Find</Include>
+									</Update>
+								</Query>	
+							</QueryString>
+						</executeQuery>
+					</then>
+				</if>
+			</then>
+		</if>
+		<!-- <if condition="/'[:$Macro.Argument.DeviceType:]' eq 'actuator'">
+			<then>
+				<Log message="In DeviceManager DeviceType ACTUATOR::::::: [:$Macro.Argument.DeviceType:]" />
+				<executeQuery>
+					<QueryString>
+						<Find>
+							<ActuatorModel>
+								<ActuatorID eq="[:$Macro.Argument.ActuatorID:]" />
+							</ActuatorModel>
+						</Find>
+					</QueryString>
+				</executeQuery>
+				<if condition="/[:$Response.Message.Value.Find/count(Result):] eq 0">
+					<then>
+						<Log message="ACTUATOR Not found" />
+						<executeQuery>
+							<QueryString>
+								<Create>
+									<ActuatorModel>
+										<ActuatorID>[:$Macro.Argument.ActuatorID:]</ActuatorID>
+									</ActuatorModel>
+								</Create>
+							</QueryString>
+						</executeQuery>
+					</then>
+					<else>
+						<Log message="The Actuator exists" />
+					</else>
+				</if>
+			</then>
+		</if> -->
+	</Result>
+</Macro>

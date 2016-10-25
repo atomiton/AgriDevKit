@@ -1,0 +1,106 @@
+<Macro name="UpdateWeatherZoneAggInfo">
+	<Argument>
+		<ZoneName/>
+		<SensorValue/>
+		<SensorType/>
+	</Argument>
+	<Result>
+		<Log Message="***************** UpdateWeatherZoneAggInfo *********"/>
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Find>
+						<SensorDataType>
+							<MCECodeName eq="[:$Macro.Argument.SensorType:]"/>
+						</SensorDataType>
+					</Find>
+				</Query>
+			</QueryString>
+		</executeQuery>
+		<SetLocalData>
+			<Key>SensorName</Key>
+			<Value>[:$Response.Message.Value.Find.Result.SensorDataType.Name:]</Value>
+		</SetLocalData>
+		<JavaScript>function formattedDate(dateIn) {
+			var date = parseInt(dateIn);
+			var dLocal = new Date(date);
+			var dateUTC = date + dLocal.getTimezoneOffset()*60000;
+			var d = new Date(dateUTC);
+			dformat = [d.getFullYear().toString().substr(0,4),
+				(d.getMonth()+1).padLeft(),
+				d.getDate().padLeft()].join('-');
+			dformat = dformat+"T";
+			dformat = dformat + [d.getHours().padLeft(),
+			d.getMinutes().padLeft(),
+			d.getSeconds().padLeft()].join(':');
+			dformat = dformat+"Z";
+					
+			return dformat;
+			}
+			Number.prototype.padLeft = function(base,chr){
+			var  len = (String(base || 10).length - String(this).length)+1;
+			return len > 0? new Array(len).join(chr || '0')+this : this;
+			}
+			sffContext.setLocalData("CurrentTime", formattedDate(new Date().getTime()));
+		</JavaScript>
+		<executeQuery>
+			<QueryString>
+				<Find format="version">
+					<ZoneAggregateInfo>
+						<ZoneName eq="[:$Macro.Argument.ZoneName:]"/>
+						<SensorName eq="[:$LocalData.SensorName:]"/>
+					</ZoneAggregateInfo>
+				</Find>
+				<if condition="$Response.Message.Value/Find/Status eq 'Success'">
+					<then>
+						<SetLocalData>
+							<Key>ZoneAvgValue</Key>
+							<Value>[:$Response.Message.Value.Find.Result.ZoneAggregateInfo.AvgValue.Value:]</Value>
+						</SetLocalData>
+						<JavaScript>
+							var zoneAvgValue = parseFloat("[:$LocalData.ZoneAvgValue:]");
+			                            var sensorValue = parseFloat("[:$Macro.Argument.SensorValue:]");
+			                            if(!zoneAvgValue)
+			                            {
+			                                zoneAvgValue = sensorValue;
+			                            }
+			                            var avgValue;
+			                            if(sensorValue == -1){
+			                            avgValue = zoneAvgValue;
+			                            }
+			                            else {
+			                            avgValue = (zoneAvgValue + sensorValue)/2;
+			                            }
+			                            sffContext.setLocalData("AvgValue",avgValue);
+
+			            </JavaScript>
+						<SetResponseData>
+							<Key>Message.Value.Find.Result.ZoneAggregateInfo.AvgValue.Value</Key>
+							<Value>[:$LocalData.AvgValue:]</Value>
+						</SetResponseData>
+						<SetResponseData>
+							<Key>Message.Value.Find.Result.ZoneAggregateInfo.NAvgValue.Value</Key>
+							<Value>[:$LocalData.AvgValue:]</Value>
+						</SetResponseData>
+						<SetResponseData>
+							<Key>Message.Value.Find.Result.ZoneAggregateInfo.Time.Value</Key>
+							<Value>[:$LocalData.CurrentTime:]</Value>
+						</SetResponseData>
+					</then>
+					<else>
+						<CreateZoneAggregateInfo>
+							<ZoneName>[:$Macro.Argument.ZoneName:]</ZoneName>
+							<CurrentValue>[:$Macro.Argument.SensorValue:]</CurrentValue>
+							<SensorType>[:$Macro.Argument.SensorType:]</SensorType>
+							<Time>[:$LocalData.CurrentTime:]</Time>
+						</CreateZoneAggregateInfo>
+					</else>
+				</if>
+				<Update>
+					<from>Result</from>
+					<Include>$Response.Message.Value.Find</Include>
+				</Update>
+			</QueryString>
+		</executeQuery>
+	</Result>
+</Macro>

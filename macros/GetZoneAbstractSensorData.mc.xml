@@ -1,0 +1,16 @@
+<Macro name="GetZoneAbstractSensorData">
+	<Argument>
+		<String name="SensorName"/>
+		<String name="ID"/>
+	</Argument>
+	<Result>
+		<Log Message="*********** Start GetZoneAbstractSensorData*************"/>
+		
+		<AddResponseData key="Message.Value.Result.ZoneSensorAbstractInfo.Mapping" value="" />
+		
+		<AddResponseData key="Message.Value.Result.ZoneSensorAbstractInfo.Mapping.SensorName" value="[:$Macro.Argument.SensorName:]" />
+			
+		<AddResponseData key="Message.Value.Result.ZoneSensorAbstractInfo.Mapping.ID" value="[:$Macro.Argument.ID:]" />
+				
+	</Result>
+</Macro>

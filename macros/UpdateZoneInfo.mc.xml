@@ -1,0 +1,153 @@
+<Macro name="UpdateZoneInfo">
+	<Argument>
+		<SensorID />
+		<SensorValue />
+	</Argument>
+		
+	<Result>
+	
+		<Log message="Inside UpdateZoneInfo: [:$Macro.Argument.SensorValue:]" />
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Find>
+						<SensorModel>
+							<as>var.Sensor</as>
+							<ID eq="[:$Macro.Argument.SensorID:]"/>
+						</SensorModel>
+					</Find>
+				</Query>
+			</QueryString>
+		</executeQuery>
+		<SetProcessData>
+			<Key>SensorType</Key>
+			<Value>[:$Response.Message.Value.Find.Result.SensorModel.SensorType:]</Value>
+		</SetProcessData>
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Find format="current,version">
+						<MCUModel>
+							<Name>[:$Response.Message.Value.Find.Result.SensorModel.MCUName:]</Name>
+						</MCUModel>
+					</Find>
+				</Query>
+			</QueryString>
+		</executeQuery>
+		<SetProcessData>
+			<Key>ZoneName</Key>
+			<Value>[:$Response.Message.Value.Find.Result.MCUModel.ZoneName.Value:]</Value>
+		</SetProcessData>
+	
+		<Log message="Updating Zone: [:$ProcessData.ZoneName:]" />
+		<Log message="Updating Data type: [:$ProcessData.SensorType:]" />
+		<Log message="New Value: [:$Macro.Argument.SensorValue:]" /> 
+	
+		<JavaScript>
+			var zoneName = "[:$ProcessData.ZoneName:]";
+			if(zoneName.indexOf(":$") != -1) {
+				sffContext.setProcessData("ValidZone","false");
+			} else {
+				sffContext.setProcessData("ValidZone","true");
+			}
+		<Log message="Valid Zone: [:$ProcessData.ValidZone:]" />
+		</JavaScript>
+		<if condition="/'[:$ProcessData.ValidZone:]' eq 'true'">
+			<executeQuery>
+				<QueryString>
+					<Query>
+						<Find format="current,version">
+							<ZoneInfo>
+								<ZoneName>[:$ProcessData.ZoneName:]</ZoneName>
+							</ZoneInfo>
+						</Find>
+					</Query>
+				</QueryString>
+			</executeQuery>
+			
+			<if condition="/[:$Response.Message.Value.Find/count(Result):] eq 0">
+				<then>
+					<executeQuery>
+						<QueryString>
+							<Query>
+								<Create>
+									<ZoneInfo>
+										<ZoneName>[:$ProcessData.ZoneName:]</ZoneName>
+										<AirTemperature>-1</AirTemperature>
+										<AirHumidity>-1</AirHumidity>
+										<SoilTemperature>-1</SoilTemperature>
+										<SoilMoisture>-1</SoilMoisture>
+										<LeafWetness>-1</LeafWetness>
+										<AtmosphericPressure>-1</AtmosphericPressure>
+										<SolarRadiation>-1</SolarRadiation>
+										<UVRadiation>-1</UVRadiation>
+										<TrunkDiameter>-1</TrunkDiameter>
+										<StemDiameter>-1</StemDiameter>
+										<FruitDiameter>-1</FruitDiameter>
+										<Anemometer>-1</Anemometer>
+										<Windvane>-1</Windvane>
+										<Pluviometer>-1</Pluviometer>
+										<Luminosity>-1</Luminosity>
+										<Count>1</Count>
+									</ZoneInfo>
+								</Create>
+							</Query>
+						</QueryString>
+					</executeQuery>
+				</then>
+			</if>
+					
+			<executeQuery>
+				<QueryString>
+					<Query>
+						<Find format="current,version">
+							<ZoneInfo>
+								<ZoneName>[:$ProcessData.ZoneName:]</ZoneName>
+							</ZoneInfo>
+						</Find>
+						<if condition="/'[:$ProcessData.SensorType:]' eq 'TCB'">
+							<SetResponseData>
+								<Key>Message.Value.Find.Result.ZoneInfo.AirTemperature.Value</Key>
+								<Value>[:$Macro.Argument.SensorValue:]</Value>
+							</SetResponseData>
+						</if>
+						<if condition="/'[:$ProcessData.SensorType:]' eq 'HUMB'">
+							<SetResponseData>
+								<Key>Message.Value.Find.Result.ZoneInfo.AirHumidity.Value</Key>
+								<Value>[:$Macro.Argument.SensorValue:]</Value>
+							</SetResponseData>
+						</if>
+						<if condition="/'[:$ProcessData.SensorType:]' eq 'LW'">
+							<SetResponseData>
+								<Key>Message.Value.Find.Result.ZoneInfo.LeafWetness.Value</Key>
+								<Value>[:$Macro.Argument.SensorValue:]</Value>
+							</SetResponseData>
+						</if>
+						<if condition="/'[:$ProcessData.SensorType:]' eq 'PAR'">
+							<SetResponseData>
+								<Key>Message.Value.Find.Result.ZoneInfo.SolarRadiation.Value</Key>
+								<Value>[:$Macro.Argument.SensorValue:]</Value>
+							</SetResponseData>
+						</if>
+						<if condition="/'[:$ProcessData.SensorType:]' eq 'PA'">
+							<SetResponseData>
+								<Key>Message.Value.Find.Result.ZoneInfo.AtmosphericPressure.Value</Key>
+								<Value>[:$Macro.Argument.SensorValue:]</Value>
+							</SetResponseData>
+						</if>
+						<if condition="/'[:$ProcessData.SensorType:]' eq 'SOIL'">
+							<SetResponseData>
+								<Key>Message.Value.Find.Result.ZoneInfo.SoilMoisture.Value</Key>
+								<Value>[:$Macro.Argument.SensorValue:]</Value>
+							</SetResponseData>
+						</if>
+						<Update>
+							<from>Result</from>
+							<Include>$Response.Message.Value.Find</Include>
+						</Update>
+					</Query>
+				</QueryString>
+			</executeQuery>
+		</if>
+	</Result>
+</Macro>

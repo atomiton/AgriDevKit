@@ -1,0 +1,47 @@
+<Macro name="subscribeMcuGridChange">
+	<Argument />
+		
+	<Result>
+		<Log message="Subscribe to Sensor Updates" />
+		<SubscribeToTQL TopicName="TQL.Update.gateway.agriculture.MCUModel.GridName.*" TopicId="[:RuntimeParams.TopicFacetIDName:]SensorModelGrid">
+			<ActionName>
+				<Log message="Known==========: [:$Request.Message.Value.Publish.Known:]" />
+				<Log message="$SID==========: [:$Request.Message.Value.Publish.$sid:]" />
+				<executeQuery>
+					<QueryString>
+						<Query>
+							<find format="version">
+								<MCUModel>
+									<ID eq="[:$Request.Message.Value.Publish.$sid:]"/>
+								</MCUModel>
+							</find>
+						</Query>	
+					</QueryString>
+				</executeQuery>
+				<JavaScript>
+					var known = "[:$Request.Message.Value.Publish.Known:]";
+					var value = "[:$Response.Message.Value.Find.Result.MCUModel.GridName.Value:]";
+					var sid = "[:$Request.Message.Value.Publish.$sid:]";
+					
+					sffLog.info("Known Publish for Grid: " + known);
+					sffLog.info("Value Publish for Grid: " + value);
+					var setContextData = ListMap.static.newInstance();   
+					
+					sffLog.info("Condition1 for Grid:: " + known.indexOf("$Request.Message.Value.Publish.Known"));
+					sffLog.info("Condition2 for Grid:: " + known != value);
+					
+					if(known.indexOf("$Request.Message.Value.Publish.Known") == -1 &amp;&amp; known != value){
+						var rc = setContextData.instanceAdd("updateMCUModelGridName");
+						rc.put("GridName", known);
+						rc.put("ID", sid);
+						sffLog.info(setContextData);
+						
+					} else {
+						sffLog.info("NOT UPDATED");
+					}
+					setContextData;
+				</JavaScript>
+			</ActionName>
+		</SubscribeToTQL>
+	</Result>
+</Macro>

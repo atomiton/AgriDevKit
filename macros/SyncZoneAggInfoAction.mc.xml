@@ -1,0 +1,85 @@
+<Macro name="SyncZoneAggInfoAction">
+	<Argument>
+		<String Name="ZoneId"/>
+	</Argument>
+	<Result>
+		<GetCloudURL/> 
+		<Log message="ConnectionStatus:: [:$Response.Message.Value.Result.ConnectionStatus:]" />
+		<SetLocalData Key="CLD_URL" Value="[:$Response.Message.Value.Result.URL:]"/>
+		<SetLocalData Key="ConnectionStatus" Value="[:$Response.Message.Value.Result.ConnectionStatus:]"/>
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Find>
+						<ZoneAggregateInfo>
+							<ID eq="[:$Macro.Argument.ZoneId:]" />
+						</ZoneAggregateInfo>
+					</Find>
+			   </Query>
+			</QueryString>
+		</executeQuery>
+		<SetProcessData key="ZoneAggregateInfoVal">
+			<Value><Include>$Response.Message.Value</Include></Value>
+		</SetProcessData>
+		<If condition="/'[:$LocalData.ConnectionStatus:]' eq 'Success'">
+			<then>
+				<Log message="Connection to Cloud established!!"/>
+				<executeQuery>
+					<QueryString>
+						<Query>
+							<Find>
+								<ZoneAggInfoHistoryModel>
+									<ID ne="" />
+								</ZoneAggInfoHistoryModel>
+							</Find>
+					   </Query>
+					</QueryString>
+				</executeQuery>
+				<Log message="Data in Buffer, count: [:$Response.Message.Value.Find/count(Result):], Data: [:$Response.Message.Value.Find.Result:]" />
+				<if condition="/[:$Response.Message.Value.Find/count(Result):] ne 0">
+					<then>
+						<Log message="Pushing data buffered on GW" /> 
+						<executeRemoteQuery>
+							<RemoteTQLEndPoint>[:$LocalData.CLD_URL:]</RemoteTQLEndPoint>
+								<QueryString>
+									<Query>
+										<SyncZoneAggInfoBuffered>
+											<InputMessage>[:$Response.Message.Value:]</InputMessage>
+										</SyncZoneAggInfoBuffered>
+									</Query>
+							</QueryString>
+						</executeRemoteQuery>
+						<!-- <Log message="Push buffer data response: [:$Response.Message.Value:]" /> -->
+						<Log message="On Success delete buffer data" />
+						<executeQuery>
+							<QueryString>
+								<Query>
+									<DeleteAll>
+										<ZoneAggInfoHistoryModel>
+											<ID ne="" />
+										</ZoneAggInfoHistoryModel>
+									</DeleteAll>
+							   </Query>
+							</QueryString>
+						</executeQuery>
+					</then>
+				</if>
+				<!-- <Log message="ZoneAggregateInfoVal********************* [:$ProcessData.ZoneAggregateInfoVal:]" /> -->
+				<executeRemoteQuery>
+					<RemoteTQLEndPoint>[:$LocalData.CLD_URL:]</RemoteTQLEndPoint>
+						<QueryString>
+							<Query>
+								<SyncZoneAggInfo>
+									<InputMessage>[:$ProcessData.ZoneAggregateInfoVal:]</InputMessage>
+								</SyncZoneAggInfo>
+							</Query>
+					</QueryString>
+				</executeRemoteQuery>
+			</then>
+			<else>
+				<Log message="Unable to connect to Server!!! Saving to Local" />
+				<LogZoneAggregateInfoData/>
+			</else>
+		</If>
+	</Result>
+</Macro>

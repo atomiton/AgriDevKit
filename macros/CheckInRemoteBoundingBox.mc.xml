@@ -1,0 +1,23 @@
+<Macro Name="CheckInRemoteBoundingBox">
+	<Argument>
+	<String name="ZoneID"/>
+	<Double name="latitude" />
+	<Double name="longitude" />
+	<GeoLocation name="UpperLeft" />
+	<GeoLocation name="LowerRight" />
+	</Argument>
+	<Result>
+		
+		<CheckPointInRemoteRegion>
+			<ZoneName>[:$Macro.Argument.ZoneID:]</ZoneName>
+			<latitude>[:$Macro.Argument.latitude:]</latitude>
+			<longitude>[:$Macro.Argument.longitude:]</longitude>
+		</CheckPointInRemoteRegion>
+		<SetResponseData>
+			<Key>Message.Value.Result.InBoungingBox</Key>
+			<Value>[:$Response.Message.Value.Result.InBoungingBox:]</Value>
+		</SetResponseData>
+				
+	</Result>
+</Macro>
+

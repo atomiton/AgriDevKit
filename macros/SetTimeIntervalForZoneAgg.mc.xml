@@ -1,0 +1,42 @@
+<Macro Name="SetTimeIntervalForZoneAgg">
+	<Argument/>
+	<Result>
+		<DeleteScheduleJob>
+			<JobName>SetTimeIntervalForZoneAgg</JobName>
+		</DeleteScheduleJob>
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Find>
+						<SystemConfig>
+							<Key eq="TIME_INV_ZONE_AGG" />
+						</SystemConfig>
+					</Find>
+				</Query>
+			</QueryString>
+		</executeQuery>
+		<SetLocalData Key="TIME_INV_ZONE_AGG" Value="[:$Response.Message.Value.Find.Result.SystemConfig.Value:]"/>
+		<ScheduleJob>
+			<Name>SetTimeIntervalForZoneAgg</Name>
+			<ScheduleInterval>[:$LocalData.TIME_INV_ZONE_AGG:]</ScheduleInterval>
+			<ActionCode>
+				<executeQuery>
+					<QueryString>
+						<Query>
+							<Find format="current,version">
+								<ZoneAggregate>
+									<ID ne=""/>
+								</ZoneAggregate>
+							</Find>
+						</Query>
+					</QueryString>
+				</executeQuery>
+				<!-- <For each="zones" in="Find.Result.ZoneAggregate" using="$ProcessData" >
+					<ResetZoneAgg>
+						<ZoneName>[:$ProcessData.zones.ZoneName.Value:]</ZoneName>
+					</ResetZoneAgg>
+				</For> -->
+			</ActionCode>
+		</ScheduleJob>
+	</Result>
+</Macro>

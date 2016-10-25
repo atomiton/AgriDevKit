@@ -1,0 +1,65 @@
+<Macro name="MessageInterceptor">
+	<Argument>
+		<Message />
+	</Argument>
+	<Result>
+		<Log message="In message interceptor: [:$Macro.Argument.Message:]" />
+		
+		<ZigBeeMessageProcessor>
+			<MessageData>[:$Macro.Argument.Message:]</MessageData>
+		</ZigBeeMessageProcessor>
+		
+		<SetProcessData>
+			<Key>Name</Key>
+			<Value><include>[:$Response.Message.Value.Result.MCUMessage.Name:]</include></Value>
+		</SetProcessData>
+		
+		<SetProcessData>
+			<Key>Data</Key>
+			<Value>[:$Response.Message.Value.Result.MCUMessage:]</Value>
+		</SetProcessData>
+
+		<MCUManager>
+			<Name>[:$ProcessData.Name:]</Name>
+		</MCUManager>
+
+		<JavaScript>
+			<Resp><Include>[:$ProcessData.Data:]</Include></Resp>
+			
+			function callDeviceManager(Type, SensorType, SensorValue, MCUName) {
+				var setResponseData = ListMap.static.newInstance();   
+				var rc = setResponseData.instanceAdd("DeviceManager");
+				rc.put("MCUName", MCUName);
+				rc.put("SensorType", SensorType);
+				rc.put("SensorValue", SensorValue);
+				rc.put("DeviceType", Type);
+				return setResponseData;
+			}
+			
+			var responses = [];
+			
+			for each (var sensor in Resp.Sensors) {
+				sffLog.info("Inside For Loop Sensor1: " + sensor.SensorType);
+				sffLog.info("Inside For Loop Sensor2: " + sensor.SensorValue);
+				responses.push(callDeviceManager(sensor.Type, sensor.SensorType, sensor.SensorValue, [:$ProcessData.Name:]));
+			}
+			
+			var result = "";
+			for(i =0 ; i &lt; responses.length; i++) {
+				result = result + responses[i];
+			}
+			sffLog.info("result: " + result);
+			result; 
+		</JavaScript>
+		
+		<!-- <DeviceManager>
+			<SeqID>[:$ProcessData.SeqID:]</SeqID>
+			<MessageID>[:$ProcessData.MessageID:]</MessageID>
+			<SensorID>[:$ProcessData.SensorID:]</SensorID>
+			<SensorType>[:$ProcessData.SensorType:]</SensorType>
+			<SensorValue>[:$ProcessData.SensorValue:]</SensorValue>
+			<DeviceType>[:$ProcessData.DeviceType:]</DeviceType>
+			<ActuatorID>[:$ProcessData.ActuatorID:]</ActuatorID>
+		</DeviceManager> -->
+	</Result>
+</Macro>

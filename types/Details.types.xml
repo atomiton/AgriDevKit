@@ -1,0 +1,7 @@
+<Def name="Details">
+	<Number name="CurrentValue" />
+	<Number name="MaxValue" />
+	<Number name="MinValue" />
+	<Number name="AvgValue" />
+	<Number name="Unit" />
+</Def>

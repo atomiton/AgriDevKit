@@ -1,0 +1,38 @@
+<ThingFacet Name="FlowControlFacet">
+    <Number Name="flowLevel" />
+    <String Name="devicePort" /><!--update="auto" KnownBy="XbeeAction" /> -->
+    <Number Name="frequency" />
+    <String Name="operation" />
+    <String Name="command" KnownBy="XbeeAction" />
+    
+    <AA>[:#o#Output.Argument:]</AA>
+	<Action Name="XbeeAction" Documentation="Start the Servo Motor">
+		<Workflow Limit="1" Live="1" Timeout="-1">
+			<Task name="Main" >
+                <Output name="Argument" as="ActionArgument" /> 
+                <Log Message="***** Before Invoke *****" />
+                <Invoke name="InvokeZbee" waitFor="Argument"  
+					post="xbee://[%:[:AA:].Command.Value:%]" DevicePort="[%:[:AA:].DevicePort.Value:%]"
+                    Frequency="[%:[:AA:].Frequency.Value:%]" Operation="[%:[:AA:].Operation.Value:%]" 
+                    Command="[%:[:AA:].Command.Value:%]" >
+                    <Message>
+                        <Value>
+                            <DevicePort>"[%:[:AA:].DevicePort.Value:%]"</DevicePort>
+                            <Frequency>"[%:[:AA:].Frequency.Value:%]"</Frequency> 
+                            <Operation>"[%:[:AA:].Operation.Value:%]"</Operation> 
+                            <Command>"[%:[:AA:].Command.Value:%]"</Command>
+                        </Value>
+                    </Message>
+                </Invoke>
+                <Log Message="***** After Invoke *****" />
+                <Output name="Result" as="ActionResult">
+                    <Value>
+                        <Operation>[%:[%:@Output:%]Invoke.InvokeZbee.Message.Value.Operation:%]</Operation>
+                        <Command>[%:[%:@Output:%]Invoke.InvokeZbee.Message.Value.Command:%]</Command>
+                    </Value>
+                </Output>
+                <Log Message="[%:[%:@Output:%]Invoke.InvokeZbee.Message:%]" />
+			</Task>
+		</Workflow>
+	</Action>
+</ThingFacet>

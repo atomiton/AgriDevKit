@@ -1,0 +1,81 @@
+<Macro name="CalculateFertFlowRate">
+	<Argument>
+		<FarmerID />
+		<ZoneName />
+	</Argument>
+	<Result>
+		<executeQueryOnZone>
+			<QueryString>
+				<Query>
+					<Find>
+						<ZoneAggregate>
+							<ZoneName eq="[:$Macro.Argument.ZoneName:]" />
+						</ZoneAggregate>
+					</Find>
+				</Query>
+			</QueryString>
+		</executeQueryOnZone>
+		<SetLocalData key="RequiredFert" value="[:$Response.Message.Value.PostDataOutput.Message.Value.Find.Result.ZoneAggregate.Fertilizer.OptimumValue:]" />
+		<Log message="Response: [:$Response.Message.Value.PostDataOutput.Message.Value:]" />
+		<Log message="Qty Sprayed: [:$Response.Message.Value.PostDataOutput.Message.Value.Find.Result.ZoneAggregate.Fertilizer.QuantitySprayed:]" />
+		<Log message="Qty OptimumValue: [:$Response.Message.Value.PostDataOutput.Message.Value.Find.Result.ZoneAggregate.Fertilizer.OptimumValue:]" />
+		<if condition="/[:$Response.Message.Value.PostDataOutput.Message.Value.Find/count(Result):] ne 0">
+			<then>
+			<if condition="/[:$Response.Message.Value.PostDataOutput.Message.Value.Find.Result.ZoneAggregate.Fertilizer.QuantitySprayed:] ge [:$Response.Message.Value.PostDataOutput.Message.Value.Find.Result.ZoneAggregate.Fertilizer.OptimumValue:]">
+					<then>
+						<executeQuery>
+							<QueryString>
+								<Query>
+									<find>
+										<FarmerModel>
+											<ID eq="[:$Macro.Argument.FarmerID:]" />
+										</FarmerModel>
+									</find>
+								</Query>
+							</QueryString>
+						</executeQuery>
+						<executeQuery>
+							<QueryString>
+								<Query>
+									<Find>
+									<FertilizerActuatorModel>
+										<ActID eq="[:$Response.Message.Value.Find.Result.FarmerModel.ActID:]" />
+									</FertilizerActuatorModel>
+									</Find>
+									<SetResponseData key="Message.Value.Find.Result.FertilizerActuatorModel.FlowRate" value="0" />
+									<Update>
+										<from>Result</from>
+										<Include>$Response.Message.Value.Find</Include>
+									</Update>
+								</Query>
+							</QueryString>
+						</executeQuery>
+					</then>
+					<else> 
+						<executeQuery>
+							<QueryString>
+								<Query>
+									<find>
+										<FarmerModel>
+											<ID eq="[:$Macro.Argument.FarmerID:]" />
+										</FarmerModel>
+									</find>
+								</Query>
+							</QueryString>
+						</executeQuery>
+						<SetLocalData key="Speed" value="[:$Response.Message.Value.Find.Result.FarmerModel.Speed:]" />
+						<SetLocalData key="Direction" value="[:$Response.Message.Value.Find.Result.FarmerModel.Direction:]" />
+						<SetFlowRate>
+							<FarmerID>[:$Macro.Argument.FarmerID:]</FarmerID>
+							<ZoneName>[:$Macro.Argument.ZoneName:]</ZoneName>
+							<Speed>[:$LocalData.Speed:]</Speed>
+							<Direction>[:$LocalData.Direction:]</Direction>
+							<RequiredFert>[:$LocalData.RequiredFert:]</RequiredFert>
+						</SetFlowRate>
+					 </else>
+				</if> 
+			</then>
+		</if>
+		
+	</Result>
+</Macro>

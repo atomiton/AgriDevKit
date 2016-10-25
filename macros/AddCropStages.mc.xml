@@ -1,0 +1,39 @@
+<Macro Name="AddCropStages">
+	<Argument>
+		<String name="CropStagesID"/>
+		<String name="CropID"/>
+		<String name="CropStage"/>
+		<String name="StageDescription"/>
+		<Number name="StageDuration"/>
+		
+	</Argument>
+	<Result>
+		<Log Message="Saving CropStages Info..." />
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Find format="current, version">
+						<CropStagesModel>
+							<CropStagesID>[:$Macro.Argument.CropStagesID:]</CropStagesID>
+						</CropStagesModel>
+					</Find>
+					<if condition="/[:$Response.Message.Value.Find/count(Result):] eq 0">
+						<then>
+							<Create>
+								<CropStagesModel>
+									<CropStagesID>[:$Macro.Argument.CropStagesID:]</CropStagesID>
+									<CropID>[:$Macro.Argument.CropID:]</CropID>
+									<CropType>[:$Macro.Argument.CropType:]</CropType>
+									<CropStage>[:$Macro.Argument.CropStage:]</CropStage>
+									<StageDescription>[:$Macro.Argument.StageDescription:]</StageDescription>
+									<StageDuration>[:$Macro.Argument.StageDuration:]</StageDuration>
+
+								</CropStagesModel>
+							</Create>
+						</then>
+					</if>
+				</Query>
+			</QueryString>
+		</executeQuery>
+	</Result>
+</Macro>

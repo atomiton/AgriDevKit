@@ -1,0 +1,37 @@
+<Macro Name="UpdatePolygon">
+  <Argument>
+    <Double name="latitude" />
+    <Double name="longitude" />
+    <String name="ZoneName" />
+	  <Number name="Order"/>
+  </Argument>
+  <Result>
+    <Log Message="***************UpdatePolygon**********************"/>
+    <executeQuery>
+      <QueryString>
+        <Query>
+          <Find format="version, current">
+            <Polygon>
+              <ZoneName eq="[:$Macro.Argument.ZoneName:]"/>
+              <Order eq="[:$Macro.Argument.Order:]"/>
+            </Polygon>
+          </Find>
+          <SetResponseData>
+            <Key>Message.Value.Find.Result.Polygon.GeoArea.latitude.Value</Key>
+            <Value>[:$Macro.Argument.latitude:]</Value>
+          </SetResponseData>
+          <SetResponseData>
+            <Key>Message.Value.Find.Result.Polygon.GeoArea.longitude.Value</Key>
+            <Value>[:$Macro.Argument.longitude:]</Value>
+          </SetResponseData>
+        
+          <Update>
+            <from>Result</from>
+            <Include>$Response.Message.Value.Find</Include>
+          </Update>
+        </Query>
+      </QueryString>
+    </executeQuery>
+
+  </Result>
+</Macro>

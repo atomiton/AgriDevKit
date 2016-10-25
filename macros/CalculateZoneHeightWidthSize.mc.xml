@@ -1,0 +1,94 @@
+<Macro Name="CalculateZoneHeightWidthSize">
+	<Argument>
+		<String name="ZoneName"/>
+	</Argument>
+	<Result>
+		<executeQuery>
+	      	<QueryString>
+		        <Query>
+		          	<Find format="version, current">
+		            	<Zone>
+		              		<Name eq="[:$Macro.Argument.ZoneName:]"/>
+		            	</Zone>
+		          	</Find>
+		         </Query>
+	      	</QueryString>
+	    </executeQuery>
+	    <Log Message="Zone Lat=======[:$Response.Message.Value.Find.Result.Zone.Area.UpperLeft.latitude.Value:]"/>
+		<JavaScript>
+			var upperLat = parseFloat("[:$Response.Message.Value.Find.Result.Zone.Area.UpperLeft.latitude.Value:]");
+			var upperLon = parseFloat("[:$Response.Message.Value.Find.Result.Zone.Area.UpperLeft.longitude.Value:]");
+			var lowerLat = parseFloat("[:$Response.Message.Value.Find.Result.Zone.Area.LowerRight.latitude.Value:]");
+			var lowerLon = parseFloat("[:$Response.Message.Value.Find.Result.Zone.Area.LowerRight.longitude.Value:]");
+			var ZoneName = "[:$Macro.Argument.ZoneName:]";
+
+			var points = [[],[],[],[],[],[]];
+			points[0][0] = new Coordinate(upperLat, upperLon);
+			points[0][1] = new Coordinate(upperLat, lowerLon);
+			points[1][0] = new Coordinate(lowerLat, upperLon);
+			points[1][1] = new Coordinate(lowerLat, lowerLon);
+
+			function Coordinate(lat, lon) {
+				this.lat = lat;
+				this.lon = lon;
+			}
+
+			function deg2rad(deg) {
+				return deg * (Math.PI/180);
+			}
+			function convertToRadians(input) {
+				return input * Math.PI / 180;
+			}
+			function convertToDeg(input) {
+				return input * 180 / Math.PI;
+			}
+			function toBrng(input) {
+				input = convertToDeg(input);
+				return (input + 360) % 360;
+			}
+
+			function getDistance(lat1, lon1, lat2, lon2) {
+				// uses "Equirectangular approximation" formula
+				// at http://www.movable-type.co.uk/scripts/latlong.html
+			
+				var R = 6371;
+				var phi1 = deg2rad(lat1);
+				var phi2 = deg2rad(lat2);
+				var lambda1 = deg2rad(lon1);
+				var lambda2 = deg2rad(lon2);
+			
+				var x = (lambda2 - lambda1) * Math.cos((phi1 + phi2)/2.0);
+				var y = phi2 - phi1;
+				var distKm = Math.sqrt(x*x + y*y) * R;
+			
+				//return distKm / 1.60934; // in miles
+				return distKm;
+			}
+
+			heightOfRect = getDistance(points[0][0].lat, points[0][0].lon, points[1][0].lat, points[1][0].lon);
+
+			widthOfRect = getDistance(points[0][0].lat, points[0][0].lon, points[0][1].lat, points[0][1].lon);
+
+			heightOfRectInMeter = heightOfRect*1000;
+			widthOfRectInMeter = widthOfRect*1000;
+
+			areaOfRectInKm = heightOfRect * widthOfRect;
+			areaOfRectInMeter = heightOfRectInMeter * widthOfRectInMeter;
+
+			sffLog.info("RectPoints for height========"+points[0][0].lat +","+ points[0][0].lon +","+ points[1][0].lat +","+ points[1][0].lon);
+			sffLog.info("RectPoints for width========"+points[0][0].lat +","+ points[0][0].lon +","+ points[0][1].lat +","+ points[0][1].lon);
+			sffLog.info("heightOfRect in Meter========"+heightOfRectInMeter);
+			sffLog.info("widthOfRectIn Meter========"+widthOfRectInMeter);
+			sffLog.info("areaOfRectInMeter========"+areaOfRectInMeter);
+
+			var setContextData = ListMap.static.newInstance();   
+			var rc = setContextData.instanceAdd("UpdateZoneHeightWidthSize");
+			rc.put("Height", heightOfRectInMeter);
+			rc.put("Width", widthOfRectInMeter);
+			rc.put("Area", areaOfRectInMeter);
+			rc.put("ZoneName", ZoneName);
+			sffLog.info(setContextData);
+			setContextData;
+		</JavaScript>
+	</Result>
+</Macro>

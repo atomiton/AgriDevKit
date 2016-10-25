@@ -1,0 +1,32 @@
+<AppFacet Name="MCUModelFacet">
+    <GeoLocation name="Location" KnownBy="SubscribeMCU" />
+    <String name="ZoneName" KnownBy="SubscribeMCU"/>
+    <String name="GridName" KnownBy="SubscribeMCU"/>
+  
+    <Action name="SubscribeMCU">
+        <Workflow Limit="1" Live="1" Timeout="-1">
+            <Task name="Main">
+                <Event name="Argument" as="ActionArgument" />
+                <Invoke name="controlLoop" waitFor="Argument">
+                    <FacetScript>
+                        <Log message="Lat=[%:Event.Argument.Location.latitude.Value:%]"/>
+                        <Log message="Long=[%:Event.Argument.Location.longitude.Value:%]"/>
+						<GetMCUZone>
+							<!-- <MCUID>[%:Event.Argument.Name.Value:%]</MCUID> -->
+							<MCU_Lat>[%:Event.Argument.Location.latitude.Value:%]</MCU_Lat>
+							<MCU_Long>[%:Event.Argument.Location.longitude.Value:%]</MCU_Long>
+						</GetMCUZone>
+                        <Log Message="Got response in MCUModelFacet ZoneName: [:$Response.Message.Value.Result.ZoneName:]"/>
+						<!-- <Log Message="Got response in MCUModelFacet GridName: [:$Response.Message.Value.Result.GridName:]"/> -->
+                    </FacetScript>
+                </Invoke>
+                <Output name="Result" as="ActionResult">
+                    <Value>
+                         <ZoneName>[:$Response.Message.Value.Result.ZoneName:]</ZoneName>
+                         <GridName>[:$Response.Message.Value.Result.GridName:]</GridName>
+                    </Value>
+                </Output>
+            </Task>
+        </Workflow>
+    </Action>
+</AppFacet>

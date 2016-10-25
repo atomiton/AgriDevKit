@@ -1,0 +1,24 @@
+<Macro Name="ModifySystemConfig">
+	<Argument>
+		<Key />
+		<Value />
+	</Argument>
+	<Result>
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Find format="version">
+						<SystemConfig>
+							<Key eq="[:$Macro.Argument.Key:]" />
+						</SystemConfig>
+					</Find>
+					<SetResponseData key="Message.Value.Find.Result.SystemConfig.Value.Value" value="[:$Macro.Argument.Value:]" />
+					<Update>
+						<from>Result</from>
+						<Include>$Response.Message.Value.Find</Include>
+					</Update>
+				</Query>
+			</QueryString>
+		</executeQuery>
+	</Result>
+</Macro>

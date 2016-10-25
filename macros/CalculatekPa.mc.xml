@@ -1,0 +1,30 @@
+<Macro Name="CalculatekPa">
+	<Argument/>
+	<Result>
+		<executeQuery>
+		 <QueryString>
+		  <Query>
+		   <Find only="ZoneName, RecordDate, AvgValue, CalculatedkPa">
+		   <ZoneAggInfoHistoryModel>
+				<ID ne="" />
+		   </ZoneAggInfoHistoryModel>
+		   </Find>
+		  </Query>
+		 </QueryString>
+		</executeQuery>
+
+		  <JavaScript>
+			var ResultSet = sffContext.getResponse().Message.Value;
+			for each(var result in ResultSet.Find) {
+				if(typeof(result) == 'object') {
+					var atomitonRaw = parseFloat(result.ZoneAggInfoHistoryModel.AvgValue);
+					var kPa = (1/Math.pow((atomitonRaw * 0.00312),2)) * ((9.71704 * (atomitonRaw * 0.00312) ) + ((((atomitonRaw * 0.00312) - 1.08033)) / (((atomitonRaw * 0.00312) * (2 * (atomitonRaw * 0.00312) - 6.32153)) + Math.pow(2.71828,(atomitonRaw * 0.00312)))));
+					//sffContext.setLocalData("kPa", kPa);
+					result.ZoneAggInfoHistoryModel.CalculatedkPa = kPa;
+				}
+			}
+		  </JavaScript>
+
+		<SetResponseData key="Message.Value.Count" value="[:$Response.Message.Value.Find/count(Result):]" />
+	</Result>
+</Macro>

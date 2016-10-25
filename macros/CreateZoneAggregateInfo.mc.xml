@@ -1,0 +1,52 @@
+<Macro name="CreateZoneAggregateInfo">
+	<Argument>
+		<String name="ZoneName" />
+		<String name="CurrentValue" />
+		<String name="SensorType" />
+		<DateTime name="Time" />
+	</Argument>
+	<Result>
+		<Log Message="********************* CreateZoneAggregateInfo [:$Macro.Argument.SensorType:] ******************************** "/>
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Find>
+						<SensorDataType>
+							<MCECodeName eq="[:$Macro.Argument.SensorType:]"/>
+						</SensorDataType>
+					</Find>
+				</Query>
+			</QueryString>
+		</executeQuery>
+		<SetProcessData>
+			<Key>SensorName</Key>
+			<Value>[:$Response.Message.Value.Find.Result.SensorDataType.Name:]</Value>
+		</SetProcessData>
+		<Log message="Found: [:$Response.Message.Value.Find.Result:]" />
+		<Log Message="********************* CreateZoneAggregateInfo [:$ProcessData.SensorName:] ******************************** "/>
+		<SetProcessData>
+			<Key>Unit</Key>
+			<Value>[:$Response.Message.Value.Find.Result.SensorDataType.Unit:]</Value>
+		</SetProcessData>
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Create>
+						<ZoneAggregateInfo>
+							<ZoneName>[:$Macro.Argument.ZoneName:]</ZoneName>
+							<SensorName>[:$ProcessData.SensorName:]</SensorName>
+							<CurrentValue>[:$Macro.Argument.CurrentValue:]</CurrentValue>
+							<MinValue>[:$Macro.Argument.CurrentValue:]</MinValue>
+							<MaxValue>[:$Macro.Argument.CurrentValue:]</MaxValue>
+							<AvgValue>[:$Macro.Argument.CurrentValue:]</AvgValue>
+							<NAvgValue>[:$Macro.Argument.CurrentValue:]</NAvgValue>
+							<Unit>[:$ProcessData.Unit:]</Unit>
+							<Time>[:$Macro.Argument.Time:]</Time>
+							<Count>1</Count>
+						</ZoneAggregateInfo>
+					</Create>
+				</Query>
+			</QueryString>
+		</executeQuery>
+	</Result>
+</Macro>

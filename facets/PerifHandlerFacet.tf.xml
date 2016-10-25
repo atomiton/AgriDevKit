@@ -1,0 +1,71 @@
+<ThingFacet Name="PerifHandlerFacet">
+	  <String Name="peripheral" />
+      <String Name="interfacePort" />
+      <String Name="interface" />
+      <String Name="uniqueId" default="56789" />
+      <String Name="baudrate" />
+      <String Name="format" default="ascii" />
+      <String Name="operation" />
+      <String Name="payload" update="auto" KnownBy="SubscribeMCU" />
+
+	<AA>[:#o#Event.Argument:]</AA>
+   
+    <Action name="SubscribeMCU">
+        <Workflow Limit="1" Live="1" Timeout="-1">
+            <Task name="Main">
+                <Event name="Argument" as="ActionArgument" />
+            <Invoke name="InvokeZbee" waitFor="Argument" post="perif://">
+              <!-- //[%:[:AA:].InterfacePort.Value:%]"> -->
+              <Message>
+                <Value>
+                  <InterfacePort>
+                    "[%:Event.Argument.interfacePort.Value:%]"
+                  </InterfacePort>
+                  <Baudrate>
+                    "[%:Event.Argument.baudrate.Value:%]"
+                  </Baudrate>
+                  <Interface>
+                    "[%:Event.Argument.interface.Value:%]"
+                  </Interface>
+                  <UniqueId>
+                    "[%:Event.Argument.uniqueId.Value:%]"
+                  </UniqueId>
+                  <Operation>
+                    "[%:Event.Argument.operation.Value:%]"
+                  </Operation>
+                  <format>
+                    "[%:Event.Argument.format.Value:%]"
+                  </format>
+                  <Payload>
+                    "[%:Event.Argument.payload.Value:%]"
+                  </Payload>
+                  <Peripheral>
+                    "[%:Event.Argument.peripheral.Value:%]"
+                  </Peripheral>
+                </Value>
+              </Message>
+            </Invoke>
+                <Log Message="DATA IN FACET: [%:Invoke.InvokeZbee.Message.Value.received:%]" />
+				<Invoke name="readData">
+					<FacetScript>
+                        <MessageInterceptor>
+                            <Message>[%:Invoke.InvokeZbee.Message.Value.received:%]</Message>
+                        </MessageInterceptor>
+					</FacetScript>
+				</Invoke>
+				
+				 
+				
+				<Invoke name="delay" delay="PT2S" />
+				
+                <Output name="Result" as="ActionResult">
+                    <Value>
+                        <payLoad>
+							[%:Invoke.InvokeZbee.Message.Value.received:%]
+                        </payLoad>
+                    </Value>
+                </Output>
+            </Task>
+        </Workflow>
+    </Action>
+</ThingFacet>

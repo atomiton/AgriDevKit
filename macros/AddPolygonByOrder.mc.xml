@@ -1,0 +1,75 @@
+<Macro Name="AddPolygonByOrder">
+  <Argument>
+   
+    <String name="ZoneName" />
+	<Number name="Order"/>
+	<Double name="GeoPointLat"/>
+	<Double name="GeoPointLon"/>
+  
+  </Argument>
+  <Result>
+    <Log Message="***************AddPolygonByOrder**********************"/>
+    
+  
+		  
+	<executeQuery>
+		<QueryString>
+			<Query>
+			
+			
+			 <find format='version,current'  OrderBy='Polygon.Order asc' >
+				<Polygon>
+					<ZoneName eq="[:$Macro.Argument.ZoneName:]"/>
+					<Order ge="[:$Macro.Argument.Order:]" />
+				</Polygon>
+			</find>
+		  
+		
+			 <For each="polygon" in="Find.Result.Polygon" using="$ProcessData" >
+					
+					<JavaScript>
+					
+					sffLog.info("inside for");
+					
+						var order = parseInt("[:$ProcessData.polygon.Order.Value:]") ; 
+					
+						order = order + 1;
+						
+						sffContext.setProcessData("Order",order);
+					
+					
+					
+					</JavaScript>
+					<log Message="order :[:$ProcessData.Order:]"/>
+					<log Message="polygon ID :[:$ProcessData.polygon.ID:]"/>
+					
+					<UpdatePolygonByID>
+						<ID>[:$ProcessData.polygon.ID:]</ID>
+						<Order>[:$ProcessData.Order:]</Order>
+					</UpdatePolygonByID>
+					
+			</For>
+		
+			</Query>
+		</QueryString>
+    </executeQuery>
+
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Create>
+						<Polygon>
+							<Order>[:$Macro.Argument.Order:]</Order>
+							<ZoneName>[:$Macro.Argument.ZoneName:]</ZoneName>
+							<GeoArea>
+								<latitude>[:$Macro.Argument.GeoPointLat:]</latitude>
+								<longitude>[:$Macro.Argument.GeoPointLon:]</longitude>
+							</GeoArea>
+						</Polygon>
+					</Create>
+				</Query>
+			</QueryString>
+		</executeQuery>
+	       
+  </Result>
+</Macro>

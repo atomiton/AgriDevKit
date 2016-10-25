@@ -1,0 +1,167 @@
+<Macro Name="GenerateGrid">
+	<Argument>
+		<String name="ZoneName"/>
+		<Number name="UpperLat"/>
+		<Number name="UpperLon"/>
+		<Number name="LowerLat"/>
+		<Number name="LowerLon"/>
+		<Integer name="Rows"/>
+		<Integer name="Cols"/>
+	</Argument>
+	<Result>
+		<JavaScript>
+			var upperLat = parseFloat("[:$Macro.Argument.UpperLat:]");
+			var upperLon = parseFloat("[:$Macro.Argument.UpperLon:]");
+			var lowerLat = parseFloat("[:$Macro.Argument.LowerLat:]");
+			var lowerLon = parseFloat("[:$Macro.Argument.LowerLon:]");
+			var rows = parseInt("[:$Macro.Argument.Rows:]");
+			var cols = parseInt("[:$Macro.Argument.Cols:]");
+			var ZoneName = "[:$Macro.Argument.ZoneName:]";
+
+			function Coordinate(lat, lon) {
+				this.lat = lat;
+				this.lon = lon;
+			}
+			
+			var points = [[],[],[],[],[],[]];
+			points[0][0] = new Coordinate(upperLat, upperLon);
+			points[rows][0] = new Coordinate(lowerLat, upperLon);
+			points[0][cols] = new Coordinate(upperLat, lowerLon);
+			points[rows][cols] = new Coordinate(lowerLat, lowerLon);
+			
+			for(i = 0; i  &lt;= cols; i++) {
+				var zoneLen_H = getDistance(points[0][0].lat, points[0][0].lon, points[0][cols].lat, points[0][cols].lon);
+				var bearing_H = getBearing(points[0][0].lat, points[0][0].lon, points[0][cols].lat, points[0][cols].lon);
+				var distToNext_H = (zoneLen_H/cols)*i;
+				var point_H = getLatLngGivenDistanceAndBearing(points[0][0].lat, points[0][0].lon, bearing_H, distToNext_H);
+				var pointCoord_H = new Coordinate(point_H.lat, point_H.lon);
+				points[0][i] = pointCoord_H;
+				<!-- sffLog.info("Row 0 Col "+i+"  Points:"+ pointCoord_H.lat+" , "+ pointCoord_H.lon); -->
+
+				var zoneLen_HL = getDistance(points[rows][0].lat, points[rows][0].lon, points[rows][cols].lat, points[rows][cols].lon);
+				var bearing_HL = getBearing (points[rows][0].lat, points[rows][0].lon, points[rows][cols].lat, points[rows][cols].lon);
+				var distToNext_HL = (zoneLen_HL/cols)*i;
+				var point_HL = getLatLngGivenDistanceAndBearing(points[rows][0].lat, points[rows][0].lon, bearing_HL, distToNext_HL);
+				var pointCoord_HL = new Coordinate(point_HL.lat, point_HL.lon);
+				points[rows][i] = pointCoord_HL;
+				<!-- sffLog.info("Row 3 Col "+i+" Points:" + pointCoord_HL.lat+" , "+ pointCoord_HL.lon); -->
+			
+				for(j=1; j &lt; rows; j++) {
+					
+					var zoneLen_V = getDistance(pointCoord_H.lat, pointCoord_H.lon, pointCoord_HL.lat, pointCoord_HL.lon);
+					var bearing = getBearing (pointCoord_H.lat, pointCoord_H.lon, pointCoord_HL.lat, pointCoord_HL.lon);
+					<!-- sffLog.info("zoneLen_V: " + zoneLen_V); -->
+					var distToNext = (zoneLen_V/rows)*j;
+					<!-- sffLog.info("distToNext: " + distToNext); -->
+					var point = getLatLngGivenDistanceAndBearing(pointCoord_H.lat, pointCoord_H.lon, bearing, distToNext);
+					var pointCoord = new Coordinate(point.lat, point.lon);
+					points[j][i] = pointCoord;
+					<!-- sffLog.info("Row "+j+" Col "+i+"  Points: " + pointCoord.lat+" , "+ pointCoord.lon); -->
+				}
+			}
+
+			var responses = [];
+			var cnt = 1;
+			for(y = 0; y &lt; rows; y++){
+				for(x = 0; x &lt; cols; x++){
+					sffLog.info("create grid with:");
+					<!-- var gridUpperLeft = new Coordinate(points[y][x].lat, points[y][x].lon);
+					var gridLowerRight = new Coordinate(points[y+1][x+1].lat, points[y+1][x+1].lon); -->
+					sffLog.info("UpperLeft: " + points[y][x].lat+" , "+ points[y][x].lon);
+					sffLog.info("LowerRight: " + points[y+1][x+1].lat+" , "+ points[y+1][x+1].lon);
+
+					var setContextData = ListMap.static.newInstance();   
+					var rc = setContextData.instanceAdd("CreateGrid");
+					rc.put("UpperLeftLat", points[y][x].lat);
+					rc.put("UpperLeftLon", points[y][x].lon);
+					rc.put("LowerRightLat", points[y+1][x+1].lat);
+					rc.put("LowerRightLon", points[y+1][x+1].lon);
+					rc.put("Cnt", cnt++);
+					rc.put("ZoneName", ZoneName);
+					sffLog.info(setContextData);
+					responses.push(setContextData);
+
+				}
+
+				var result = "";
+				for(k = 0; k &lt; responses.length; k++) {
+					result = result + responses[k];
+				}
+				result;
+			}
+
+			function deg2rad(deg) {
+				return deg * (Math.PI/180);
+			}
+			function convertToRadians(input) {
+				return input * Math.PI / 180;
+			}
+			function convertToDeg(input) {
+				return input * 180 / Math.PI;
+			}
+			function toBrng(input) {
+				input = convertToDeg(input);
+				return (input + 360) % 360;
+			}
+
+			function getBearing(lat1, lon1, lat2, lon2) {
+			  lat1 = convertToRadians(lat1); 
+			  lat2 = convertToRadians(lat2);
+			  var dLon = convertToRadians(lon2-lon1);
+			
+			  var y = Math.sin(dLon) * Math.cos(lat2);
+			  var x = Math.cos(lat1)*Math.sin(lat2) -
+			          Math.sin(lat1)*Math.cos(lat2)*Math.cos(dLon);
+			  var res = Math.atan2(y, x);
+			  return toBrng(res);
+			}
+
+			function getDistance(lat1, lon1, lat2, lon2) {
+				// uses "Equirectangular approximation" formula
+				// at http://www.movable-type.co.uk/scripts/latlong.html
+			
+				var R = 6371;
+				var phi1 = deg2rad(lat1);
+				var phi2 = deg2rad(lat2);
+				var lambda1 = deg2rad(lon1);
+				var lambda2 = deg2rad(lon2);
+			
+				var x = (lambda2 - lambda1) * Math.cos((phi1 + phi2)/2.0);
+				var y = phi2 - phi1;
+				var distKm = Math.sqrt(x*x + y*y) * R;
+			
+				//return distKm / 1.60934; // in miles
+				return distKm;
+			}
+
+			function getLatLngGivenDistanceAndBearing(latitude, longitude, bearing, distance) {
+				var vNewLatLng = {};
+				// as distance is in miles convert to km 
+				distance = distance / 0.621371;
+				
+				// get angular distance
+				distance = distance / 6371;
+				bearing = convertToRadians(bearing);
+			
+				var vLat1 = convertToRadians(latitude);
+				var vLng1 = convertToRadians(longitude);
+			
+				var vNewLat = Math.asin(Math.sin(vLat1) * Math.cos(distance) +
+							  Math.cos(vLat1) * Math.sin(distance) * Math.cos(bearing));
+			
+				var vNewLng = vLng1 + Math.atan2(Math.sin(bearing) * Math.sin(distance) * Math.cos(vLat1), Math.cos(distance) - Math.sin(vLat1) * Math.sin(vNewLat));
+				
+				
+				if (isNaN(vNewLat) || isNaN(vNewLng)) {
+					return null;
+				}
+			
+				vNewLng = (vNewLng + 3 * Math.PI) % (2 * Math.PI) - Math.PI; // normalise to -180..+180°
+				
+				vNewLatLng.lat = convertToDeg(vNewLat);
+				vNewLatLng.lon = convertToDeg(vNewLng);
+				return vNewLatLng;
+			}
+		</JavaScript>
+	</Result>
+</Macro>

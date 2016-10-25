@@ -1,0 +1,40 @@
+<Macro Name="CreateGrid">
+	<Argument>
+		<Double name="UpperLeftLat"/>
+		<Double name="UpperLeftLon"/>
+		<Double name="LowerRightLat"/>
+		<Double name="LowerRightLon"/>
+		<String name="ZoneName"/>
+		<Integer name="Cnt"/>
+	</Argument>
+	<Result>
+		<Log Message="================================Create Grid=================================="/>
+		<Log Message="CreateGrid UpperLeftLat:::::::: [:$Macro.Argument.UpperLeftLat:]"/>
+		<Log Message="CreateGrid UpperLeftLon:::::::: [:$Macro.Argument.UpperLeftLon:]"/>
+		<Log Message="CreateGrid LowerRightLat:::::::: [:$Macro.Argument.LowerRightLat:]"/>
+		<Log Message="CreateGrid LowerRightLon:::::::: [:$Macro.Argument.LowerRightLon:]"/>
+		<Log Message="CreateGrid ZoneName:::::::: [:$Macro.Argument.ZoneName:]"/>
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Save>
+						<Grid>
+							<Name>Grid-[:$Macro.Argument.ZoneName:]-[:$Macro.Argument.Cnt:]</Name>
+							<ZoneName>[:$Macro.Argument.ZoneName:]</ZoneName>
+							<Area>
+								<UpperLeft>
+									<latitude>[:$Macro.Argument.UpperLeftLat:]</latitude>
+									<longitude>[:$Macro.Argument.UpperLeftLon:]</longitude>
+								</UpperLeft>
+								<LowerRight>
+									<latitude>[:$Macro.Argument.LowerRightLat:]</latitude>
+									<longitude>[:$Macro.Argument.LowerRightLon:]</longitude>
+								</LowerRight>
+							</Area>
+						</Grid>
+					</Save>
+				</Query>
+			</QueryString>
+		</executeQuery>
+	</Result>
+</Macro>

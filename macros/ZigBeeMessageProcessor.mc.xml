@@ -1,0 +1,47 @@
+<Macro name="ZigBeeMessageProcessor">
+	<Argument>
+		<MessageData />
+	</Argument>
+	<Result>
+		<JavaScript>
+			<Resp><Include>[:$Macro.Argument.MessageData:]</Include></Resp>
+			sffLog.info("MessageData :::::::::" + Resp);
+			
+			var payload = Resp;
+			var data = payload.split('#');
+			
+			sffLog.info("data :::::::::" + data);
+			
+			function createResponse(key, value) {
+				var setResponseData = ListMap.static.newInstance();   
+				var rc = setResponseData.instanceAdd("AddResponseData");
+				rc.put("Key", "Message.Value."+key);
+				rc.put("Value", value);
+				return setResponseData;
+			}
+			
+			
+			var responses = [];
+			responses.push(createResponse("Result.MCUMessage",""));
+			responses.push(createResponse("Result.MCUMessage.Name",data[1]));
+			responses.push(createResponse("Result.MCUMessage.Sensors",data[1]));
+			
+			for (var i =0; i &lt; data.length; i++) {
+				var datum = data[i].split(":");
+				if(datum.length == 2) {
+						responses.push(createResponse("Result.MCUMessage.Sensors.Sensor",""));
+						responses.push(createResponse("Result.MCUMessage.Sensors.Sensor.Type","sensor"));
+						responses.push(createResponse("Result.MCUMessage.Sensors.Sensor.SensorType",datum[0]));
+						responses.push(createResponse("Result.MCUMessage.Sensors.Sensor.SensorValue",datum[1]));
+				}
+			}
+			
+			var result = "";
+			for(i =0 ; i &lt; responses.length; i++) {
+				result = result + responses[i];
+			}
+			//sffLog.info("result: " + result);
+			result; 
+		</JavaScript>
+	</Result>
+</Macro>

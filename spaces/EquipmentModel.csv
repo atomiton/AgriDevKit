@@ -1,0 +1,6 @@
+EquipmentId,Type,Makr,Year,Model,Engine,VIN,SerialNo,UnitNo,Milage,EngineHours,FuelConsumed,Address,Lat,Lon
+equip-1,tractor,mahindra,2010,mPower85,83 Hp,VIN-9000008,S-35345,U-3444,28.9,16,50,test Address-1,19.980098,90.987665
+equip-2,tractor,mahindra,2011,mPower86,84 Hp,VIN-9000009,S-35346,U-3445,25.9,17,45,test Address-2,19.980098,90.987665
+equip-3,tractor,mahindra,2012,mPower87,85 Hp,VIN-9000010,S-35347,U-3446,26.9,18,65,test Address-3,19.980098,90.987665
+equip-4,tractor,mahindra,2013,mPower88,86 Hp,VIN-9000011,S-35348,U-3447,27.9,19,76,test Address-4,19.980098,90.987665
+equip-5,tractor,mahindra,2014,mPower89,87 Hp,VIN-9000012,S-35349,U-3448,38.9,20,87,test Address-5,19.980098,90.987665

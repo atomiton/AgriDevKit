@@ -1,0 +1,30 @@
+<Macro Name="AddPolygon">
+	<Argument>
+		<Integer name="Order" />
+		<String name="ZoneName" />
+		<Double name="GeoPointLat"/>
+		<Double name="GeoPointLon"/>
+	</Argument>
+	<Result>
+		<Log Message="Saving Plygon Info..." />
+		<Log Message="ZoneName=========[:$Macro.Argument.ZoneName:]" />
+		<Log Message="GeoPointLat=========[:$Macro.Argument.GeoPointLat:]" />
+		<Log Message="GeoPointLon=========[:$Macro.Argument.GeoPointLon:]" />
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Create>
+						<Polygon>
+							<Order>[:$Macro.Argument.Order:]</Order>
+							<ZoneName>[:$Macro.Argument.ZoneName:]</ZoneName>
+							<GeoArea>
+								<latitude>[:$Macro.Argument.GeoPointLat:]</latitude>
+								<longitude>[:$Macro.Argument.GeoPointLon:]</longitude>
+							</GeoArea>
+						</Polygon>
+					</Create>
+				</Query>
+			</QueryString>
+		</executeQuery>
+	</Result>
+</Macro>

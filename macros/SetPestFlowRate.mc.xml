@@ -1,0 +1,68 @@
+<Macro Name="SetPestFlowRate">
+  <Argument>
+	<ZoneName />
+	<FarmerID />
+	<String name="Speed" />
+	<String name="Direction" />
+	<String name="RequiredPest" />
+  </Argument>
+  <Result>
+		<executeQueryOnZone>
+			<QueryString>
+				<Query>
+					<Find>
+						<Zone>
+							<Name eq="[:$Macro.Argument.ZoneName:]"/>
+						</Zone>
+					</Find>
+				</Query>
+			</QueryString>
+		</executeQueryOnZone>
+		
+		<JavaScript>
+			
+			var speed = parseInt("[:$Macro.Argument.Speed:]");
+			var direction = parseInt("[$:Macro.Argument.Direction:]");
+			var height = parseInt("[:$Response.Message.Value.PostDataOutput.Message.Value.Find.Result.Zone.Height:]");
+			var width = parseInt("[:$Response.Message.Value.PostDataOutput.Message.Value.Find.Result.Zone.Width:]");
+			var area = parseInt("[:$Response.Message.Value.PostDataOutput.Message.Value.Find.Result.Zone.Size:]");
+			var requiredQty = parseInt("[:$Macro.Argument.RequiredPest:]");
+			
+			var sprayVPA = requiredQty/area;
+			var optimumQty = sprayVPA*height*width;
+			var flowRate = optimumQty*speed/width;
+			
+			sffLog.info("Calculated Pesticide Flowrate============= " + flowRate);
+			sffContext.setLocalData("FlowRate", flowRate);
+		</JavaScript>
+		<Log message="FarmerID: [:$Macro.Argument.FarmerID:]" />
+		<Log message="FlowRate: [:$LocalData.FlowRate:]" />
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<find>
+						<FarmerModel>
+							<ID eq="[:$Macro.Argument.FarmerID:]" />
+						</FarmerModel>
+					</find>
+				</Query>
+			</QueryString>
+		</executeQuery>
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Find format="current,version">
+						<PesticideActuatorModel>
+							<PestActID eq="[:$Response.Message.Value.Find.Result.FarmerModel.PestActID:]" />
+						</PesticideActuatorModel>
+					</Find>
+					<SetResponseData key="Message.Value.Find.Result.PesticideActuatorModel.FlowRate.Value" value="[:$LocalData.FlowRate:]" />
+					<Update>
+						<from>Result</from>
+						<Include>$Response.Message.Value.Find</Include>
+					</Update>
+				</Query>
+			</QueryString>
+		</executeQuery>
+  </Result> 
+</Macro>

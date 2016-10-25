@@ -1,0 +1,74 @@
+<Macro name="CheckPointInRegion">
+	<Argument>
+		<ZoneName />
+		<latitude />
+		<longitude />
+	</Argument>
+	<Result>
+		<Log message="CheckPointInRegion ZoneName: [:$Macro.Argument.ZoneName:]" />
+		<Log message="CheckPointInRegion latitude: [:$Macro.Argument.latitude:]" />
+		<Log message="CheckPointInRegion longitude: [:$Macro.Argument.longitude:]" />
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Find OrderBy="Polygon.Order asc">
+						<Polygon>
+							<ZoneName eq="[:$Macro.Argument.ZoneName:]" />
+						</Polygon>
+					</Find>
+				</Query>
+			</QueryString>
+		</executeQuery>
+		<JavaScript>
+			<Resp><Include>Response</Include></Resp>
+			
+			var ResultSet = sffContext.getResponse().Message.Value;
+			var region =[];
+			
+			 for each(var pgRes in ResultSet.Find) {
+				var polygon = pgRes.Polygon;
+				if(typeof(polygon) == 'object') {
+					var pt = {x:parseFloat(polygon.GeoArea.latitude),y:parseFloat(polygon.GeoArea.longitude)};
+					region.push(pt);
+				}
+			}
+			
+			var point = {x:parseFloat("[:$Macro.Argument.latitude:]"),y:parseFloat("[:$Macro.Argument.longitude:]")};
+			
+			var result = isPointInRegion(region, point)
+			
+			sffLog.info("CheckPointInRegion Result: " + result);
+			
+			sffContext.setResponseData("Message.Value.Result.InBoungingBox",result);
+			
+			function isPointOnLineSegment(a,b,point){
+				var p1x=a.x, p1y = a.y;
+				var p2x=b.x, p2y = b.y;
+				var x=point.x,y=point.y;
+				v1x = p2x - p1x
+				v1y = p2y - p1y /*vector for the edge between p1 and p2*/
+				v2x = x - p1x
+				v2y = y - p1y /*vector from p1 to the point in question*/
+				if(v1x * v2y - v1y * v2x == 0){ /*if vectors are parallel */
+					if(v2x / v1x > 0){ /*if vectors are pointing in the same direction*/
+						if(v1x * v1x + v1y * v1y >= v2x * v2x + v2y * v2y){ /*if v2 is shorter than v1*/
+							return true
+						}
+					}
+				}
+				return false
+			}
+			
+            function isPointInRegion(region, point){
+                var found=false;
+                for(var c = false, i = -1, l = region.length, j = l - 1; ++i [:lt:] l [:and:] !found; j = i)
+                    ((region[i].y [:lt:]= point.y [:and:] point.y [:lt:] region[j].y) || (region[j].y [:lt:]= point.y [:and:] point.y [:lt:] region[i].y))
+                    [:and:] (point.x [:lt:] (region[j].x - region[i].x) * (point.y - region[i].y) / (region[j].y - region[i].y) + region[i].x)
+                    [:and:] (c = !c) [:and:] 0 || (isPointOnLineSegment(region[j],region[i],point)[:and:](found=c=true));
+                    return c;
+            }
+			
+
+		</JavaScript>
+	</Result>
+</Macro>

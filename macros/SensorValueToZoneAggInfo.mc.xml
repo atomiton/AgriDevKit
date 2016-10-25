@@ -1,0 +1,191 @@
+<Macro name="SensorValueToZoneAggInfo">
+	<Argument/>
+	<Result>
+		<Log message="*********** Executing SensorValueToZoneAggInfo **********" />
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Find format="Current, Version">
+						<MCUModel>
+							<ID ne=""/>
+						</MCUModel>
+					</Find>
+				</Query>
+			</QueryString>
+		</executeQuery>
+		<JavaScript>
+			var dLocal = new Date();
+			sffLog.info("dLocal: " + dLocal);
+			var dt1 = (dLocal.getTime() + dLocal.getTimezoneOffset()*60000);
+			var dt = new Date(dLocal.getTime() + dLocal.getTimezoneOffset()*60000);
+			var updt = new Date((new Date(dt1)).getTime() + 3600000);
+			sffLog.info("updt: " + updt);
+			var currentDate = [dt.getFullYear(),(dt.getMonth()+1),(dt.getDate())].join('-');
+			currentDate = currentDate + "T"+[dt.getHours(),dt.getMinutes(),dt.getSeconds()].join(":") + "Z";
+			var lwdt = new Date((new Date(dt1)).getTime() - 3600000);
+			sffLog.info("lwdt: " + lwdt);
+			var upperLim = [updt.getFullYear(),(updt.getMonth()+1),(updt.getDate())].join('-');
+			upperLim = upperLim + "T"+[updt.getHours(),updt.getMinutes(),0].join(":") + "Z";
+			var lwdt = new Date((new Date(dt1)).getTime() - 3600000);
+			sffLog.info("lwdt: " + lwdt);
+			var lowerLim = [lwdt.getFullYear(),(lwdt.getMonth()+1),(lwdt.getDate())].join('-')//2016-04-07T08:37:00Z
+			lowerLim = lowerLim + "T"+[lwdt.getHours(),lwdt.getMinutes(),59].join(":") + "Z";
+			sffLog.info('upperLim: ' + upperLim);
+			sffLog.info('lowerLim: ' + lowerLim);
+			sffContext.setProcessData("upperLim",upperLim);
+			sffContext.setProcessData("lowerLim",lowerLim);
+			sffContext.setProcessData("CurrentDate",currentDate);
+		</JavaScript>
+		<for each="mcu" in="$Response.Message.Value.Find.Result">
+			<Log message="Zone: [:$LocalData.mcu.MCUModel.ZoneName.Value:]" />
+			<Log message="MCUModel: [:$LocalData.mcu.MCUModel.Name.Value:]" />
+			<If condition="/'[:$LocalData.mcu.MCUModel.ZoneName.Value:]' ne 'UnassignedZone'">
+				<then>
+					<executeQuery>
+						<QueryString>
+							<Query>
+								<Find format="Current, Version">
+									<SensorModel>
+										<MCUName eq="[:$LocalData.mcu.MCUModel.Name.Value:]"/>
+									</SensorModel>
+								</Find>
+							</Query>
+						</QueryString>
+					</executeQuery>
+					
+					<for each="sensor" in="$Response.Message.Value.Find.Result">
+						<Log message="SensorData: [:$LocalData.sensor.SensorModel.SensorType.Value:]" />
+						<executeQuery>
+							<QueryString>
+								<Query>
+									<Find format="Current, Version"  OrderBy="SensorHistoryModel.RecordDate asc">
+										<SensorHistoryModel>
+											<SensorType eq="[:$LocalData.sensor.SensorModel.SensorType.Value:]"/>
+											<MCUName eq="[:$LocalData.mcu.MCUModel.Name.Value:]"/>
+											<RecordDate lt="[:$ProcessData.upperLim:]" />
+											<RecordDate gt="[:$ProcessData.lowerLim:]" />
+										</SensorHistoryModel>
+									</Find>
+								</Query>
+							</QueryString>
+						</executeQuery>
+						<SetLocalData key="RecCount" value="[:$Response.Message.Value.Find/count(Result):]" />
+						<JavaScript>
+							var ResultSet = sffContext.getResponse().Message.Value;
+							var min = 999999;
+							var max = -1;
+							var count = 0;
+							var sum = 0;
+							var avg = 0;
+							var currValue = 0;
+							for each(var result in ResultSet.Find) {
+								//sffLog.info("result::" + result);
+								if(typeof(result) == 'object') {
+									currValue = parseFloat(result.SensorHistoryModel.SensorValue.Value);
+									//sffLog.info("currValue::" + currValue);
+									min = min &lt;currValue?min:currValue;
+									max = max &gt;currValue?max:currValue;
+									sum = sum + currValue;
+									count++;
+								}
+							}
+							avg = sum/count;
+							sffLog.info("Cnt::" + count);
+							sffLog.info("Min::" + min);
+							sffLog.info("Max::" + max);
+							sffLog.info("Sum::" + sum);
+							sffLog.info("avg::" + avg);
+							sffContext.setProcessData("Min",min);
+							sffContext.setProcessData("Max",max);
+							sffContext.setProcessData("Sum",sum);
+							sffContext.setProcessData("Avg",avg);
+							sffContext.setProcessData("Count",count);
+							sffContext.setProcessData("CurrValue",currValue);
+						</JavaScript>
+						<if condition="/[:$ProcessData.Count:] gt 0">
+							<then>
+								<executeQuery>
+									<QueryString>
+										<Query>
+											<Find>
+												<SensorDataType>
+													<MCECodeName eq="[:$LocalData.sensor.SensorModel.SensorType.Value:]"/>
+												</SensorDataType>
+											</Find>
+											<Log message="Type for [:$LocalData.sensor.SensorModel.SensorType.Value:]::[:$Response.Message.Value.Find.Result.SensorDataType.Name:]" />
+											<SetProcessData key="SensorName" value="[:$Response.Message.Value.Find.Result.SensorDataType.Name:]" />
+											<SetProcessData key="SensorUnit" value="[:$Response.Message.Value.Find.Result.SensorDataType.Unit:]" />
+											<DelResponseData key="Message.Value.Find" />
+										</Query>
+									</QueryString>
+								</executeQuery>
+								<executeQuery>
+									<QueryString>
+										<Query>
+											<Find format="Current, Version">
+												<ZoneAggregateInfo>
+													<ZoneName eq="[:$LocalData.mcu.MCUModel.ZoneName.Value:]" />
+													<SensorName eq="[:$ProcessData.SensorName:]" />
+												</ZoneAggregateInfo>
+											</Find>
+											<Log message="ZoneAggregateInfo::[:$Response.Message.Value.Find.Status:]" />
+											<if condition="/'[:$Response.Message.Value.Find/string(Status):]' eq 'Success'">
+												<then>
+													<SetResponseData key="Message.Value.Find.Result.ZoneAggregateInfo.MinValue.Value" value="[:$ProcessData.Min:]" />
+													<SetResponseData key="Message.Value.Find.Result.ZoneAggregateInfo.MaxValue.Value" value="[:$ProcessData.Max:]" />
+													<SetResponseData key="Message.Value.Find.Result.ZoneAggregateInfo.AvgValue.Value" value="[:$ProcessData.Avg:]" />
+													<SetResponseData key="Message.Value.Find.Result.ZoneAggregateInfo.Count.Value" value="[:$ProcessData.Count:]" />
+													<SetResponseData key="Message.Value.Find.Result.ZoneAggregateInfo.CurrentValue.Value" value="[:$ProcessData.CurrValue:]" />
+													<SetResponseData key="Message.Value.Find.Result.ZoneAggregateInfo.Unit.Value" value="[:$ProcessData.SensorUnit:]" />
+													<SetResponseData key="Message.Value.Find.Result.ZoneAggregateInfo.Time.Value" value="[:$ProcessData.CurrentDate:]" />
+													<Update>
+														<from>Result</from>
+														<Include>$Response.Message.Value.Find</Include>
+													</Update>
+													<SyncZoneAggInfoAction>
+														<ZoneId>[:$Response.Message.Value.Find.Result.ZoneAggregateInfo.ID:]</ZoneId>
+													</SyncZoneAggInfoAction>
+												</then>
+												<else>
+													<executeQuery>
+														<QueryString>
+															<Query>
+																<Create>
+																	<ZoneAggregateInfo>
+																		<ZoneName>[:$LocalData.mcu.MCUModel.ZoneName.Value:]</ZoneName>
+																		<SensorName>[:$ProcessData.SensorName:]</SensorName>
+																		<CurrentValue>[:$ProcessData.CurrValue:]</CurrentValue>
+																		<MinValue>[:$ProcessData.Min:]</MinValue>
+																		<MaxValue>[:$ProcessData.Max:]</MaxValue>
+																		<AvgValue>[:$ProcessData.Avg:]</AvgValue>
+																		<Unit>[:$ProcessData.SensorUnit:]</Unit>
+																		<Time>[:$ProcessData.CurrentDate:]</Time>
+																		<Count>[:$ProcessData.Count:]</Count>
+																	</ZoneAggregateInfo>
+																</Create>
+															</Query>
+														</QueryString>
+													</executeQuery>
+													<SyncZoneAggInfoAction>
+														<ZoneId>[:$Response.Message.Value.Create.Result.ZoneAggregateInfo.ID:]</ZoneId>
+													</SyncZoneAggInfoAction>
+												</else>
+											</if>
+										</Query>
+									</QueryString>
+								</executeQuery>
+							</then>
+							<else>
+								<Log message="Sensor History data not available of [:$ProcessData.SensorName:] on [:$LocalData.mcu.MCUModel.ZoneName.Value:] for period: [:$ProcessData.lowerLim:] to [:$ProcessData.upperLim:]" />
+							</else>
+						</if>
+						
+					</for>
+				</then>
+				
+			</If>
+			
+		</for>
+		<DelResponseData key="Message.Value.Find" />
+	</Result>
+</Macro>

@@ -1,0 +1,153 @@
+<Macro name="CalculateRegionBounds">
+	<Argument>
+		<String name="RegionID" />
+	</Argument>
+	<Result>
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Find>
+						<Zone>
+							<RegionID eq ="[:$Macro.Argument.RegionID:]" />
+						</Zone>
+					</Find>
+				</Query>
+			</QueryString>
+		</executeQuery>
+		<JavaScript>
+			var ResultSet = sffContext.getResponse().Message.Value;
+			var zoneIdArr = [];
+			for each(var result in ResultSet.Find) {
+				if(typeof(result) == 'object') {
+					zoneIdArr.push(result.Zone.Name);
+				}
+			}
+			var zones = zoneIdArr.join(',');
+			sffContext.setLocalData("Zones", zones);
+		</JavaScript>
+		<Log message="Result: [:$LocalData.Zones:]" />
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Find>
+						<Polygon>
+							<ZoneName in ="[:$LocalData.Zones:]" />
+						</Polygon>
+					</Find>
+				</Query>
+			</QueryString>
+		</executeQuery>
+		
+		<JavaScript>
+			var ResultSet = sffContext.getResponse().Message.Value;
+			var minLat = 99999;
+			var maxLat = -99999;
+			var minLon = 99999;
+			var maxLon = -99999;
+			
+			function midpoint (lat1, lng1, lat2, lng2) {
+			   lat1= deg2rad(lat1);
+			   lng1= deg2rad(lng1);
+			   lat2= deg2rad(lat2);
+			   lng2= deg2rad(lng2);
+
+			   dlng = lng2 - lng1;
+			   Bx = Math.cos(lat2) * Math.cos(dlng);
+			   By = Math.cos(lat2) * Math.sin(dlng);
+			   lat3 = Math.atan2( Math.sin(lat1)+Math.sin(lat2),
+			   Math.sqrt((Math.cos(lat1)+Bx)*(Math.cos(lat1)+Bx) + By*By ));
+			   lng3 = lng1 + Math.atan2(By, (Math.cos(lat1) + Bx));
+			   var point = {};
+			   point.lat = (lat3*180)/Math.PI;
+			   point.lon = (lng3*180)/Math.PI;
+				return point;
+			}
+			
+
+			function deg2rad (degrees) {
+			  return degrees * Math.PI / 180;
+			}
+			
+			for each(var result in ResultSet.Find) {
+				if(typeof(result) == 'object') {
+					var curLat = result.Polygon.GeoArea.latitude;
+					var curLon = result.Polygon.GeoArea.longitude;
+					minLat = curLat &lt; minLat?curLat : minLat;
+					maxLat = curLat &gt; maxLat?curLat : maxLat;
+					minLon = curLon &lt; minLon?curLon : minLon;
+					maxLon = curLon &gt; maxLon?curLon : maxLon;
+				}
+			}
+			sffContext.setLocalData("MinLat", minLat);
+			sffContext.setLocalData("MaxLat", maxLat);
+			sffContext.setLocalData("MinLon", minLon);
+			sffContext.setLocalData("MaxLon", maxLon);
+			
+			var midPoint = midpoint (minLat, minLon, maxLat, maxLon);
+			
+			sffContext.setLocalData("MidLat", midPoint.lat);
+			sffContext.setLocalData("MidLon", midPoint.lon);
+			
+		</JavaScript>
+		
+		<Log message="TopLeft: [:$LocalData.MinLat:], [:$LocalData.MinLon:]" />
+		<Log message="BottomRight: [:$LocalData.MaxLat:], [:$LocalData.MaxLon:]" />
+		<Log message="MidPoint: [:$LocalData.MidLat:], [:$LocalData.MidLon:]" />
+		
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Find format="Version">
+						<Region>
+							<Name eq="[:$Macro.Argument.RegionID:]" />
+						</Region>
+					</Find>
+				</Query>
+			</QueryString>
+		</executeQuery>
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Save>
+						<Region>
+							<RegionID>[:$Response.Message.Value.Find.Result.Region.RegionID:]</RegionID>
+							<Area>
+								<LowerRight>
+									<latitude>
+										<Value>[:$LocalData.MinLat:]</Value>
+										<Version>[:$Response.Message.Value.Find.Result.Region.Area.LowerRight.latitude.Version:]</Version>
+									</latitude>
+									<longitude>
+										<Value>[:$LocalData.MinLon:]</Value>
+										<Version>[:$Response.Message.Value.Find.Result.Region.Area.LowerRight.longitude.Version:]</Version>
+									</longitude>
+								</LowerRight>
+								<UpperLeft>
+									<longitude>
+										<Value>[:$LocalData.MaxLon:]</Value>
+										<Version>[:$Response.Message.Value.Find.Result.Region.Area.UpperLeft.longitude.Version:]</Version>
+									</longitude>
+									<latitude>
+										<Value>[:$LocalData.MaxLat:]</Value>
+										<Version>[:$Response.Message.Value.Find.Result.Region.Area.UpperLeft.latitude.Version:]</Version>
+									</latitude>
+								</UpperLeft>
+							</Area>
+							<MidPoint>
+								<longitude>
+									<Value>[:$LocalData.MidLon:]</Value>
+									<Version>[:$Response.Message.Value.Find.Result.Region.MidPoint.longitude.Version:]</Version>
+								</longitude>
+								<latitude>
+									<Value>[:$LocalData.MidLat:]</Value>
+									<Version>[:$Response.Message.Value.Find.Result.Region.MidPoint.latitude.Version:]</Version>
+								</latitude>
+							</MidPoint>
+						</Region>
+					</Save>
+				</Query>
+			</QueryString>
+		</executeQuery>
+		
+	</Result>
+</Macro>

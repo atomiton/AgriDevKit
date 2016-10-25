@@ -1,0 +1,165 @@
+<ThingFacet Name="GPSPhidgetSensorFacet">
+	<String Name="Payload" update="auto" KnownBy="GPSPhidgetSensorAc" />
+	<String Name="SensorURL" Default="phid://" />
+	<String Name="SensorInterfaceIndex" />
+	<String Name="SensorType" />
+	<String Name="SensorInterfaceType" />
+	<String Name="SensorValueFormat" />
+	<Boolean Name="Simulated"/>
+	<Double name="latitude"/>
+	<Double name="longitude"/>
+	<Double name="altitude"/>
+	<Double name="velocity"/>
+	<Double name="head"/>
+	<Boolean name="status"/>
+	<Integer name="count"/>
+	<DateTime Name="timestamp" Format="$SimpleDateFormat(yyyy-MM-dd'T'HH:mm:ss'Z')" />
+	<Action Name="GPSPhidgetSensorAc"
+			Documentation="Sync the value of Sensors from Phidget Interface 8/8/8">
+<!-- 		<Log message="Inside the action GPSPhidgetSensorAc"/> -->
+		<Workflow Limit="1" Live="1" Timeout="-1">
+			<Task name="Main" while="true">
+				<Event name="Argument" as="ActionArgument" />
+				
+				<Invoke name="ReadValue" waitFor="Argument"
+						post="[%:Event.Argument.SensorURL.Value:%]" SerialNumber="[%:Event.Argument.SensorInterfaceIndex.Value:%]"
+						DeviceType="[%:Event.Argument.SensorInterfaceType.Value:%]"  delay="[:RuntimeParams.Delay_GPS_Sensor:]" />
+						
+<!-- 			   <Log message="$$$$$ In GPS Phidget Sensor after empty invoke event arguments are   [%:Event.Argument:%]"/> -->
+			   
+<!-- 				<Invoke name="SimulateValue" waitFor="Argument" delay="[:RuntimeParams.Delay_GPS_Sensor:]" only-if="[%:[%:@CT:%]Event.Argument.Simulated/boolean(Value):%]"> -->
+<!-- 					<JavaScript> -->
+<!-- 						<resp> -->
+<!-- 							<Message> -->
+<!-- 								<Value> -->
+<!-- 									Lon:-87.62227459199832;Lat:41.88724006281355;Alt:8.3;Vel:32.0;Head:116.8 -->
+<!-- 								</Value> -->
+<!-- 							</Message> -->
+<!-- 						</resp> -->
+<!-- 						var res=resp; -->
+<!-- 						res; -->
+<!-- 					</JavaScript> -->
+<!-- 				</Invoke> -->
+
+				<!--<Log message="Condition [:Event.Argument.Simulated/boolean(Value):]"/>-->
+				<!--<Log message="SimulateValue [:Invoke.SimulateValue:] [:Event.Argument:] [:Event.Argument.Simulated:] [:Event.Argument.Simulated/boolean(Value) = 'false':]"/>-->
+				<Invoke name="Payload" >
+							<JavaScript>
+									<Real><Include>Invoke.ReadValue</Include></Real>
+									var res = Real ;
+									res;
+							</JavaScript>
+				</Invoke>
+<!-- 				<Log message="$$$$$ Received update on GPS Phidget Sensor [:Invoke.Payload.Message.Value:]"/> -->
+<!-- 				<Log message="$$$$$ Readvalue [:Invoke.payload.Message.Value:] [:Variable.payload:]"/> -->
+				<Invoke name="process" waitFor="Argument">
+					<JavaScript>
+						<payload>[:Invoke.Payload.Message.Value:]</payload>
+						<resp>
+							<Lon>0</Lon>
+							<Lat>0</Lat>
+							<Alt>0</Alt>
+							<Vel>0</Vel>
+							<Head>0</Head>
+							<Status>false</Status>
+						</resp>
+						var pl=payload, res=resp;
+						//sffLog.info("Payload "+pl);
+						if(pl.indexOf("Status") != 0){
+							var split=pl.split(";");
+							//sffLog.info("split "+split[0]);
+							
+							var lon  = parseFloat(split[0].split(":")[1]);
+							if(lon == null || isNaN(lon) || lon == 'NaN') lon = 0.0;
+							
+							var lat  = parseFloat(split[1].split(":")[1]);
+							if(lat == null || isNaN(lat) || lat == 'NaN') lat = 0.0;
+							
+							var alt  = parseFloat(split[2].split(":")[1]);
+							if(alt == null || isNaN(alt) || alt == 'NaN') alt = 0.0;
+							
+							var vel  = parseFloat(split[3].split(":")[1]);
+							if(vel == null || isNaN(vel) || vel == 'NaN') vel = 0.0;
+							
+							var head  = parseFloat(split[4].split(":")[1]);
+							if(head == null || isNaN(head) || head == 'NaN') head = 0.0;
+							
+							
+							res.put("Lon",lon);
+							res.put("Lat",lat);
+							res.put("Alt",alt);
+							res.put("Vel",vel);
+							res.put("Head",head);
+						}
+						res;
+					</JavaScript>
+				</Invoke>
+				<Log message=" $$$$$ In GPS pHiget sensor Aftert invoke.process [:Invoke.process:] "/>
+				
+				<Invoke name="update">
+					<FacetScript>
+						<executeQuery>
+							<QueryString>
+								<Query>
+									<Find format="version">
+										<GPSPhidgetSensor>
+											<SensorId ne=""/>
+										</GPSPhidgetSensor>
+									</Find>
+									<Update>
+										<GPSPhidgetSensor>
+											<SensorId>[:$Response.Message.Value.Find.Result.GPSPhidgetSensor.SensorId:]</SensorId>
+											<latitude>
+												<version>
+													[:$Response.Message.Value.Find.Result.GPSPhidgetSensor.latitude.version:]
+												</version>
+												<value>
+													[:Invoke.process.Lat:]
+												</value>
+											</latitude>
+											<longitude>
+												<version>
+													[:$Response.Message.Value.Find.Result.GPSPhidgetSensor.longitude.version:]
+												</version>
+												<value>
+													[:Invoke.process.Lon:]
+												</value>
+											</longitude>
+											<velocity>
+												<version>
+													[:$Response.Message.Value.Find.Result.GPSPhidgetSensor.velocity.version:]
+												</version>
+												<value>
+													[:Invoke.process.Vel:]
+												</value>
+											</velocity>
+											<head>
+												<version>
+													[:$Response.Message.Value.Find.Result.GPSPhidgetSensor.head.version:]
+												</version>
+												<value>
+													[:Invoke.process.Head:]
+												</value>
+											</head>
+										</GPSPhidgetSensor>
+									</Update>
+								</Query>
+							</QueryString>
+						</executeQuery>
+					</FacetScript>
+				</Invoke>
+<!-- 				<log message="Invoke update [:Invoke.update:]"/> -->
+				<Output name="Result" as="ActionResult">
+					<Value>
+						<Payload>[%:[%:@Output:%]Invoke.Payload.Message.Value:%]</Payload>
+						<latitude>[%:[%:@Output:%]Invoke.process.Lat:%]</latitude>
+						<longitude>[%:[%:@Output:%]Invoke.process.Lon:%]</longitude>
+						<altitude>[%:[%:@Output:%]Invoke.process.Alt:%]</altitude>
+						<velocity>[%:[%:@Output:%]Invoke.process.Vel:%]</velocity>
+						<head>[%:[%:@Output:%]Invoke.process.Head:%]</head>
+					</Value>
+				</Output>
+			</Task>
+		</Workflow>
+	</Action>
+</ThingFacet>

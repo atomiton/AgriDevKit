@@ -1,0 +1,60 @@
+<Macro name="CalculateZoneSprayInfo">
+	<Argument>
+		<FarmerID />
+		<OldZone />
+		<Integer name="TimeStamp" />
+	</Argument>
+	<Result>
+		<Log message="Staring CalculateZoneSprayInfo Farmer: [:$Macro.Argument.FarmerID:]" />
+		<Log message="Staring CalculateZoneSprayInfo Farmer: [:$Macro.Argument.OldZone:]" />
+		<Log message="Staring CalculateZoneSprayInfo Farmer: [:$Macro.Argument.TimeStamp:]" />
+		
+		<executeQuery>
+			<QueryString>
+				<Find format="current,version">
+					<FarmerModel>
+						<ID eq="[:$Macro.Argument.FarmerID:]" />
+					</FarmerModel>
+				</Find>
+				<JavaScript>
+					sffContext.setProcessData("oldTime","[:$Response.Message.Value.Find.Result.FarmerModel.LastZoneChangeTS.Value:]");
+				</JavaScript>
+				<SetResponseData key="Message.Value.FarmerModel.LastZoneChangeTS.Value" value="[:$Macro.Argument.TimeStamp:]" />
+				<Update>
+					<from>Result</from>
+					<Include>$Response.Message.Value.Find</Include>
+				</Update>
+				
+				<Find>
+					<FertilizerActuatorModel>
+						<ActID eq="[:$Response.Message.Value.Find.Result.FarmerModel.ActID.Value:]" />
+					</FertilizerActuatorModel>
+				</Find>
+			</QueryString>
+			
+		</executeQuery>
+		<JavaScript>
+			var oldTime = parseFloat("[:$ProcessData.oldTime:]");
+			var newTime = parseFloat("[:$Macro.Argument.TimeStamp:]");
+			var totalTimeInZone = newTime - oldTime;
+			var flowRate = parseFloat("[:$Response.Message.Value.Find.Result.FertilizerActuatorModel.FlowRate:]");
+			sffLog.info("oldTime: " + oldTime);
+			sffLog.info("newTime: " + newTime);
+			sffLog.info("totalTimeInZone: " + totalTimeInZone);
+			sffLog.info("totalTimeInZone: " + (totalTimeInZone/1000));
+			var qtySprayed = (totalTimeInZone/1000)*flowRate;
+			sffLog.info("Qty Sprayed: " + qtySprayed);
+			sffContext.setLocalData("Qty",qtySprayed);
+		</JavaScript>
+		<executeQueryOnZone>
+			<QueryString>
+				<Query>
+					<UpdateZoneQuantity>
+							<ZoneName>[:$Macro.Argument.OldZone:]</ZoneName>
+							<Qty>[:$LocalData.Qty:]</Qty>
+					</UpdateZoneQuantity>
+				</Query>
+			</QueryString>
+		</executeQueryOnZone>
+	</Result>
+</Macro>

@@ -1,0 +1,57 @@
+<Macro name="GetRegionAbstractInfo">
+    <Argument>
+        <String name="SensorName" />
+        <String name="FieldName" />
+    </Argument>
+    <Result>
+        <Log Message="*********** Start GetRegionAbstractInfo*************" />
+        <executeQuery>
+            <QueryString>
+                <Query>
+                    <Find format="current,version">
+                        <ZoneAggregateInfo>
+                            <SensorName eq="[:$Macro.Argument.SensorName:]" />
+                        </ZoneAggregateInfo>
+                    </Find>
+                    <If condition="/[:$Response.Message.Value.Find/count(Result):] eq 0">
+                        <then>
+                            <SetResponseData key="Message.Value.Result" value="[:$Response.Message.Value.Find/count(Result):]" />
+                        </then>
+                    </If>
+                    <SetLocalData>
+                        <Key>Count</Key>
+                        <Value>[:$Response.Message.Value.Find/count(Result):]</Value>
+                    </SetLocalData>
+                    <JavaScript>
+						var ResultSet = sffContext.getResponse().Message.Value;
+						
+						var count = [:$LocalData.Count:];
+						 
+						 var total = 0;
+						 var AverageVal = 0;
+						 sffLog.info("Result set: " + ResultSet);
+						 
+						for each(var pgRes in ResultSet.Find) {
+							var aggdata = pgRes.ZoneAggregateInfo;
+							
+							 if(typeof(aggdata) == 'object' &amp;&amp; aggdata != 'undefined' ) {
+								total = aggdata.NAvgValue.Value + total;	
+								AverageVal = total / (count); 	
+							}
+						}
+					
+						sffLog.info("AverageVal : " + AverageVal);
+						sffContext.addProcessData("AvgValue",AverageVal);
+					</JavaScript>
+                    <setFieldAbstractInfo>
+                        <SensorName>[:$Macro.Argument.SensorName:]</SensorName>
+                        <AvgValue>[:$ProcessData.AvgValue:]</AvgValue>
+                        <FieldName>[:$Macro.Argument.FieldName:]</FieldName>
+                        <Time>[:$Response.Message.Value.Find.Result.ZoneAggregateInfo.Time.Value:]</Time>
+                    </setFieldAbstractInfo>
+                    <DelResponseData key="Message.Value.Find" />
+                </Query>
+            </QueryString>
+        </executeQuery>
+    </Result>
+</Macro>

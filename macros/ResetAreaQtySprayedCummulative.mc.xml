@@ -1,0 +1,44 @@
+<Macro Name="ResetAreaQtySprayedCummulative">
+	<Argument>
+		<String name="ZoneName"/>
+	</Argument>
+	<Result>
+		<Log Message="Zone Name ResetQtySprayedCummulative============ [:$Macro.Argument.ZoneName:]"/>
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Find format="version">
+						<ZoneAggregate>
+							<ZoneName eq='[:$Macro.Argument.ZoneName:]'/>
+						</ZoneAggregate>
+					</Find>
+					
+					<SetResponseData>
+						<key>Message.Value.Find.Result.ZoneAggregate.PesticideInfo.AreaSprayedCummulative.Value</key>
+						<value>-1</value>
+					</SetResponseData>
+
+					<SetResponseData>
+						<key>Message.Value.Find.Result.ZoneAggregate.PesticideInfo.QuantitySprayedCummulative.Value</key>
+						<value>-1</value>
+					</SetResponseData>
+					
+					<SetResponseData>
+						<key>Message.Value.Find.Result.ZoneAggregate.Fertilizer.AreaSprayedCummulative.Value</key>
+						<value>-1</value>
+					</SetResponseData>
+
+					<SetResponseData>
+						<key>Message.Value.Find.Result.ZoneAggregate.Fertilizer.QuantitySprayedCummulative.Value</key>
+						<value>-1</value>
+					</SetResponseData>
+					
+					<Update>
+						<from>Result</from>
+						<Include>$Response.Message.Value.Find</Include>
+					</Update>
+				</Query>
+			</QueryString>
+		</executeQuery>
+	</Result>
+</Macro>

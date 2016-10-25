@@ -1,0 +1,22 @@
+<Query>
+  <DeleteAll>
+    <Region>
+      <RegionID ne="" />
+    </Region>
+  </DeleteAll>
+  <DeleteAll>
+    <Zone>
+      <ZoneID ne="" />
+    </Zone>
+  </DeleteAll>
+  <DeleteAll>
+    <WeatherStationModel>
+      <EnvID ne="" />
+    </WeatherStationModel>
+  </DeleteAll>
+    <DeleteAll>
+    <ZoneInfo>
+      <ID ne="" />
+    </ZoneInfo>
+  </DeleteAll>
+</Query>

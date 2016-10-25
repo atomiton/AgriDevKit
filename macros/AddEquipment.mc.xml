@@ -1,0 +1,60 @@
+<Macro Name="AddEquipment">
+	<Argument>
+		<String name="EquipmentID" />
+		<String name="Type" />
+		<String name="Make" />
+		<String name="Year" />
+		<String name="Model" />
+		<String name="Engine" />
+		<String name="VIN" />
+		<String name="SerialNo" />
+		<String name="UnitNo" />
+		<String name="Mileage" />
+		<Number name="EngineHrs" />
+		<String name="FuelConsumed" />
+		<String name="Address" />
+		<Double name="Latitude" />
+		<Double name="Longitude" />
+		
+	</Argument>
+	<Result>
+		<Log Message="Saving Equipment Info..." />
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Find format="current, version">
+						<EquipmentModel>
+							<EquipmentID>[:$Macro.Argument.EquipmentID:]</EquipmentID>
+						</EquipmentModel>
+					</Find>
+					<if condition="/[:$Response.Message.Value.Find/count(Result):] eq 0">
+						<then>
+							<Create>
+								<EquipmentModel>
+									<EquipmentID>[:$Macro.Argument.EquipmentID:]</EquipmentID>
+									<Type>[:$Macro.Argument.Type:]</Type>
+									<Make>[:$Macro.Argument.Make:]</Make>
+									<Year>[:$Macro.Argument.Year:]</Year>
+									<Model>[:$Macro.Argument.Model:]</Model>
+									<Engine>[:$Macro.Argument.Engine:]</Engine>
+									<VIN>[:$Macro.Argument.VIN:]</VIN>
+									<SerialNo>[:$Macro.Argument.SerialNo:]</SerialNo>
+									<UnitNo>[:$Macro.Argument.UnitNo:]</UnitNo>
+									<Mileage>[:$Macro.Argument.Mileage:]</Mileage>
+									<EngineHrs>[:$Macro.Argument.EngineHrs:]</EngineHrs>
+									<FuelConsumed>[:$Macro.Argument.FuelConsumed:]</FuelConsumed>
+									<Address>[:$Macro.Argument.Address:]</Address>
+									<Location>
+									<Latitude>[:$Macro.Argument.Latitude:]</Latitude>
+									<Longitude>[:$Macro.Argument.Latitude:]</Longitude>
+									</Location>
+
+								</EquipmentModel>
+							</Create>
+						</then>
+					</if>
+				</Query>
+			</QueryString>
+		</executeQuery>
+	</Result>
+</Macro>

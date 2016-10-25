@@ -1,0 +1,33 @@
+<AddZone>
+  <ZoneName>
+    Zone-1
+  </ZoneName>
+  <RegionID>
+    KWM3U3WWAAAH6AABAGR45N2J
+  </RegionID>
+  <CropID>
+    12345
+  </CropID>
+</AddZone>
+<AddZone>
+  <ZoneName>
+    Zone-2
+  </ZoneName>
+  <RegionID>
+    KWM3U3WWAAAH6AABAGR45N2J
+  </RegionID>
+  <CropID>
+    12345
+  </CropID>
+</AddZone>
+<AddZone>
+  <ZoneName>
+    Zone-3
+  </ZoneName>
+  <RegionID>
+    KWM3U3WWAAAH6AABAGR45N2J
+  </RegionID>
+  <CropID>
+    12345
+  </CropID>
+</AddZone>

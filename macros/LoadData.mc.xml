@@ -1,0 +1,159 @@
+<Macro Name="LoadFromCSV">
+	<Argument>
+		<LocationName/>
+		<destModelName/>	
+	</Argument>
+	<Result>
+	    <NewLocalData>
+		    <LoadData>
+				<JavaScript>
+				    function parseCSV(str) {
+						var arr = [];
+						var quote = false;
+						for (var row = col = c = 0; c &lt; str.length; c++) {
+							var cc = str[c], nc = str[c+1];
+							arr[row] = arr[row] || [];
+							arr[row][col] = arr[row][col] || '';
+				
+							if (cc == '"' &amp;&amp; quote &amp;&amp; nc == '"') { arr[row][col] += cc; ++c;
+							continue; }
+							if (cc == '"') { quote = !quote; continue; }
+							if (cc == ',' &amp;&amp; !quote) { ++col; continue; }
+							if (cc == '\n' &amp;&amp; !quote) { ++row; col = 0; continue; }
+				
+							arr[row][col] += cc;
+						}
+						return arr;
+					}
+					var LOCATION = "[:$Macro.Argument.LocationName:]";
+					var modelName ="[:$Macro.Argument.DestModelName:]";
+					var str = sff.loadTxt(LOCATION + modelName + ".csv");
+					
+					sffLog.info("CSV Content length is : " + str.length);
+					sffLog.info("CSV Model is : " + modelName);
+					var csvRows = parseCSV(str);
+					var loadContent = ListMap.static.newInstance();
+                    switch(modelName) {
+						case 'Zone':
+							for (var row=1; row &lt; csvRows.length; row++) {
+								sffLog.info("Row :" + row + " " + csvRows[row]);
+								var svi = loadContent.instanceAdd("AddZone");
+								svi.put("ZoneName", csvRows[row][0]); 
+								<!-- svi.put("UpperLeftLat", csvRows[row][1]); 
+								svi.put("UpperLeftLon", csvRows[row][2]); 
+								svi.put("LowerRightLat", csvRows[row][3]); 
+								svi.put("LowerRightLon", csvRows[row][4]); --> 
+								svi.put("RegionID", csvRows[row][1]); 
+								svi.put("CropID", csvRows[row][2]); 
+							}
+							break;
+						case 'MCUModel':
+							for (var row=1; row &lt; csvRows.length; row++) {
+								sffLog.info("Row :" + row + " " + csvRows[row]);
+								var hasMetadata = csvRows[row][3];
+								if (hasMetadata == 'true' || hasMetadata == 'TRUE'){
+									var svi = loadContent.instanceAdd("AddLoraMCU");
+									svi.put("MCUName", csvRows[row][0]); 
+									svi.put("Latitude", csvRows[row][1]); 
+									svi.put("Longitude", csvRows[row][2]); 
+									svi.put("HasMetadata", csvRows[row][3]); 
+									svi.put("Label", csvRows[row][6]); 
+
+									var sensorArr = svi.instanceGet("Sensors");
+									var sensor = sensorArr.instanceGet("Sensor");
+									sensor.put("SensorID", csvRows[row][4]);
+									sensor.put("SensorType", csvRows[row][5]);
+								}
+								else{
+									var svi = loadContent.instanceAdd("AddMCU");
+									svi.put("Name", csvRows[row][0]);
+									svi.put("Latitude", csvRows[row][1]);
+									svi.put("Longitude", csvRows[row][2]);
+									svi.put("HasMetadata", false);	
+									svi.put("Label", csvRows[row][6]);	
+								}
+							}
+							break;
+						case 'Region':
+							for (var row=1; row &lt; csvRows.length; row++) {
+								sffLog.info("Row :" + row + " " + csvRows[row]);
+								var svi = loadContent.instanceAdd("AddRegion");
+								svi.put("Name", csvRows[row][0]);
+								svi.put("Description", csvRows[row][1]);
+								svi.put("UpperLeftLat", csvRows[row][2]); 
+								svi.put("UpperLeftLon", csvRows[row][3]); 
+								svi.put("LowerRightLat", csvRows[row][4]); 
+								svi.put("LowerRightLon", csvRows[row][5]);
+								svi.put("ManagerName", csvRows[row][6]);
+								svi.put("OwnerName", csvRows[row][7]);
+							}
+							break;
+							
+							case 'CropModel':
+							for (var row=1; row &lt; csvRows.length; row++) {
+								sffLog.info("Row :" + row + " " + csvRows[row]);
+								var svi = loadContent.instanceAdd("AddCrop");
+								svi.put("CropID", csvRows[row][0]);
+								svi.put("CropName", csvRows[row][1]);
+								svi.put("CropType", csvRows[row][2]); 
+								
+							}
+							break;
+							
+							
+							case 'CropStagesModel':
+							for (var row=1; row &lt; csvRows.length; row++) {
+								sffLog.info("Row :" + row + " " + csvRows[row]);
+								var svi = loadContent.instanceAdd("AddCropStages");
+								svi.put("CropStagesID", csvRows[row][0]);
+								svi.put("CropID", csvRows[row][1]);
+								svi.put("CropStage", csvRows[row][2]); 
+								svi.put("StageDescription", csvRows[row][3]); 
+								svi.put("StageDuration", csvRows[row][4]); 
+								
+							}
+							break;
+							
+							case 'EquipmentModel':
+							for (var row=1; row &lt; csvRows.length; row++) {
+								sffLog.info("Row :" + row + " " + csvRows[row]);
+								var svi = loadContent.instanceAdd("AddEquipment");
+								svi.put("EquipmentID", csvRows[row][0]);
+								svi.put("Type", csvRows[row][1]);
+								svi.put("Make", csvRows[row][2]); 
+								svi.put("Year", csvRows[row][3]); 
+								svi.put("Model", csvRows[row][4]); 
+								svi.put("Engine", csvRows[row][5]); 
+								svi.put("VIN", csvRows[row][6]); 
+								svi.put("SerialNo", csvRows[row][7]); 
+								svi.put("UnitNo", csvRows[row][8]); 
+								svi.put("Mileage", csvRows[row][9]); 
+								svi.put("EngineHrs", csvRows[row][10]); 
+								svi.put("FuelConsumed", csvRows[row][11]); 
+								svi.put("Address", csvRows[row][12]); 
+								svi.put("Latitude", csvRows[row][13]); 
+								svi.put("Longitude", csvRows[row][14]); 
+								
+							}
+							break;
+							
+							case 'Polygon':
+							sffLog.info("Row length:" +csvRows.length);
+							for (var row=1; row &lt; csvRows.length; row++) {
+								sffLog.info("Row :" + row + " " + csvRows[row]);
+								var svi = loadContent.instanceAdd("AddPolygon");
+								svi.put("Order", csvRows[row][0]); 
+								svi.put("ZoneName", csvRows[row][1]); 
+								svi.put("GeoPointLat", csvRows[row][2]); 
+								svi.put("GeoPointLon", csvRows[row][3]); 
+							}
+							break;
+					} 
+					sffLog.info(loadContent);
+					loadContent;
+				</JavaScript>
+			</LoadData>
+		</NewLocalData>
+		<Include>NewLocalData.LoadData</Include>
+	</Result>
+</Macro>

@@ -1,0 +1,28 @@
+<Macro name="GetZoneNameFromID">
+	<Argument>
+		<ZoneID />
+	</Argument>
+		
+	<Result>
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Find format="current,version">
+						<ZoneInfo>
+							<ID>[:$Macro.Argument.ZoneID:]</ID>
+						</ZoneInfo>
+					</Find>
+				</Query>
+			</QueryString>
+		</executeQuery>
+		<SetProcessData>
+			<Key>ZoneName</Key>
+			<Value>[:$Response.Message.Value.Find.Result.ZoneInfo.ZoneName.Value:]</Value>
+		</SetProcessData>
+		<DelResponseData key="Message.Value.Find"/>
+		<SetResponseData>
+			<Key>Message.Value.Result.ZoneName</Key>
+			<Value>[:$ProcessData.ZoneName:]</Value>
+		</SetResponseData>
+	</Result>
+</Macro>

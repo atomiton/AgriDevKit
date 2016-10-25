@@ -1,0 +1,36 @@
+<Macro name="DeleteSensor">
+	<Argument>
+		<String name="MCUName" />
+		<String name="SensorID" />
+	</Argument>
+	<Result>
+		<executeQuery>
+			<QueryString>
+				<Find>
+					<LoraMcuMapping>
+						<MCUName eq="[:$Macro.Argument.MCUName:]"/>
+						<SensorID eq="[:$Macro.Argument.SensorID:]"/>
+					</LoraMcuMapping>
+				</Find>
+				<DeleteAll>
+					<SensorModel>
+						<MCUName eq="[:$Macro.Argument.MCUName:]"/>
+						<SensorType eq="[:$Response.Message.Value.Find.Result.LoraMcuMapping.SensorType:]" />
+					</SensorModel>
+				</DeleteAll>
+				<DeleteAll>
+					<SensorHistoryModel>
+						<MCUName eq="[:$Macro.Argument.MCUName:]"/>
+						<SensorType eq="[:$Response.Message.Value.Find.Result.LoraMcuMapping.SensorType:]" />
+					</SensorHistoryModel>
+				</DeleteAll>
+				<DeleteAll>
+					<LoraMcuMapping>
+						<MCUName eq="[:$Macro.Argument.MCUName:]"/>
+						<SensorID eq="[:$Macro.Argument.SensorID:]"/>
+					</LoraMcuMapping>
+				</DeleteAll>
+			</QueryString>
+		</executeQuery>
+	</Result>
+</Macro>

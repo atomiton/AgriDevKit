@@ -1,0 +1,40 @@
+<ThingFacet Name="LoraHttpHandlerFacet">
+    <String name="startSensorsSubscription" KnownBy="LoraSubscribeMCU" update="auto"/>
+ <String name="MCUName"/>
+    <Action name="LoraSubscribeMCU">
+        <Workflow Limit="1" Live="1" Timeout="-1">
+            <Task name="Main">
+                <Event name="Argument" as="ActionArgument" />
+                <Invoke name="ReadValue" waitFor="Argument">
+                 <JavaScript>
+				 function getRandomInt(min, max) {
+				   return Math.random() * (max - min) + min;
+				  }
+                  var res = '&lt;Message&gt;&lt;Value&gt;{"AgriRequest": {"timestamp": "2016-06-03T04:48:06Z","tmst": "3349002476","eui": "00:80:00:00:00:00:ae:b0","seqn": "10","_msgid": "83aa62cc.7c55a","sensorValues": [{"id": 1,"value": '+getRandomInt(40,50)+'},{"id": 2,"value": '+getRandomInt(70,80)+'}]}}&lt;/Value&gt;&lt;/Message&gt;';
+
+                  res;
+                 </JavaScript>
+     
+            </Invoke>
+                <Log message="Data1: [:Invoke.ReadValue.Message.Value:]" />
+            <Invoke name="readData">
+             <FacetScript>
+                <LoraMessageInterceptor>
+                    <Message><include>Invoke.ReadValue.Message.Value</include></Message>
+                </LoraMessageInterceptor> 
+             </FacetScript>
+            </Invoke>
+    
+    <Invoke name="delay" delay="PT5S" />
+    
+                <Output name="Result" as="ActionResult">
+                    <Value>
+                        <startSensorsSubscription>
+       [%:Event.Argument.startSubscription.Value:%]
+                        </startSensorsSubscription>
+                    </Value>
+                </Output>
+            </Task>
+        </Workflow>
+    </Action>
+</ThingFacet>

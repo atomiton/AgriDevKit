@@ -1,0 +1,329 @@
+<Macro name="UpdateObservationsInIntegra">
+	<Argument />
+	
+	<Result>
+		<ScheduleJob>
+			<Name>PushUpdatesToIntegra</Name>
+			<ScheduleInterval>10sec</ScheduleInterval>
+			<ActionCode>
+				<executeQuery>
+					<QueryString>
+						<Find format="all">
+							<ZoneInfo>
+								<ID ne="" />
+							</ZoneInfo>
+						</Find>
+					</QueryString>
+				</executeQuery>
+				<For each="Item" in="Find.Result.ZoneInfo" using="$ProcessData">
+					<if condition="/[:$ProcessData.Item.SolarRadiation.Value:] ne -1.0000000000">
+						<Log message="Pushing radiation Values" />
+						
+						 <JavaScript>
+							function formattedDate(dateIn) {
+							sffLog.info("Input Date::" + dateIn);
+							var date = parseInt(dateIn);
+							var d = new Date(date);
+								dformat = [(d.getMonth()+1).padLeft(),
+										   d.getDate().padLeft(),
+										   d.getFullYear().toString().substr(2,2)].join('-') +' ' +
+										  [d.getHours().padLeft(),
+										   d.getMinutes().padLeft(),
+										   d.getSeconds().padLeft()].join(':');
+									sffLog.info("dformat: " + dformat);
+									return dformat;
+							}
+
+							Number.prototype.padLeft = function(base,chr){
+								var  len = (String(base || 10).length - String(this).length)+1;
+								return len > 0? new Array(len).join(chr || '0')+this : this;
+							}
+							
+							var value = "[:$ProcessData.Item.SolarRadiation.Value:]";
+							var zoneName = "[:$ProcessData.Item.ZoneName.Value:]";
+							var sensorName = "SolarRadiation";
+							var sensorDataType = "double";
+							var sensorUnit = "w/msq";
+							var sid ="[:$ProcessData.Item.SolarRadiation.Timestamp:]";
+							var time = formattedDate("[:$ProcessData.Item.SolarRadiation.Timestamp:]");
+							
+							var data = "{\"observation\":{\"sensor\":\""+ zoneName + sensorName+"\",\"phenomenonTime\":\""+time+"\",";
+							data = data + "\"feature\":\""+zoneName+"\",\"output\":[{\"unit\":\""+sensorUnit+"\",\"value\":\""+value+"\",\"property\":\""+sensorName+"\",\"type\":\""+sensorDataType+"\"}]";
+							data = data + ",\"query_id\":\""+ sid + sensorName +"\",\"resultTime\":\""+time+"\",";
+							data = data + "\"geometry\":{\"type\":\"Point\",\"coordinates\":[28.683442,77.895802]}},";
+							data = data + "\"request\":\"InsertObservation\",\"service\":\"SOS\",\"offering\":\"off-"+zoneName+sensorName+"\",\"version\":\"2.0.0\"}";
+							
+							var endodedData = encodeURIComponent(data);
+							sffLog.info("Data: " + data);
+							sffContext.setLocalData("endodedDataSen","jsonData=" +endodedData + "&amp;key=dGNzLUludGVHcmEtRGlnaXRhbCBGYXJtaW5nLUt3aWskZW5zZS12MQ==");
+							//sffContext.setLocalData("endodedDataSen","jsonData=" +endodedData);
+						 </JavaScript>
+						<Log message="Pushing new sensor values" />
+						<Log message="Pushed URL: http://integra.tcsmkrishi.com/KwikSense/insertObservation?[:$LocalData.endodedDataSen:]" />
+						<DoRequest target="[:RuntimeParams.WdlFacetIDName:]">
+							  <Process>
+								<Message>
+								  <Value>
+									<Workflow name="PushNewZone">
+									  <Task name="PushNewZoneTask">
+										<Invoke name="PushNewZoneInvoke" post="http://integra.tcsmkrishi.com/KwikSense/insertObservation">
+											<Message type="application/x-www-form-urlencoded">
+												<Value>
+													[:$LocalData.endodedDataSen:]
+												</Value>
+											</Message>
+										</Invoke>
+										<Log message="RRREsponse: [:Invoke.PushNewZoneInvoke.Message.Value:]" />
+									  </Task>
+									 </Workflow>
+								  </Value>
+								</Message>
+							   </Process>
+							 </DoRequest>
+					</if>
+					<if condition="/[:$ProcessData.Item.AirTemperature.Value:] ne -1.0000000000">
+						<Log message="Pushing radiation Values" />
+						
+						 <JavaScript>
+							function formattedDate(dateIn) {
+							var date = parseInt(dateIn);
+							var d = new Date(date);
+								dformat = [(d.getMonth()+1).padLeft(),
+										   d.getDate().padLeft(),
+										   d.getFullYear().toString().substr(2,2)].join('-') +' ' +
+										  [d.getHours().padLeft(),
+										   d.getMinutes().padLeft(),
+										   d.getSeconds().padLeft()].join(':');
+									sffLog.info("dformat: " + dformat);
+								return dformat;
+							}
+							
+							var value = "[:$ProcessData.Item.AirTemperature.Value:]";
+							var zoneName = "[:$ProcessData.Item.ZoneName.Value:]";
+							var sensorName = "AirTemperature";
+							var sensorDataType = "double";
+							var sensorUnit = "C";
+							var sid ="[:$ProcessData.Item.AirTemperature.Timestamp:]";
+							var time =formattedDate("[:$ProcessData.Item.AirTemperature.Timestamp:]");
+							
+							var data = "{\"observation\":{\"sensor\":\""+ zoneName + sensorName+"\",\"phenomenonTime\":\""+time+"\",";
+							data = data + "\"feature\":\""+zoneName+"\",\"output\":[{\"unit\":\""+sensorUnit+"\",\"value\":\""+value+"\",\"property\":\""+sensorName+"\",\"type\":\""+sensorDataType+"\"}]";
+							data = data + ",\"query_id\":\""+ sid + sensorName +"\",\"resultTime\":\""+time+"\",";
+							data = data + "\"geometry\":{\"type\":\"Point\",\"coordinates\":[28.683442,77.895802]}},";
+							data = data + "\"request\":\"InsertObservation\",\"service\":\"SOS\",\"offering\":\"off-"+zoneName+sensorName+"\",\"version\":\"2.0.0\"}";
+							
+							var endodedData = encodeURIComponent(data);
+							sffLog.info("Data: " + data);
+							sffContext.setLocalData("endodedDataSen","jsonData=" +endodedData + "&amp;key=dGNzLUludGVHcmEtRGlnaXRhbCBGYXJtaW5nLUt3aWskZW5zZS12MQ==");
+							//sffContext.setLocalData("endodedDataSen","jsonData=" +endodedData);
+						 </JavaScript>
+						<Log message="Pushing new sensor values" />
+						<Log message="Pushed URL: http://integra.tcsmkrishi.com/KwikSense/insertObservation?[:$LocalData.endodedDataSen:]" />
+						<DoRequest target="[:RuntimeParams.WdlFacetIDName:]">
+							  <Process>
+								<Message>
+								  <Value>
+									<Workflow name="PushNewZone">
+									  <Task name="PushNewZoneTask">
+										<Invoke name="PushNewZoneInvoke" post="http://integra.tcsmkrishi.com/KwikSense/insertObservation">
+											<Message type="application/x-www-form-urlencoded">
+												<Value>
+													[:$LocalData.endodedDataSen:]
+												</Value>
+											</Message>
+										</Invoke>
+										<Log message="RRREsponse: [:Invoke.PushNewZoneInvoke.Message.Value:]" />
+									  </Task>
+									 </Workflow>
+								  </Value>
+								</Message>
+							   </Process>
+							 </DoRequest>
+					</if>
+					<if condition="/[:$ProcessData.Item.AirHumidity.Value:] ne -1.0000000000">
+						<Log message="Pushing radiation Values" />
+						
+						 <JavaScript>
+							function formattedDate(dateIn) {
+							var date = parseInt(dateIn);
+							var d = new Date(date);
+								dformat = [(d.getMonth()+1).padLeft(),
+										   d.getDate().padLeft(),
+										   d.getFullYear().toString().substr(2,2)].join('-') +' ' +
+										  [d.getHours().padLeft(),
+										   d.getMinutes().padLeft(),
+										   d.getSeconds().padLeft()].join(':');
+									sffLog.info("dformat: " + dformat);
+								return dformat;
+							}
+
+							Number.prototype.padLeft = function(base,chr){
+								var  len = (String(base || 10).length - String(this).length)+1;
+								return len > 0? new Array(len).join(chr || '0')+this : this;
+							}
+						 
+							var value = "[:$ProcessData.Item.AirHumidity.Value:]";
+							var zoneName = "[:$ProcessData.Item.ZoneName.Value:]";
+							var sensorName = "AirHumidity";
+							var sensorDataType = "double";
+							var sensorUnit = "%";
+							var sid ="[:$ProcessData.Item.AirHumidity.Timestamp:]";
+							var time = formattedDate("[:$ProcessData.Item.AirHumidity.Timestamp:]");
+							
+							var data = "{\"observation\":{\"sensor\":\""+ zoneName + sensorName+"\",\"phenomenonTime\":\""+time+"\",";
+							data = data + "\"feature\":\""+zoneName+"\",\"output\":[{\"unit\":\""+sensorUnit+"\",\"value\":\""+value+"\",\"property\":\""+sensorName+"\",\"type\":\""+sensorDataType+"\"}]";
+							data = data + ",\"query_id\":\""+ sid + sensorName +"\",\"resultTime\":\""+time+"\",";
+							data = data + "\"geometry\":{\"type\":\"Point\",\"coordinates\":[28.683442,77.895802]}},";
+							data = data + "\"request\":\"InsertObservation\",\"service\":\"SOS\",\"offering\":\"off-"+zoneName+sensorName+"\",\"version\":\"2.0.0\"}";
+							
+							var endodedData = encodeURIComponent(data);
+							sffLog.info("Data: " + data);
+							sffContext.setLocalData("endodedDataSen","jsonData=" +endodedData + "&amp;key=dGNzLUludGVHcmEtRGlnaXRhbCBGYXJtaW5nLUt3aWskZW5zZS12MQ==");
+							//sffContext.setLocalData("endodedDataSen","jsonData=" +endodedData);
+						 </JavaScript>
+						<Log message="Pushing new sensor values" />
+						<Log message="Pushed URL: http://integra.tcsmkrishi.com/KwikSense/insertObservation?[:$LocalData.endodedDataSen:]" />
+						<DoRequest target="[:RuntimeParams.WdlFacetIDName:]">
+							  <Process>
+								<Message>
+								  <Value>
+									<Workflow name="PushNewZone">
+									  <Task name="PushNewZoneTask">
+										<Invoke name="PushNewZoneInvoke" post="http://integra.tcsmkrishi.com/KwikSense/insertObservation">
+											<Message type="application/x-www-form-urlencoded">
+												<Value>
+													[:$LocalData.endodedDataSen:]
+												</Value>
+											</Message>
+										</Invoke>
+										<Log message="RRREsponse: [:Invoke.PushNewZoneInvoke.Message.Value:]" />
+									  </Task>
+									 </Workflow>
+								  </Value>
+								</Message>
+							   </Process>
+							 </DoRequest>
+					</if>
+					<if condition="/[:$ProcessData.Item.LeafWetness.Value:] ne -1.0000000000">
+						<Log message="Pushing radiation Values" />
+						
+						 <JavaScript>
+							function formattedDate(dateIn) {
+							var date = parseInt(dateIn);
+							var d = new Date(date);
+								dformat = [(d.getMonth()+1).padLeft(),
+										   d.getDate().padLeft(),
+										   d.getFullYear().toString().substr(2,2)].join('-') +' ' +
+										  [d.getHours().padLeft(),
+										   d.getMinutes().padLeft(),
+										   d.getSeconds().padLeft()].join(':');
+									sffLog.info("dformat: " + dformat);
+								return dformat;
+							}
+							
+							var value = "[:$ProcessData.Item.LeafWetness.Value:]";
+							var zoneName = "[:$ProcessData.Item.ZoneName.Value:]";
+							var sensorName = "LeafWetness";
+							var sensorDataType = "double";
+							var sensorUnit = "%";
+							var sid ="[:$ProcessData.Item.LeafWetness.Timestamp:]";
+							var time =formattedDate("[:$ProcessData.Item.LeafWetness.Timestamp:]");
+							
+							var data = "{\"observation\":{\"sensor\":\""+ zoneName + sensorName+"\",\"phenomenonTime\":\""+time+"\",";
+							data = data + "\"feature\":\""+zoneName+"\",\"output\":[{\"unit\":\""+sensorUnit+"\",\"value\":\""+value+"\",\"property\":\""+sensorName+"\",\"type\":\""+sensorDataType+"\"}]";
+							data = data + ",\"query_id\":\""+ sid + sensorName +"\",\"resultTime\":\""+time+"\",";
+							data = data + "\"geometry\":{\"type\":\"Point\",\"coordinates\":[28.683442,77.895802]}},";
+							data = data + "\"request\":\"InsertObservation\",\"service\":\"SOS\",\"offering\":\"off-"+zoneName+sensorName+"\",\"version\":\"2.0.0\"}";
+							
+							var endodedData = encodeURIComponent(data);
+							sffLog.info("Data: " + data);
+							sffContext.setLocalData("endodedDataSen","jsonData=" +endodedData + "&amp;key=dGNzLUludGVHcmEtRGlnaXRhbCBGYXJtaW5nLUt3aWskZW5zZS12MQ==");
+							//sffContext.setLocalData("endodedDataSen","jsonData=" +endodedData);
+						 </JavaScript>
+						<Log message="Pushing new sensor values" />
+						<Log message="Pushed URL: http://integra.tcsmkrishi.com/KwikSense/insertObservation?[:$LocalData.endodedDataSen:]" />
+						<DoRequest target="[:RuntimeParams.WdlFacetIDName:]">
+							  <Process>
+								<Message>
+								  <Value>
+									<Workflow name="PushNewZone">
+									  <Task name="PushNewZoneTask">
+										<Invoke name="PushNewZoneInvoke" post="http://integra.tcsmkrishi.com/KwikSense/insertObservation">
+											<Message type="application/x-www-form-urlencoded">
+												<Value>
+													[:$LocalData.endodedDataSen:]
+												</Value>
+											</Message>
+										</Invoke>
+										<Log message="RRREsponse: [:Invoke.PushNewZoneInvoke.Message.Value:]" />
+									  </Task>
+									 </Workflow>
+								  </Value>
+								</Message>
+							   </Process>
+							 </DoRequest>
+					</if>
+					<if condition="/[:$ProcessData.Item.AtmosphericPressure.Value:] ne -1.0000000000">
+						<Log message="Pushing radiation Values" />
+						
+						 <JavaScript>
+							function formattedDate(dateIn) {
+								var date = parseInt(dateIn);
+								var d = new Date(date);
+								dformat = [(d.getMonth()+1).padLeft(),
+										   d.getDate().padLeft(),
+										   d.getFullYear().toString().substr(2,2)].join('-') +' ' +
+										  [d.getHours().padLeft(),
+										   d.getMinutes().padLeft(),
+										   d.getSeconds().padLeft()].join(':');
+									sffLog.info("dformat: " + dformat);
+								return dformat;
+							}
+							
+							var value = "[:$ProcessData.Item.AtmosphericPressure.Value:]";
+							var zoneName = "[:$ProcessData.Item.ZoneName.Value:]";
+							var sensorName = "AtmosphericPressure";
+							var sensorDataType = "double";
+							var sensorUnit = "mmHg";
+							var sid ="[:$ProcessData.Item.AtmosphericPressure.Timestamp:]";
+							var time =formattedDate("[:$ProcessData.Item.AtmosphericPressure.Timestamp:]");
+							
+							var data = "{\"observation\":{\"sensor\":\""+ zoneName + sensorName+"\",\"phenomenonTime\":\""+time+"",";
+							data = data + "\"feature\":\""+zoneName+"\",\"output\":[{\"unit\":\""+sensorUnit+"\",\"value\":\""+value+"\",\"property\":\""+sensorName+"\",\"type\":\""+sensorDataType+"\"}]";
+							data = data + ",\"query_id\":\""+ sid + sensorName +"\",\"resultTime\":\""+time+"\",";
+							data = data + "\"geometry\":{\"type\":\"Point\",\"coordinates\":[28.683442,77.895802]}},";
+							data = data + "\"request\":\"InsertObservation\",\"service\":\"SOS\",\"offering\":\"off-"+zoneName+sensorName+"\",\"version\":\"2.0.0\"}";
+							
+							var endodedData = encodeURIComponent(data);
+							sffLog.info("Data: " + data);
+							sffContext.setLocalData("endodedDataSen","jsonData=" +endodedData + "&amp;key=dGNzLUludGVHcmEtRGlnaXRhbCBGYXJtaW5nLUt3aWskZW5zZS12MQ==");
+							//sffContext.setLocalData("endodedDataSen","jsonData=" +endodedData);
+						 </JavaScript>
+						<Log message="Pushing new sensor values" />
+						<Log message="Pushed URL: http://integra.tcsmkrishi.com/KwikSense/insertObservation?[:$LocalData.endodedDataSen:]" />
+						<DoRequest target="[:RuntimeParams.WdlFacetIDName:]">
+							  <Process>
+								<Message>
+								  <Value>
+									<Workflow name="PushNewZone">
+									  <Task name="PushNewZoneTask">
+										<Invoke name="PushNewZoneInvoke" post="http://integra.tcsmkrishi.com/KwikSense/insertObservation">
+											<Message type="application/x-www-form-urlencoded">
+												<Value>
+													[:$LocalData.endodedDataSen:]
+												</Value>
+											</Message>
+										</Invoke>
+										<Log message="RRREsponse: [:Invoke.PushNewZoneInvoke.Message.Value:]" />
+									  </Task>
+									 </Workflow>
+								  </Value>
+								</Message>
+							   </Process>
+							 </DoRequest>
+					</if>
+				</For>
+			</ActionCode>
+		</ScheduleJob>
+	</Result>
+</Macro>

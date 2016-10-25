@@ -1,0 +1,47 @@
+<Macro Name="CreateSystemConfigCloud">
+	<Argument/>
+	<Result>
+		<Log Message="Saving System Config Info for Cloud..." />
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Create>
+						<SystemConfig>
+							<Key>TIME_INV_ZONE_AGG</Key>
+							<Value>24hour</Value>
+						</SystemConfig>
+					</Create> 
+
+					<Create>
+						<SystemConfig>
+							<Key>TIME_INV_ZONE_AGG_INFO</Key>
+							<Value>24hour</Value>
+						</SystemConfig>
+					</Create> 
+
+					<Create>
+						<SystemConfig>
+							<Key>DATA_LIVE_TIME_SCHEDULER</Key>
+							<Value>1min</Value>
+						</SystemConfig>
+					</Create> 
+
+					<Create>
+						<SystemConfig>
+							<Key>DATA_LIVE_TIME</Key>
+							<Value>5</Value>
+						</SystemConfig>
+					</Create>
+
+					<Create>
+						<SystemConfig>
+							<Key>REGION_DATA_LIVE_TIME</Key>
+							<Value>6</Value>
+						</SystemConfig>
+					</Create> 
+
+				</Query>
+			</QueryString>
+		</executeQuery>
+	</Result>
+</Macro>

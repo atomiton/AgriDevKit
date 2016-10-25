@@ -1,0 +1,9 @@
+<Query>
+<Find>
+  <ZoneAggInfoHistoryModel>
+    <ID ne="" />
+  </ZoneAggInfoHistoryModel>
+</Find>
+<SetResponseData key="Message.Value.Count" value="[:$Response.Message.Value.Find/count(Result):]" />
+</Query>
+

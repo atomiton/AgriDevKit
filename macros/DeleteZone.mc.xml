@@ -1,0 +1,42 @@
+<Macro name="DeleteZone">
+	<Argument>
+		<String name="ZoneName" />
+	</Argument>
+	<Result>
+		<executeQuery>
+			<QueryString>
+				<DeleteAll>
+					<Zone>
+						<Name eq="[:$Macro.Argument.ZoneName:]" />
+					</Zone>
+				</DeleteAll>
+
+				<DeleteAll>
+					<Polygon>
+						<ZoneName eq="[:$Macro.Argument.ZoneName:]" />
+					</Polygon>
+				</DeleteAll>
+			</QueryString>
+		</executeQuery>
+		<GetCloudURL />
+		<SetLocalData Key="CLD_URL" Value="[:$Response.Message.Value.Result.URL:]"/>
+		<executeRemoteQuery>
+			<RemoteTQLEndPoint>[:$LocalData.CLD_URL:]</RemoteTQLEndPoint>
+			    <QueryString>
+					<Query>
+						<DeleteAll>
+							<Zone>
+								<Name eq="[:$Macro.Argument.ZoneName:]" />
+							</Zone>
+						</DeleteAll>
+
+						<DeleteAll>
+							<Polygon>
+								<ZoneName eq="[:$Macro.Argument.ZoneName:]" />
+							</Polygon>
+						</DeleteAll>
+					</Query>
+		    </QueryString>
+		</executeRemoteQuery>
+	</Result>
+</Macro>

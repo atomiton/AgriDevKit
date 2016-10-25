@@ -1,0 +1,83 @@
+<Macro name="ResetGateway">
+	<Argument/>
+	<Result>
+		<executeQuery>
+			<QueryString>
+
+				<deleteAll>
+					<HttpHandler>
+						<name ne="" />
+					</HttpHandler>
+				</deleteAll>
+
+				<deleteAll>
+					<PerifHandler>
+						<ID ne="" />
+					</PerifHandler>
+				</deleteAll>
+
+				<deleteAll>
+					<ZoneAggregateInfo>
+						<ID ne=""/>
+					</ZoneAggregateInfo>
+				</deleteAll>
+
+				<deleteAll>
+					<ZoneAggregate>
+						<ID ne=""/>
+					</ZoneAggregate>
+				</deleteAll>
+
+				<deleteAll>
+					<ZoneAggHistoryModel>
+						<ID ne=""/>
+					</ZoneAggHistoryModel>
+				</deleteAll>
+
+				<deleteAll>
+					<ZoneAggInfoHistoryModel>
+						<ID ne=""/>
+					</ZoneAggInfoHistoryModel>
+				</deleteAll>
+
+			</QueryString>
+		</executeQuery>
+		<Log message="**************** Initializing subscriptions ********************" />
+		
+		<subscribeMcuGridChange />
+		<!-- <subscribeMcuZoneChange /> -->
+		<SubscribeToSensor />
+		<!-- <SubscribeToSensorOnCreate /> -->
+		<SubscribeToSensorForZoneAggInfo />
+		
+		<SubscribeForAirTemperature/>
+		<SubscribeUpdatePolygon/>
+		<!-- <PushToIntegra /> -->
+		
+		<Log message="**************** Loading Master data ************************" />
+		<Log message="**************** Loading Master data from: [:RuntimeParams.SpacesLocation:] ************************" />
+		<LoadSensorDataType />
+		
+		<CalculatePolygonAreaAll/>
+		
+		<DeleteScheduleJob>
+			<JobName>CheckMcuStatus</JobName>
+		</DeleteScheduleJob>
+		<DeleteScheduleJob>
+			<JobName>ZoneAggInfoHistory</JobName>
+		</DeleteScheduleJob>
+		<DeleteScheduleJob>
+			<JobName>ZoneAggHistory</JobName>
+		</DeleteScheduleJob>
+		<DeleteScheduleJob>
+			<JobName>SetTimeInterval</JobName>
+		</DeleteScheduleJob>
+		<DeleteScheduleJob>
+			<JobName>SetTimeIntervalForZoneAgg</JobName>
+		</DeleteScheduleJob>
+		<DeleteScheduleJob>
+			<JobName>SetTimeIntervalForZoneAggInfo</JobName>
+		</DeleteScheduleJob>
+		<CheckMcuStatus />
+	</Result>
+</Macro>

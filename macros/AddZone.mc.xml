@@ -1,0 +1,46 @@
+<Macro Name="AddZone">
+	<Argument>
+		<String name="ZoneName" />
+		<String name="RegionID"/>
+		<String name="CropID"/>
+	</Argument>
+	<Result>
+		<Log Message="Saving Zone Info..." />
+		<executeQuery>
+			<QueryString>
+				<Query>
+					<Find format="current, version">
+						<Zone>
+							<Name>[:$Macro.Argument.ZoneName:]</Name>
+						</Zone>
+					</Find>
+					<if condition="/[:$Response.Message.Value.Find/count(Result):] eq 0">
+						<then>
+							<Create>
+								<Zone>
+									<Name>[:$Macro.Argument.ZoneName:]</Name>
+									<RegionID>[:$Macro.Argument.RegionID:]</RegionID>
+									<Height>0</Height>
+									<Width>0</Width>
+									<Size>0</Size>
+									<CropID>[:$Macro.Argument.CropID:]</CropID>
+									<Label>[:$Macro.Argument.ZoneName:]</Label>
+								</Zone>
+							</Create>
+						</then>
+					</if>
+				</Query>
+			</QueryString>
+		</executeQuery>
+		
+		<!-- <GenerateGrid>
+			<ZoneName>[:$Macro.Argument.ZoneName:]</ZoneName>
+			<UpperLat>[:$Macro.Argument.UpperLeftLat:]</UpperLat>
+			<UpperLon>[:$Macro.Argument.UpperLeftLon:]</UpperLon>
+			<LowerLat>[:$Macro.Argument.LowerRightLat:]</LowerLat>
+			<LowerLon>[:$Macro.Argument.LowerRightLon:]</LowerLon>
+			<Rows>3</Rows>
+			<Cols>5</Cols>
+		</GenerateGrid> -->
+	</Result>
+</Macro>
